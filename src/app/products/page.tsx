@@ -52,8 +52,7 @@ function ProductsContent() {
       const data = await res.json();
       if (data.success) setProducts(data.data);
     } catch (err) {
-      console.error(err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };

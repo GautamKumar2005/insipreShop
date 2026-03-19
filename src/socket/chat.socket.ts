@@ -7,7 +7,6 @@ export default function chatSocket(io: Server) {
     // Join chat room
     socket.on("joinRoom", (roomId: string) => {
       socket.join(roomId);
-      console.log(`User joined room: ${roomId}`);
     });
 
     // Handle new message

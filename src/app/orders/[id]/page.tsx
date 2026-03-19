@@ -58,8 +58,7 @@ export default function OrderDetailsPage() {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.error("No token found");
-        return;
+                return;
       }
 
       const res = await fetch(`/api/orders/${id}`, {
@@ -72,11 +71,9 @@ export default function OrderDetailsPage() {
       if (data.success) {
         setOrder(data.data);
       } else {
-        console.error("Failed to fetch order:", data.message);
-      }
+              }
     } catch (err) {
-      console.error(err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -106,11 +103,9 @@ export default function OrderDetailsPage() {
       if (data.success) {
         router.push(`/chat/${data.data._id}`);
       } else {
-        console.error("Chat creation failed:", data.message);
-      }
+              }
     } catch (err) {
-      console.error("Chat error:", err);
-    }
+          }
   };
 
   if (loading) return <p className="p-4">Loading order...</p>;

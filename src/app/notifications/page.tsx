@@ -29,8 +29,7 @@ export default function NotificationsPage() {
       const data = await res.json();
       if (data.success) setNotifications(data.data);
     } catch (err) {
-      console.error("Failed to fetch notifications", err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -46,8 +45,7 @@ export default function NotificationsPage() {
       const data = await res.json();
       if (data.success) fetchNotifications(); // refresh list
     } catch (err) {
-      console.error("Failed to mark notification as read", err);
-    }
+          }
   };
 
   useEffect(() => {

@@ -48,8 +48,7 @@ export default function BuySection({ productId }: { productId: string }) {
         alert(data.message || "Failed to add to cart");
       }
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong");
+            alert("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -105,8 +104,7 @@ export default function BuySection({ productId }: { productId: string }) {
         alert(data.message || "Failed to place order");
       }
     } catch (err) {
-      console.error(err);
-      alert("Something went wrong placing the order");
+            alert("Something went wrong placing the order");
     } finally {
       setLoading(false);
     }

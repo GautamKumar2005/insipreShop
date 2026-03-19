@@ -87,7 +87,6 @@ export async function GET(req: NextRequest) {
 
     return success(tasks);
   } catch (err: any) {
-    console.error("API Error /delivery/tasks:", err);
     return error(err.message || "Failed to fetch delivery tasks");
   }
 }

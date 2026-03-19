@@ -21,8 +21,7 @@ export default function DeliveryLocationPage() {
         body: JSON.stringify({ latitude: lat, longitude: lng }),
       });
     } catch {
-      console.error("Failed to send location");
-    }
+          }
   };
 
   const startTracking = () => {

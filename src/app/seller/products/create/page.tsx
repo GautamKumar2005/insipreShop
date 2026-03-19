@@ -98,8 +98,7 @@ export default function CreateProductPage() {
           // Proceed to dashboard regardless of upload success
           router.push("/seller/dashboard");
         } catch (uploadErr) {
-          console.error(uploadErr);
-          setError("Product created, but image upload failed.");
+                    setError("Product created, but image upload failed.");
         }
       };
 

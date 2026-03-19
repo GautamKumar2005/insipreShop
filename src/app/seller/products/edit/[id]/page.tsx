@@ -154,8 +154,7 @@ export default function EditProductPage({
           // Proceed to dashboard regardless of upload success
           router.push("/seller/dashboard");
         } catch (uploadErr) {
-          console.error(uploadErr);
-          setError("Product updated, but image upload failed.");
+                    setError("Product updated, but image upload failed.");
         }
       };
 

@@ -15,8 +15,6 @@ export const config = {
 
 const ioHandler = (req: NextApiRequest, res: any) => {
   if (!res.socket.server.io) {
-    console.log("*First use, starting socket.io");
-
     const httpServer: NetServer = res.socket.server;
     const io = new ServerIO(httpServer, {
       path: "/api/socket/io",
@@ -52,8 +50,6 @@ const ioHandler = (req: NextApiRequest, res: any) => {
       const userId = socket.data.user?.id;
       
       if (userId) {
-          console.log(`User connected: ${userId}`);
-          
           // Clear any pending offline timeout
           if (offlineTimeouts.has(userId)) {
               clearTimeout(offlineTimeouts.get(userId));
@@ -65,8 +61,6 @@ const ioHandler = (req: NextApiRequest, res: any) => {
           socket.broadcast.emit("user:online", { userId });
           
           socket.on("disconnect", async () => {
-             console.log(`User disconnected: ${userId}`);
-             
              // Debounce offline update
              const timeout = setTimeout(async () => {
                  await connectDB();

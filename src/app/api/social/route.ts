@@ -113,8 +113,7 @@ export async function GET(req: NextRequest) {
     return success(enrichedRows);
 
   } catch (err: any) {
-    console.error("SOCIAL GET ERROR:", err);
-    return error(err.message || "Failed to fetch social posts");
+        return error(err.message || "Failed to fetch social posts");
   }
 }
 
@@ -152,7 +151,6 @@ export async function POST(req: NextRequest) {
 
     return success(rows[0]);
   } catch (err: any) {
-    console.error("SOCIAL POST ERROR:", err);
-    return error(err.message || "Failed to create social post");
+        return error(err.message || "Failed to create social post");
   }
 }

@@ -62,8 +62,7 @@ export default function DeliveryDashboardPage() {
       const dataAssigned = await resAssigned.json();
       if (dataAssigned.success) setMyTasks(dataAssigned.data);
     } catch (error) {
-      console.error("Failed to fetch tasks", error);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -83,8 +82,7 @@ export default function DeliveryDashboardPage() {
         alert(data.message || "Failed to accept task");
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const updateStatus = async (
@@ -104,8 +102,7 @@ export default function DeliveryDashboardPage() {
         alert(data.message || "Failed to update status");
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const startChat = async (participantId: string, orderId: string) => {
@@ -119,11 +116,9 @@ export default function DeliveryDashboardPage() {
       if (data.success) {
         router.push(`/chat/${data.data._id}`);
       } else {
-        console.error("Chat error", data.message);
-      }
+              }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   if (authLoading || loading) return <div className="p-6">Loading...</div>;

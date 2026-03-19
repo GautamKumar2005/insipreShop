@@ -61,8 +61,7 @@ export async function PUT(
 
     return success(user);
   } catch (err: any) {
-    console.error("USER UPDATE ERROR:", err);
-    return error(err.message || "Failed to update user");
+        return error(err.message || "Failed to update user");
   }
 }
 

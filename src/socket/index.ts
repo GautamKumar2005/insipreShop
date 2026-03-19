@@ -32,7 +32,6 @@ export function initSocket(server: any) {
   notificationSocket(io);
   deliverySocket(io);
 
-  console.log("✅ Socket.io initialized");
   return io;
 }
 

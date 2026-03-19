@@ -31,8 +31,7 @@ export default function ChatPage() {
       const data = await res.json();
       if (data.success) setRooms(data.data);
     } catch (err) {
-      console.error("Failed to fetch chat rooms", err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };

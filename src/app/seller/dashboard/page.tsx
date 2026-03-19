@@ -66,11 +66,9 @@ export default function SellerDashboardPage() {
       if (data.success) {
         router.push(`/chat/${data.data._id}`);
       } else {
-        console.error("Chat error", data.message);
-      }
+              }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   if (loading) return <p className="p-4">Loading...</p>;

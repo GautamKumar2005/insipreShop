@@ -19,8 +19,7 @@ export function encryptMessage(text: string): string {
         // Prepend IV to the encrypted text so it can be used for decryption
         return iv.toString('hex') + ':' + encrypted;
     } catch (err) {
-        console.error("ENCRYPTION ERROR:", err);
-        return text; // Fallback to plain text if encryption fails
+                return text; // Fallback to plain text if encryption fails
     }
 }
 

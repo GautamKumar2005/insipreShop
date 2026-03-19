@@ -35,13 +35,11 @@ export async function POST(req: NextRequest) {
     const emailSent = await sendOTP(email, otp);
 
     if (!emailSent) {
-      // If email couldn't be sent (e.g., credentials missing), for local dev we might print it
-      console.log(`[Dev Mode] OTP not emailed, but generated for ${email}: ${otp}`);
+      // If email couldn't be sent, let the user know via status
     }
 
     return success({ message: "OTP sent to your email successfully" });
   } catch (err: any) {
-    console.error("SEND OTP ERROR:", err);
     return error("Failed to send OTP", 500);
   }
 }

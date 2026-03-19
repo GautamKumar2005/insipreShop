@@ -48,8 +48,7 @@ const SinglePostPage = () => {
           });
         }
       } catch (err) {
-        console.error(err);
-      } finally {
+              } finally {
         setLoading(false);
       }
     };

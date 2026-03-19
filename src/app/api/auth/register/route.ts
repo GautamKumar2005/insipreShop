@@ -8,10 +8,8 @@ import { generateToken } from "@/lib/jwt";
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
-    console.log("Register API hit");
 
     const body = await req.json();
-    console.log("REGISTER BODY =>", body);
 
     const {
       name,

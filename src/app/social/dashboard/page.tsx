@@ -43,8 +43,7 @@ const SocialDashboard = () => {
         setPosts(data.data);
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const fetchStats = async () => {
@@ -56,8 +55,7 @@ const SocialDashboard = () => {
         setStats(data.data);
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const fetchProfile = async () => {
@@ -73,8 +71,7 @@ const SocialDashboard = () => {
         });
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const [showFollowModal, setShowFollowModal] = useState<'followers' | 'following' | null>(null);
@@ -91,8 +88,7 @@ const SocialDashboard = () => {
         setFollowUsersList(data.data);
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   useEffect(() => {

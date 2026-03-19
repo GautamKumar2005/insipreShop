@@ -60,8 +60,7 @@ export default function InstantOrderPage() {
         alert(data.message);
       }
     } catch (err) {
-      console.error(err);
-      alert("Order failed");
+            alert("Order failed");
     } finally {
       setLoading(false);
     }

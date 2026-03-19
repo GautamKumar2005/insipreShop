@@ -55,7 +55,6 @@ export async function GET(req: NextRequest) {
     });
 
   } catch (err: any) {
-    console.error("API Error /auth/me:", err);
     return error(err.message || "Failed to fetch user");
   }
 }

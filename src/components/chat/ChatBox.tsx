@@ -87,8 +87,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, userId }) => {
         }
       }
     } catch (err) {
-      console.error("Failed to fetch messages", err);
-    }
+          }
   };
 
   // Initial fetch and Polling
@@ -213,8 +212,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ roomId, userId }) => {
         fetchMessages();
       }
     } catch (err) {
-      console.error("Failed to send message", err);
-    }
+          }
   };
 
   // Format Last Seen

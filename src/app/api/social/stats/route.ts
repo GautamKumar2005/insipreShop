@@ -22,7 +22,6 @@ export async function GET(req: NextRequest) {
       posts: parseInt(postsRes.rows[0].count)
     });
   } catch (err: any) {
-    console.error("STATS ERROR:", err);
-    return error(err.message || "Failed to fetch stats");
+        return error(err.message || "Failed to fetch stats");
   }
 }

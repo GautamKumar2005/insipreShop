@@ -20,7 +20,6 @@ export function useSocket(token: string | null) {
       try {
         await fetch("/api/socket/io");
       } catch (e) {
-        console.error("Failed to init socket server", e);
       }
       
       if (!isMounted) return;
@@ -33,15 +32,12 @@ export function useSocket(token: string | null) {
       });
 
       socketIo.on("connect", () => {
-        console.log("✅ Socket connected:", socketIo?.id);
       });
 
       socketIo.on("disconnect", (reason) => {
-        console.log("⚡ Socket disconnected:", reason);
       });
 
       socketIo.on("connect_error", (err: any) => {
-        console.error("Socket connect_error:", err.message);
       });
       
       if (isMounted) {

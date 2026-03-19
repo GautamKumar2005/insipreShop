@@ -49,8 +49,7 @@ export default function CartPage() {
         setCartItems(data.data.items || []);
       }
     } catch (err) {
-      console.error("Failed to fetch cart", err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -78,8 +77,7 @@ export default function CartPage() {
         body: JSON.stringify({ productId, quantity }),
       });
     } catch (err) {
-      console.error("Failed to update quantity", err);
-      fetchCart(); // Revert on fail
+            fetchCart(); // Revert on fail
     }
   };
 
@@ -93,8 +91,7 @@ export default function CartPage() {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
     } catch (err) {
-      console.error("Failed to remove item", err);
-      fetchCart();
+            fetchCart();
     }
   };
 
@@ -149,8 +146,7 @@ export default function CartPage() {
       setShowAddressModal(false);
       router.push("/orders");
     } catch (err) {
-      console.error(err);
-      alert("Failed to place order.");
+            alert("Failed to place order.");
     } finally {
       setProcessing(false);
     }

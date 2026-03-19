@@ -43,8 +43,7 @@ export default function ProductReviews({ productId }: { productId: string }) {
         setReviews(data.data);
       }
     } catch (err) {
-      console.error(err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };

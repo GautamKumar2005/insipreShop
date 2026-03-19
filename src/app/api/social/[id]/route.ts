@@ -49,8 +49,7 @@ export async function GET(req: NextRequest, segmentData: { params: Promise<{ id:
       } : null
     });
   } catch (err: any) {
-    console.error("GET POST ERROR:", err);
-    return error("Internal error", 500);
+        return error("Internal error", 500);
   }
 }
 
@@ -79,8 +78,7 @@ export async function PUT(req: NextRequest, segmentData: { params: Promise<{ id:
 
     return success(updateRes.rows[0]);
   } catch (err: any) {
-    console.error("PUT ERROR:", err);
-    return error(err.message || "Failed to update post", 500);
+        return error(err.message || "Failed to update post", 500);
   }
 }
 
@@ -107,7 +105,6 @@ export async function DELETE(req: NextRequest, segmentData: { params: Promise<{ 
 
     return success({ deleted: true });
   } catch (err: any) {
-    console.error("DELETE ERROR:", err);
-    return error(err.message || "Failed to delete post", 500);
+        return error(err.message || "Failed to delete post", 500);
   }
 }

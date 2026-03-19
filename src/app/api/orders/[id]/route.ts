@@ -96,7 +96,6 @@ export async function GET(req: NextRequest, { params }: Params) {
         : null,
     });
   } catch (err: any) {
-    console.error("Error in GET /api/orders/[id]:", err);
-    return error(err.message || "Failed to fetch order", 400); // Keep 400 but with real message
+        return error(err.message || "Failed to fetch order", 400); // Keep 400 but with real message
   }
 }

@@ -10,7 +10,6 @@ export async function GET(
   try {
     // ✅ MUST await params
     const { id } = await context.params;
-    console.log("Product ID:", id);
 
     if (!id || !mongoose.Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -36,7 +35,6 @@ export async function GET(
       { status: 200 }
     );
   } catch (error) {
-    console.error("Product fetch error:", error);
     return NextResponse.json(
       { success: false, message: "Server error" },
       { status: 500 }

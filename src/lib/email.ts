@@ -13,14 +13,11 @@ export async function sendOTP(userEmail: string, otp: string) {
     });
 
     if (error) {
-      console.error("Resend error:", error);
       return false;
     }
 
-    console.log("Email sent:", data);
     return true;
   } catch (error) {
-    console.error("Resend exception:", error);
     return false;
   }
 }

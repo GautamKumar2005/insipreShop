@@ -14,7 +14,6 @@ if (!cached) {
 
 export async function connectDB() {
   if (cached.conn) {
-    console.log("✅ MongoDB already connected");
     return cached.conn;
   }
 
@@ -24,12 +23,10 @@ export async function connectDB() {
         bufferCommands: false,
       })
       .then((mongoose) => {
-        console.log("✅ MongoDB connected successfully");
         return mongoose;
       })
       .catch((err) => {
-        console.error("❌ MongoDB connection failed:", err);
-        throw err;
+                throw err;
       });
   }
 

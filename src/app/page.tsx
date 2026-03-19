@@ -210,8 +210,7 @@ function ProductSection({
           setProducts(data.data.slice(0, limit));
         }
       } catch (err) {
-        console.error(`Failed to fetch ${category}:`, err);
-      } finally {
+              } finally {
         setLoading(false);
       }
     }

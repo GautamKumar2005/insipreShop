@@ -9,20 +9,15 @@ export const pool = globalForPg.pgPool || new Pool({
 
 if (process.env.NODE_ENV !== "production") globalForPg.pgPool = pool;
 
-// Debug log to check the connection host (masks password)
 const connectionInfo = process.env.SUPABASE_URI?.split('@')[1] || "NOT SET";
-console.log("🔌 Attempting Supabase Connection to:", connectionInfo);
 
 const initDb = async () => {
   if (!process.env.SUPABASE_URI) {
-    console.error("❌ SUPABASE_URI is missing in .env");
-    return;
+        return;
   }
   
   try {
-    // 1. Heartbeat check
     await pool.query('SELECT 1');
-    console.log("✅ Supabase Database connection verified!");
 
     // 2. Table initialization
     await pool.query(`
@@ -94,22 +89,14 @@ const initDb = async () => {
       );
     `);
     
-    // Attempt to add missing columns
     try {
       await pool.query('ALTER TABLE social_posts ADD COLUMN media_url TEXT');
     } catch(e) { }
     try {
         await pool.query('ALTER TABLE social_messages ADD COLUMN reaction VARCHAR(10)');
     } catch(e) { }
-    
-    console.log("✅ Tables ready (temp_otps, social_posts, social_follows, messaging, interactions)");
   } catch (err: any) {
-    console.error("❌ Supabase Initialization Error:", {
-      message: err.message,
-      code: err.code,
-      host: connectionInfo
-    });
-  }
+      }
 };
 
 initDb();

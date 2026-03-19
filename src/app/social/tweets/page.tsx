@@ -38,8 +38,7 @@ const TweetsPage = () => {
           setTweets(data.data.filter((p: SocialPost) => p.type === 'tweet'));
         }
       } catch (err) {
-        console.error(err);
-      } finally {
+              } finally {
         setLoading(false);
       }
     };

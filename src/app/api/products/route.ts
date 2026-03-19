@@ -9,7 +9,6 @@ import { ROLES } from "@/lib/constants";
 export async function GET(req: NextRequest) {
   try {
     await connectDB();
-    console.log("Fetching products with filters");
     const { searchParams } = new URL(req.url);
 
     const search = searchParams.get("search");

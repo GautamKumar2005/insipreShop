@@ -25,7 +25,6 @@ export async function GET(req: NextRequest) {
 
     return success(products);
   } catch (err: any) {
-    console.error("Search API Error:", err);
     return error(err.message || "Product search failed");
   }
 }

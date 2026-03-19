@@ -86,8 +86,7 @@ const SocialProfile = () => {
         });
       }
     } catch (err) {
-      console.error(err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -136,8 +135,7 @@ const SocialProfile = () => {
       // Revert on error
       setIsFollowing(!isFollowing);
       setFollowers(f => isFollowing ? f + 1 : Math.max(0, f - 1));
-      console.error(err);
-    }
+          }
   };
 
   const [showFollowModal, setShowFollowModal] = useState<'followers' | 'following' | null>(null);
@@ -153,8 +151,7 @@ const SocialProfile = () => {
         setFollowUsersList(data.data);
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   if (loading) {

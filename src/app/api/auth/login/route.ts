@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err: any) {
-    console.error("LOGIN ERROR:", err);
-    return error("Login failed", 500);
+        return error("Login failed", 500);
   }
 }

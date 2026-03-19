@@ -64,8 +64,7 @@ export default function ProfilePage() {
         setOrders(data.data.slice(0, 5)); // Show recent 5
       }
     } catch (err) {
-      console.error(err);
-    }
+          }
   };
 
   const handleSave = async () => {
@@ -89,8 +88,7 @@ export default function ProfilePage() {
         alert(data.message || "Failed to update");
       }
     } catch (err) {
-      console.error(err);
-      alert("Error saving profile");
+            alert("Error saving profile");
     } finally {
       setSaving(false);
     }
@@ -127,8 +125,7 @@ export default function ProfilePage() {
         }
       };
     } catch (err) {
-      console.error("Image upload error", err);
-      alert("Something went wrong uploading the image.");
+            alert("Something went wrong uploading the image.");
     } finally {
       // Re-enable form after processing starts
       setTimeout(() => setUploadingImage(false), 2000);

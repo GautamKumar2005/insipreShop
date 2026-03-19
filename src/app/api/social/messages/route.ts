@@ -41,8 +41,7 @@ export async function GET(req: NextRequest) {
         return success(decryptedMessages);
 
     } catch (err: any) {
-        console.error("MESSAGES GET ERROR:", err);
-        return error(err.message || "Internal server error", 500);
+                return error(err.message || "Internal server error", 500);
     }
 }
 
@@ -78,7 +77,6 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (err: any) {
-        console.error("MESSAGES POST ERROR:", err);
-        return error(err.message || "Internal server error", 500);
+                return error(err.message || "Internal server error", 500);
     }
 }

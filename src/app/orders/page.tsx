@@ -41,10 +41,8 @@ export default function OrdersPage() {
       });
       const data = await res.json();
       if (data.success) setOrders(data.data);
-      else console.error(data.message);
-    } catch (err) {
-      console.error(err);
-    } finally {
+      else     } catch (err) {
+          } finally {
       setLoading(false);
     }
   };

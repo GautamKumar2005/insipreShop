@@ -21,8 +21,7 @@ export function useAuth() {
       try {
         setUser(JSON.parse(storedUser));
       } catch (err) {
-        console.error("Failed to parse user from storage", err);
-        setUser(null);
+                setUser(null);
       }
     } else {
       setUser(null);

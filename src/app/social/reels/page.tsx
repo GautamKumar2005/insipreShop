@@ -38,8 +38,7 @@ const ReelsPage = () => {
           setReels(data.data.filter((p: SocialPost) => p.type === 'reel'));
         }
       } catch (err) {
-        console.error(err);
-      } finally {
+              } finally {
         setLoading(false);
       }
     };

@@ -62,8 +62,7 @@ export async function POST(req: NextRequest) {
 
     return success(msg);
   } catch (err: any) {
-    console.error("POST /api/chat/message error:", err);
-    return error(err.message || "Failed to send message");
+        return error(err.message || "Failed to send message");
   }
 }
 
@@ -115,7 +114,6 @@ export async function GET(req: NextRequest) {
 
     return success({ messages, partner });
   } catch (err: any) {
-    console.error("GET /api/chat/message error:", err);
-    return error(err.message || "Failed to fetch messages");
+        return error(err.message || "Failed to fetch messages");
   }
 }

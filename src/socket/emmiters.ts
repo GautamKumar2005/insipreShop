@@ -12,7 +12,6 @@ export default function notificationSocket(io: Server, socket: Socket) {
 
   // Join a room for this user to receive personal notifications
   socket.join(user.id);
-  console.log(`User ${user.id} joined their notification room`);
 
   /**
    * Emit a new notification to this user
@@ -26,8 +25,6 @@ export default function notificationSocket(io: Server, socket: Socket) {
       body: data.body,
       timestamp: new Date(),
     });
-
-    console.log(`Sent notification to user ${user.id}: ${data.title}`);
   });
 
   /**
@@ -38,17 +35,14 @@ export default function notificationSocket(io: Server, socket: Socket) {
     if (!notificationId) return;
 
     io.to(user.id).emit("notification:read:ack", { notificationId });
-    console.log(`User ${user.id} read notification ${notificationId}`);
   });
 
   // Leave notifications room (optional)
   socket.on("notification:leave", () => {
     socket.leave(user.id);
-    console.log(`User ${user.id} left their notification room`);
   });
 
   // Handle disconnect
   socket.on("disconnect", (reason) => {
-    console.log(`User ${user.id} disconnected from notifications: ${reason}`);
   });
 }
