@@ -1,10 +1,9 @@
-export const runtime = "nodejs";
 
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAccessToken } from "@/lib/jwt";
 import { ROLES } from "@/lib/constants";
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // ✅ PUBLIC ROUTES (NO AUTH REQUIRED)
