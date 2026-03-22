@@ -53,12 +53,18 @@ export const PostInteractions = ({
   const [sharing, setSharing] = useState<string | null>(null);
   const [sharedStatus, setSharedStatus] = useState<Record<string, boolean>>({});
 
+  // Likes & Views Modals
+  const [showLikesModal, setShowLikesModal] = useState(false);
+  const [showViewsModal, setShowViewsModal] = useState(false);
+  const [interactionUsers, setInteractionUsers] = useState<ShareUser[]>([]);
+  const [loadingInteractions, setLoadingInteractions] = useState(false);
+
   // Record view on mount
   useEffect(() => {
     const recordView = async () => {
         try {
             const token = getToken();
-            fetch("/api/social/view", {
+            const res = await fetch("/api/social/view", {
                 method: "POST",
                 headers: { 
                     "Content-Type": "application/json",
@@ -66,6 +72,10 @@ export const PostInteractions = ({
                 },
                 body: JSON.stringify({ postId })
             });
+            const data = await res.json();
+            if (data.success && data.data.viewsCount !== undefined) {
+               setViewsCount(data.data.viewsCount);
+            }
         } catch(e) {}
     };
     recordView();
@@ -88,7 +98,13 @@ export const PostInteractions = ({
         body: JSON.stringify({ postId })
       });
       const data = await res.json();
-      if (!data.success) {
+      if (data.success) {
+          setLiked(data.data.liked);
+          if (data.data.likesCount !== undefined) {
+             setLikesCount(data.data.likesCount);
+          }
+      } else {
+          // Revert to backup layout if failure
           setLiked(liked);
           setLikesCount(likesCount);
       }
@@ -141,6 +157,40 @@ export const PostInteractions = ({
       } catch(e) {}
   };
 
+  const openLikesModal = async () => {
+    setShowLikesModal(true);
+    setLoadingInteractions(true);
+    try {
+        const token = getToken();
+        const res = await fetch(`/api/social/like?postId=${postId}`, {
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+        });
+        const data = await res.json();
+        if (data.success) {
+            setInteractionUsers(data.data);
+        }
+    } catch(e) {} finally {
+        setLoadingInteractions(false);
+    }
+  };
+
+  const openViewsModal = async () => {
+    setShowViewsModal(true);
+    setLoadingInteractions(true);
+    try {
+        const token = getToken();
+        const res = await fetch(`/api/social/view?postId=${postId}`, {
+            headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) }
+        });
+        const data = await res.json();
+        if (data.success) {
+            setInteractionUsers(data.data);
+        }
+    } catch(e) {} finally {
+        setLoadingInteractions(false);
+    }
+  };
+
   const openShareModal = async () => {
     setShowShareModal(true);
     try {
@@ -191,35 +241,46 @@ export const PostInteractions = ({
 
   return (
     <div className="space-y-4 pt-2 relative">
-      <div className="flex items-center gap-6 text-gray-400">
-        <button 
-           onClick={handleLike} 
-           className={`flex items-center gap-1.5 transition-all active:scale-125 ${liked ? 'text-red-500 font-bold' : 'hover:text-red-500'}`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-          <span className="text-sm">{likesCount}</span>
-        </button>
-        
-        <button 
-           onClick={fetchComments}
-           className={`flex items-center gap-1.5 transition-all font-medium ${showComments ? 'text-blue-500' : 'hover:text-blue-400'}`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          <span className="text-sm">{comments.length > 0 ? comments.length : initialComments}</span>
-        </button>
-
-        <button 
-          onClick={openShareModal}
-          className="flex items-center gap-1.5 hover:text-gray-900 dark:hover:text-white transition-all active:scale-110"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-          <span className="text-[10px] font-black uppercase">Share</span>
-        </button>
-
-        <div className="flex items-center gap-1.5 text-xs font-black uppercase tracking-tighter opacity-70 ml-auto">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
-          <span>{viewsCount}</span>
+      <div className="flex items-center justify-between text-gray-800 dark:text-gray-200">
+        <div className="flex items-center gap-4">
+            <button 
+               onClick={handleLike} 
+               className={`transition-all hover:scale-110 active:scale-95 ${liked ? 'text-red-500' : 'hover:text-gray-500'}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill={liked ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <button 
+               onClick={fetchComments}
+               className={`transition-all hover:scale-110 active:scale-95 ${showComments ? 'text-blue-500' : 'hover:text-gray-500'}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </button>
+            <button 
+              onClick={openShareModal}
+              className="hover:scale-110 active:scale-95 hover:text-gray-500 transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+            </button>
         </div>
+      </div>
+      
+      {/* Instagram-style metrics row */}
+      <div className="flex flex-col gap-0.5 mt-2">
+          {likesCount > 0 && (
+             <span onClick={openLikesModal} className="text-sm font-semibold cursor-pointer hover:text-gray-500 transition-colors w-fit">
+                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+             </span>
+          )}
+          {initialComments > 0 && !showComments && (
+             <span onClick={fetchComments} className="text-sm font-medium text-gray-500 cursor-pointer hover:underline w-fit">
+                View all {comments.length > 0 ? comments.length : initialComments} comments
+             </span>
+          )}
+          {viewsCount > 0 && (
+             <span onClick={openViewsModal} className="text-xs font-medium text-gray-400 cursor-pointer hover:underline w-fit">
+                {viewsCount} {viewsCount === 1 ? 'view' : 'views'}
+             </span>
+          )}
       </div>
 
       {showComments && (
@@ -303,6 +364,42 @@ export const PostInteractions = ({
                                 </button>
                             </div>
                         ))}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
+      )}
+
+      {/* Interactions Modal Overlay (Likes & Views) */}
+      {(showLikesModal || showViewsModal) && (
+        <>
+            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in duration-300" onClick={() => { setShowLikesModal(false); setShowViewsModal(false); }}></div>
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm bg-white dark:bg-[#0a0a0a] rounded-[2.5rem] shadow-2xl z-[101] overflow-hidden animate-in zoom-in-95 duration-300 border border-white/10">
+                <div className="p-6 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-gray-50/50 dark:bg-white/5">
+                    <h3 className="text-xl font-black tracking-tighter capitalize">{showLikesModal ? 'Likes' : 'Views'}</h3>
+                    <button onClick={() => { setShowLikesModal(false); setShowViewsModal(false); }} className="p-2 hover:bg-white dark:hover:bg-white/10 rounded-full transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                <div className="p-4 max-h-[350px] overflow-y-auto custom-scrollbar">
+                    {loadingInteractions ? (
+                        <div className="flex justify-center p-8"><div className="w-6 h-6 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div></div>
+                    ) : interactionUsers.length === 0 ? (
+                        <div className="p-10 text-center text-sm text-gray-400 font-bold opacity-50">No {showLikesModal ? 'likes' : 'views'} yet.</div>
+                    ) : (
+                        <div className="grid gap-2">
+                            {interactionUsers.map(u => (
+                                <Link key={u.id} href={`/social/profile/${u.id}`} className="flex items-center gap-3 p-3 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
+                                    <div className="w-10 h-10 rounded-full border border-gray-100 dark:border-white/10 overflow-hidden bg-gray-50 dark:bg-gray-800 flex items-center justify-center font-black shadow-sm group-hover:scale-110 transition-transform">
+                                        {u.avatar ? <img src={u.avatar} className="w-full h-full object-cover" /> : u.name[0]}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-sm tracking-tight">{u.name}</span>
+                                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">@{u.username}</span>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
                     )}
                 </div>

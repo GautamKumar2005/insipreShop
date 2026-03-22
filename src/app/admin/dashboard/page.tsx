@@ -21,6 +21,7 @@ import {
   Clock,
   Package,
   MessageSquare,
+  Activity
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
   const [fetching, setFetching] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -175,15 +177,16 @@ export default function AdminDashboard() {
     { id: "users", label: "All Users", icon: Users },
     { id: "orders", label: "All Orders", icon: ShoppingBag },
     { id: "feedback", label: "User Feedback", icon: MessageSquare },
+    { id: "social", label: "Social Metrics", icon: Activity },
   ];
 
   return (
     <div className="flex h-screen bg-gray-100/50">
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col flex-shrink-0">
         <div className="h-16 flex items-center px-6 border-b border-gray-200">
           <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl">
-            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black">
               S
             </div>
             Starta Admin
@@ -219,21 +222,75 @@ export default function AdminDashboard() {
 
         <div className="p-4 border-t border-gray-200">
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 mb-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shrink-0">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-gray-900 truncate">
-                System Admin
+                Admin
               </p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 rounded-xl transition-colors"
           >
             <LogOut size={16} />
+            Log Out
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-[100] md:hidden transition-opacity"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* Mobile Sidebar */}
+      <aside className={`fixed top-0 left-0 w-72 h-full bg-white z-[110] transform transition-transform duration-300 md:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
+          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">S</div>
+             Starta Admin
+          </div>
+          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-600">
+             <XCircle size={24} />
+          </button>
+        </div>
+        <div className="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setSearchQuery("");
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all font-bold text-base ${
+                  isActive
+                    ? "bg-indigo-50 text-indigo-700"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                <Icon size={20} className={isActive ? "text-indigo-600" : "text-gray-400"} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+        <div className="p-4 border-t border-gray-200 bg-gray-50/50">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 font-bold hover:bg-red-50 rounded-xl transition-colors"
+          >
+            <LogOut size={20} />
             Log Out
           </button>
         </div>
@@ -242,13 +299,21 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0 z-10 shadow-sm">
-          <h1 className="text-xl font-bold text-gray-800 capitalize">
-            {activeTab === "dashboard" ? "Dashboard Overview" : activeTab}
-          </h1>
+        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-10 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="p-2 text-gray-400 hover:text-indigo-600 md:hidden"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <h1 className="text-lg md:text-xl font-bold text-gray-800 capitalize truncate max-w-[150px] sm:max-w-none">
+              {activeTab === "dashboard" ? "Dashboard Overview" : activeTab}
+            </h1>
+          </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <div className="relative hidden lg:block">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
                 size={16}
@@ -257,15 +322,15 @@ export default function AdminDashboard() {
                 type="text"
                 placeholder={
                   activeTab === "users"
-                    ? "Search users by name/email/phone..."
+                    ? "Search users..."
                     : activeTab === "orders"
-                      ? "Search orders by user/status/ID..."
-                      : "Search unavailable in this section"
+                      ? "Search orders..."
+                      : "Search unavailable"
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 disabled={activeTab === "dashboard" || activeTab === "feedback"}
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-full text-sm w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-50"
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-full text-sm w-48 xl:w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-50"
               />
             </div>
             <button
@@ -905,6 +970,97 @@ export default function AdminDashboard() {
                 </div>
               )}
             </div>
+          )}
+
+          {/* SOCIAL METRICS TAB */}
+          {activeTab === "social" && dashboardData?.socialMetrics && (
+             <div className="space-y-6">
+                 {/* Quick Stats Header */}
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <StatCard
+                        title="Total Active Users"
+                        value={dashboardData.totalUsers || 0}
+                        icon={Users}
+                        color="bg-blue-500"
+                        trend="Total Users on Platform"
+                    />
+                    <StatCard
+                        title="Total Posts Made"
+                        value={dashboardData.socialMetrics.totalPosts || 0}
+                        icon={Activity}
+                        color="bg-purple-500"
+                        trend="Overall Network Content"
+                    />
+                 </div>
+
+                 {/* Top Content Row */}
+                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+                    
+                    {/* Highest Liked */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-800">Highest Liked Post</h3>
+                                <p className="text-xs text-gray-500">Most engaged content overall</p>
+                            </div>
+                        </div>
+                        {dashboardData.socialMetrics.highestLikedPost ? (
+                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                                <h4 className="text-3xl font-black text-red-500 mb-1">{dashboardData.socialMetrics.highestLikedPost.interactions}</h4>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Total Likes</span>
+                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-red-200 pl-3">"{dashboardData.socialMetrics.highestLikedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestLikedPost.content?.length > 100 ? '...' : ''}"</p>
+                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestLikedPost.id.split('-')[0]}</span>
+                            </div>
+                        ) : <div className="p-4 text-center text-gray-400 text-sm">No likes data.</div>}
+                    </div>
+
+                    {/* Highest Viewed */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
+                               <Activity size={20} />
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-800">Highest Viewed Post</h3>
+                                <p className="text-xs text-gray-500">Maximum organic reach</p>
+                            </div>
+                        </div>
+                        {dashboardData.socialMetrics.highestViewedPost ? (
+                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                                <h4 className="text-3xl font-black text-blue-500 mb-1">{dashboardData.socialMetrics.highestViewedPost.interactions}</h4>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Unique Views</span>
+                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-blue-200 pl-3">"{dashboardData.socialMetrics.highestViewedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestViewedPost.content?.length > 100 ? '...' : ''}"</p>
+                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestViewedPost.id.split('-')[0]}</span>
+                            </div>
+                        ) : <div className="p-4 text-center text-gray-400 text-sm">No views data.</div>}
+                    </div>
+
+                    {/* Highest Shared */}
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center">
+                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                            </div>
+                            <div>
+                                <h3 className="font-bold text-gray-800">Highest Shared Post</h3>
+                                <p className="text-xs text-gray-500">Most virality and DM shares</p>
+                            </div>
+                        </div>
+                        {dashboardData.socialMetrics.highestSharedPost ? (
+                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
+                                <h4 className="text-3xl font-black text-green-500 mb-1">{dashboardData.socialMetrics.highestSharedPost.interactions}</h4>
+                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Chat Shares</span>
+                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-green-200 pl-3">"{dashboardData.socialMetrics.highestSharedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestSharedPost.content?.length > 100 ? '...' : ''}"</p>
+                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestSharedPost.id.split('-')[0]}</span>
+                            </div>
+                        ) : <div className="p-4 text-center text-gray-400 text-sm">No sharing data available yet.</div>}
+                    </div>
+
+                 </div>
+             </div>
           )}
         </div>
       </main>

@@ -13,3 +13,5 @@ export interface IProduct {
   createdAt: string;
   updatedAt: string;
 }
+
+export type Product = IProduct;

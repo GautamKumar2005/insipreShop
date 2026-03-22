@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 
-export function success(data: any, message = "Success") {
+export function success(data: any, messageOrStatus: string | number = "Success") {
+  const status = typeof messageOrStatus === "number" ? messageOrStatus : 200;
+  const message = typeof messageOrStatus === "string" ? messageOrStatus : "Success";
+
   return NextResponse.json(
     { success: true, message, data },
-    { status: 200 }
+    { status }
   );
 }
 

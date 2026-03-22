@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
         );
 
         // DECRYPT messages for the client
-        const decryptedMessages = res.rows.map(m => ({
+        const decryptedMessages = res.rows.map((m: any) => ({
             ...m,
             content: decryptMessage(m.content)
         }));
@@ -77,6 +77,37 @@ export async function POST(req: NextRequest) {
         });
 
     } catch (err: any) {
-                return error(err.message || "Internal server error", 500);
+        return error(err.message || "Internal server error", 500);
+    }
+}
+
+// DELETE: Clear chat history with someone
+export async function DELETE(req: NextRequest) {
+    try {
+        const authHeader = req.headers.get("authorization");
+        if (!authHeader) return error("Unauthorized", 401);
+        
+        const token = authHeader.split(" ")[1];
+        if (!token) return error("Token missing", 401);
+
+        const decoded = verifyAccessToken(token) as any;
+        if (!decoded || !decoded.id) return error("Unauthorized", 401);
+        
+        const { searchParams } = new URL(req.url);
+        const otherId = searchParams.get("otherId");
+        
+        if (!otherId) return error("Recipient ID required", 400);
+
+        await pool.query(
+            `DELETE FROM social_messages 
+             WHERE (sender_id = $1 AND receiver_id = $2) 
+                OR (sender_id = $2 AND receiver_id = $1)`,
+            [decoded.id, otherId]
+        );
+
+        return success(null, "Chat History Cleared");
+
+    } catch (err: any) {
+        return error(err.message || "Internal server error", 500);
     }
 }

@@ -40,8 +40,10 @@ export default function OrdersPage() {
         },
       });
       const data = await res.json();
-      if (data.success) setOrders(data.data);
-      else     } catch (err) {
+      if (data.success) {
+        setOrders(data.data);
+      }
+    } catch (err) {
           } finally {
       setLoading(false);
     }

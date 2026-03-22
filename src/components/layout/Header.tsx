@@ -41,14 +41,14 @@ const Header = () => {
                   ? "/delivery/dashboard"
                   : "/"
           }
-          className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600"
+          className="text-xl md:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 transition-all hover:scale-105 active:scale-95 flex-shrink-0"
         >
           InspireShop
         </Link>
 
         {/* Desktop Nav */}
         {(!pathname || !pathname.startsWith("/social")) && (
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-8 ml-auto">
             {(!user || user.role === ROLES.BUYER) && (
               <div className="relative group">
                 <form
@@ -102,31 +102,35 @@ const Header = () => {
                       ? "/delivery/dashboard"
                       : "/"
               }
-              className="text-sm font-medium hover:text-purple-600 transition-colors"
+              className="text-sm font-medium hover:text-purple-600 transition-all relative group"
             >
               Home
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transition-all group-hover:w-full"></span>
             </Link>
 
             <Link
               href="/profile"
-              className="text-sm font-medium hover:text-purple-600 transition-colors"
+              className="text-sm font-medium hover:text-purple-600 transition-all relative group"
             >
               Profile
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transition-all group-hover:w-full"></span>
             </Link>
 
             <Link
               href="/social"
-              className="text-sm font-medium hover:text-purple-600 transition-colors"
+              className="text-sm font-medium hover:text-purple-600 transition-all relative group"
             >
               Social
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transition-all group-hover:w-full"></span>
             </Link>
 
             {(!user || user.role === ROLES.BUYER) && (
               <Link
                 href="/cart"
-                className="text-sm font-medium hover:text-purple-600 transition-colors"
+                className="text-sm font-medium hover:text-purple-600 transition-all relative group"
               >
                 Cart
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transition-all group-hover:w-full"></span>
               </Link>
             )}
 
@@ -158,87 +162,89 @@ const Header = () => {
           </nav>
         )}
 
-        {/* Mobile controls: Search & Hamburger */}
-        {(!pathname || !pathname.startsWith("/social")) && (
-          <div className="flex items-center gap-2 md:hidden">
-            {(!user || user.role === ROLES.BUYER) && (
-              <button
-                className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                onClick={() => {
-                  setMobileSearchOpen(!mobileSearchOpen);
-                  if (mobileMenuOpen) setMobileMenuOpen(false);
-                }}
-                aria-label="Toggle mobile search"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+        <div className="flex items-center gap-1 sm:gap-2">
+          {/* Mobile controls: Search & Hamburger */}
+          {(!pathname || !pathname.startsWith("/social")) && (
+            <div className="flex items-center gap-1 md:hidden">
+              {(!user || user.role === ROLES.BUYER) && (
+                <button
+                  className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+                  onClick={() => {
+                    setMobileSearchOpen(!mobileSearchOpen);
+                    if (mobileMenuOpen) setMobileMenuOpen(false);
+                  }}
+                  aria-label="Toggle mobile search"
                 >
-                  {mobileSearchOpen ? (
-                    <>
-                      <line x1="18" y1="6" x2="6" y2="18"></line>
-                      <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </>
-                  ) : (
-                    <>
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </>
-                  )}
-                </svg>
-              </button>
-            )}
-
-            <button
-              className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              onClick={() => {
-                setMobileMenuOpen(!mobileMenuOpen);
-                if (mobileSearchOpen) setMobileSearchOpen(false);
-              }}
-              aria-label="Toggle mobile menu"
-            >
-              {mobileMenuOpen ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="3" y1="12" x2="21" y2="12"></line>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <line x1="3" y1="18" x2="21" y2="18"></line>
-                </svg>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {mobileSearchOpen ? (
+                      <>
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </>
+                    ) : (
+                      <>
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                      </>
+                    )}
+                  </svg>
+                </button>
               )}
-            </button>
-          </div>
-        )}
+
+              <button
+                className="p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-colors"
+                onClick={() => {
+                  setMobileMenuOpen(!mobileMenuOpen);
+                  if (mobileSearchOpen) setMobileSearchOpen(false);
+                }}
+                aria-label="Toggle mobile menu"
+              >
+                {mobileMenuOpen ? (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                  </svg>
+                )}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Mobile Search Dropdown */}

@@ -28,7 +28,7 @@ interface SocialPost {
 
 const SocialHub = () => {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
+  const initialSearch = searchParams?.get("search") || "";
   
   const { user } = useAuth();
   const [posts, setPosts] = useState<SocialPost[]>([]);
@@ -37,7 +37,7 @@ const SocialHub = () => {
   const [globalSearch, setGlobalSearch] = useState(initialSearch);
 
   useEffect(() => {
-    setGlobalSearch(searchParams.get("search") || "");
+    setGlobalSearch(searchParams?.get("search") || "");
   }, [searchParams]);
 
   const fetchPostsAndUsers = async () => {
@@ -49,8 +49,12 @@ const SocialHub = () => {
 
       const searchTerms = globalSearch.trim();
       const resUrl = searchTerms ? `/api/social?search=${encodeURIComponent(searchTerms)}` : "/api/social";
-      
-      const res = await fetch(resUrl);
+      const token = window.localStorage.getItem("token");
+      const res = await fetch(resUrl, {
+        headers: {
+           ...(token ? { Authorization: `Bearer ${token}` } : {})
+        }
+      });
       const data = await res.json();
       if (data.success) {
         setPosts(data.data);
@@ -113,7 +117,7 @@ const SocialHub = () => {
               postId={post.id}
               initialLikes={post.likes_count || 0}
               initialComments={post.comments_count || 0}
-              initialViews={(post.views_count || 0) + 1}
+              initialViews={post.views_count || 0}
               isLikedInitially={post.liked_by_me || false}
             />
           </div>
@@ -146,6 +150,28 @@ const SocialHub = () => {
            )}
         </div>
       </div>
+      
+      {!user && (
+         <div className="mx-4 mb-12">
+            <Card className="p-8 border-none shadow-2xl bg-gradient-to-br from-purple-600 to-pink-600 rounded-[2.5rem] relative overflow-hidden group">
+               <div className="absolute top-0 right-0 -mt-8 -mr-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+               <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+                  <div className="text-center md:text-left">
+                     <h2 className="text-2xl font-black text-white mb-2 leading-tight">Join the Inspire Social Community</h2>
+                     <p className="text-purple-100 font-medium">Create your own profile, share your stories, and connect with other members.</p>
+                  </div>
+                  <div className="flex gap-3 shrink-0">
+                     <Link href="/auth/login">
+                        <button className="px-6 py-3 bg-white text-purple-600 font-black rounded-2xl shadow-lg hover:scale-105 active:scale-95 transition-all">Login</button>
+                     </Link>
+                     <Link href="/auth/register">
+                        <button className="px-6 py-3 bg-purple-500/20 text-white border border-white/30 backdrop-blur-md font-black rounded-2xl shadow-lg hover:bg-white/10 transition-all">Sign Up</button>
+                     </Link>
+                  </div>
+               </div>
+            </Card>
+         </div>
+      )}
 
       <div className="space-y-12 pb-20 px-2 md:px-0">
          {loading ? (
@@ -166,8 +192,11 @@ const SocialHub = () => {
                       {matchedUsers.map(u => (
                         <Card key={u._id} className="p-4 flex items-center justify-between border-none shadow-xl bg-white dark:bg-[#0f0f0f] rounded-2xl hover:scale-[1.02] transition-all ring-1 ring-black/5 dark:ring-white/5">
                           <Link href={`/social/profile/${u._id}`} className="flex items-center gap-3 flex-1 group">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center font-bold text-purple-600 overflow-hidden border-2 border-white dark:border-gray-800 shadow-lg group-hover:scale-110 transition-transform">
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center font-bold text-purple-600 overflow-hidden border-2 border-white dark:border-gray-800 shadow-lg group-hover:scale-110 transition-transform relative">
                               {u.profilePhoto?.url ? <img src={u.profilePhoto.url} className="w-full h-full object-cover"/> : u.name[0]}
+                              {u.isOnline && (
+                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-[#0f0f0f] shadow-sm animate-pulse" />
+                              )}
                             </div>
                             <div className="flex flex-col">
                                 <span className="font-black text-sm group-hover:underline">{u.name}</span>

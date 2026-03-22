@@ -1,5 +1,5 @@
 export const logger = {
-  info: (msg: string) => ,
+  info: (msg: string) => {},
   warn: (msg: string) => console.warn("⚠️", msg),
-  error: (msg: string) => ,
+  error: (msg: string) => {},
 };

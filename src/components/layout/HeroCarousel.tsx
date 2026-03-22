@@ -44,15 +44,15 @@ export default function HeroCarousel() {
       ))}
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+      <div className="absolute bottom-4 md:bottom-6 left-1/2 -translate-x-1/2 z-20 flex gap-1.5 md:gap-2">
         {CAROUSEL_IMAGES.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentImage(index)}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+            className={`transition-all duration-300 rounded-full ${
               index === currentImage
-                ? "bg-white w-6"
-                : "bg-white/50 hover:bg-white/80"
+                ? "bg-white w-5 md:w-6 h-1.5 md:h-2"
+                : "bg-white/40 hover:bg-white/80 w-1.5 md:w-2 h-1.5 md:h-2"
             }`}
             aria-label={`Go to slide ${index + 1}`}
           />

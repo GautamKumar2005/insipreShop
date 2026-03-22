@@ -18,14 +18,14 @@ export async function GET(req: NextRequest) {
       [postId]
     );
 
-    const userIds = Array.from(new Set(commentsRes.rows.map(c => c.user_id)));
+    const userIds = Array.from(new Set(commentsRes.rows.map((c: any) => c.user_id)));
     if (userIds.length === 0) return success([]);
 
     await connectDB();
     const users = await User.find({ _id: { $in: userIds } }).select("name profilePhoto _id");
     
-    const result = commentsRes.rows.map(c => {
-        const u = users.find(user => user._id.toString() === c.user_id);
+    const result = commentsRes.rows.map((c: any) => {
+        const u = users.find((user: any) => user._id.toString() === c.user_id);
         return {
             ...c,
             user: {

@@ -219,8 +219,27 @@ const SocialDashboard = () => {
 
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <p className="text-xl font-bold text-gray-500">Please login to view your dashboard.</p>
+      <div className="flex items-center justify-center min-h-[70vh] px-4">
+        <Card className="max-w-md w-full p-10 text-center border-none shadow-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] ring-1 ring-black/5 dark:ring-white/10 animate-in fade-in zoom-in duration-500">
+          <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600">
+             <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter">Your Social Sanctuary</h1>
+          <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium">Join our community to share stories, connect with creators, and build your own social feed.</p>
+          
+          <div className="grid gap-3">
+             <Link href="/auth/login">
+               <Button className="w-full py-6 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-lg shadow-xl shadow-purple-500/20">
+                 Login to Your Space
+               </Button>
+             </Link>
+             <Link href="/auth/register">
+               <Button variant="outline" className="w-full py-6 rounded-2xl font-bold text-lg border-purple-100 dark:border-gray-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/10">
+                 Create New Account
+               </Button>
+             </Link>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -261,24 +280,24 @@ const SocialDashboard = () => {
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-pink-500/10 dark:bg-pink-500/20 rounded-full blur-3xl"></div>
         
-        <div className="relative z-10 flex flex-col items-center md:flex-row md:items-start gap-8">
-          <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl flex-shrink-0 bg-white">
-            <div className="w-full h-full bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center text-4xl font-black text-purple-600">
+        <div className="relative z-10 flex flex-col items-center sm:flex-row sm:items-start gap-6 md:gap-8">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl flex-shrink-0 bg-white">
+            <div className="w-full h-full bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center text-3xl sm:text-4xl font-black text-purple-600">
               {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover"/> : user.name?.[0].toUpperCase()}
             </div>
           </div>
           
-          <div className="flex-1 text-center md:text-left">
-             <div className="inline-block px-3 py-1 mb-2 rounded-full bg-purple-100/50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-sm font-bold tracking-widest uppercase">
+          <div className="flex-1 text-center sm:text-left">
+             <div className="inline-block px-3 py-1 mb-2 rounded-full bg-purple-100/50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs sm:text-sm font-bold tracking-widest uppercase">
                @{profileData.username || `user_${user.id.slice(-6)}`}
              </div>
-             <h1 className="text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">{profileData.name || user.name}</h1>
+             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">{profileData.name || user.name}</h1>
              
              {profileData.bio && (
-                <p className="text-gray-500 dark:text-gray-400 mb-6 max-w-md font-medium">{profileData.bio}</p>
+                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 max-w-md font-medium">{profileData.bio}</p>
              )}
-
-             <div className="flex justify-center md:justify-start gap-8 mt-4">
+ 
+             <div className="flex justify-center sm:justify-start gap-4 sm:gap-8 mt-4">
                <div onClick={() => fetchFollowList('followers')} className="text-center md:text-left cursor-pointer hover:opacity-75 transition-opacity">
                  <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.followers}</p>
                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Followers</p>
@@ -296,10 +315,10 @@ const SocialDashboard = () => {
         </div>
       </Card>
 
-      <div className="flex gap-4 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4">
+      <div className="flex gap-2 sm:gap-4 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setActiveTab('page')}
-          className={`px-4 py-2 font-bold rounded-xl transition-all ${
+          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
             activeTab === 'page' 
               ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
               : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -309,7 +328,7 @@ const SocialDashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab('my_content')}
-          className={`px-4 py-2 font-bold rounded-xl transition-all ${
+          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
             activeTab === 'my_content' 
               ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
               : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -319,7 +338,7 @@ const SocialDashboard = () => {
         </button>
         <button
           onClick={() => setActiveTab('settings')}
-          className={`px-4 py-2 font-bold rounded-xl transition-all ${
+          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
             activeTab === 'settings' 
               ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
               : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -333,13 +352,13 @@ const SocialDashboard = () => {
         <Card className="p-8 border-none shadow-2xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-3xl ring-1 ring-black/5 dark:ring-white/5">
           <h2 className="text-2xl font-bold mb-6">What do you want to share today?</h2>
           <form onSubmit={handleShare} className="space-y-6">
-            <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl w-fit">
+            <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar">
               {(['page', 'reel', 'tweet'] as const).map((t) => (
                 <button
                   key={t}
                   type="button"
                   onClick={() => setType(t)}
-                  className={`px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest transition-all ${
+                  className={`flex-1 sm:flex-none px-6 sm:px-8 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest transition-all ${
                     type === t 
                       ? 'bg-white dark:bg-gray-700 shadow-lg text-purple-600 scale-105' 
                       : 'text-gray-400 hover:text-gray-600'
@@ -477,15 +496,15 @@ const SocialDashboard = () => {
             posts.map(post => (
               <Card key={post.id} className="p-6 border-none shadow-lg bg-white dark:bg-[#111] rounded-3xl group transition-all">
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 bg-purple-100 flex items-center justify-center font-bold text-purple-600">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-gray-100 dark:border-gray-800 flex-shrink-0 bg-purple-100 flex items-center justify-center font-bold text-purple-600">
                      {user?.avatar ? <img src={user.avatar} className="w-full h-full object-cover"/> : user?.name?.[0]}
                   </div>
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-sm">@{profileData.username || user?.name}</span>
+                  <div className="flex-1 space-y-2 sm:space-y-3 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <span className="font-bold text-sm truncate">@{profileData.username || user?.name}</span>
                       <div className="flex items-center gap-2">
                         <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-tighter bg-gray-100 dark:bg-gray-800 text-gray-500">{post.type}</span>
-                        <span className="text-[10px] text-gray-300 dark:text-gray-700 uppercase font-black tracking-widest">{new Date(post.created_at).toLocaleDateString()}</span>
+                        <span className="text-[10px] text-gray-300 dark:text-gray-700 uppercase font-black tracking-widest whitespace-nowrap">{new Date(post.created_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                     {editingPost?.id === post.id ? (

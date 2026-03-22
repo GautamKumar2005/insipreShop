@@ -223,17 +223,18 @@ export default function CartPage() {
                 <div className="font-bold text-xl min-w-[80px] text-right">
                   ₹{item.product.price * item.quantity}
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto mt-2 md:mt-0">
                   <Button
                     size="sm"
+                    className="flex-1 md:flex-none rounded-xl h-10 py-1"
                     onClick={() => handleBuyItem(item.product._id)}
                   >
-                    Buy Item
+                    Buy
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    className="text-red-500 border-red-500 hover:bg-red-50"
+                    className="flex-1 md:flex-none text-red-500 border-red-500 hover:bg-red-50 rounded-xl h-10 py-1"
                     onClick={() => removeItem(item.product._id)}
                   >
                     Remove

@@ -47,11 +47,11 @@ const ReelsPage = () => {
 
   return (
     <div className="max-w-4xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-12 text-center">
-        <h1 className="text-5xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 mb-4 tracking-tighter">
+      <div className="mb-8 md:mb-12 text-center">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-500 to-orange-400 mb-2 tracking-tighter">
           Reels
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest text-xs">Entertainment • Clips • Stories</p>
+        <p className="text-[10px] md:text-xs text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">Entertainment • Clips • Stories</p>
       </div>
 
       {loading ? (
@@ -59,15 +59,15 @@ const ReelsPage = () => {
           <div className="w-12 h-12 border-4 border-pink-500 border-t-transparent rounded-full animate-spin shadow-lg shadow-pink-500/20" />
         </div>
       ) : reels.length === 0 ? (
-        <div className="text-center py-20 opacity-50 bg-gray-50 dark:bg-gray-900/50 rounded-3xl mx-2 border border-dashed border-gray-200 dark:border-gray-800">
+        <div className="text-center py-20 opacity-50 bg-gray-50 dark:bg-gray-900/50 rounded-3xl mx-4 border border-dashed border-gray-200 dark:border-gray-800">
            <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4 text-pink-500"><path d="m22 8-6 4 6 4V8Z"/><rect width="14" height="12" x="2" y="6" rx="2" ry="2"/></svg>
-           <p className="text-2xl font-black">No reels yet</p>
-           <p className="max-w-xs mx-auto mt-2">Check back later or share your first reel from your dashboard!</p>
+           <p className="text-xl md:text-2xl font-black">No reels yet</p>
+           <p className="max-w-xs mx-auto mt-2 text-sm">Check back later or share your first reel from your dashboard!</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 px-2 pb-20 mt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 px-4 pb-20 mt-6 md:mt-10">
           {reels.map((reel) => (
-            <Card key={reel.id} className="overflow-hidden border-none shadow-2xl bg-[#080808] text-white rounded-[3rem] group relative h-[700px] ring-1 ring-white/10 flex flex-col transition-all active:scale-95 duration-500 cursor-pointer">
+            <Card key={reel.id} className="overflow-hidden border-none shadow-2xl bg-[#080808] text-white rounded-[2rem] md:rounded-[3rem] group relative h-[600px] md:h-[750px] ring-1 ring-white/10 flex flex-col transition-all active:scale-95 duration-500 cursor-pointer">
               
               {/* Media Section (Video) */}
               <div className="flex-1 overflow-hidden relative">

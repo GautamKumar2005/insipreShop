@@ -49,7 +49,7 @@ interface Order {
 }
 
 export default function OrderDetailsPage() {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);

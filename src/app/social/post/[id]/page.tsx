@@ -27,7 +27,7 @@ interface SocialPost {
 }
 
 const SinglePostPage = () => {
-  const { id } = useParams();
+  const { id } = useParams() as { id: string };
   const { user } = useAuth();
   const router = useRouter();
   const [post, setPost] = useState<SocialPost | null>(null);

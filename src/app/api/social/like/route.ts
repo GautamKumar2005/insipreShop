@@ -23,12 +23,48 @@ export async function POST(req: NextRequest) {
 
     if (checkLiked.rows.length > 0) {
       await pool.query("DELETE FROM social_likes WHERE post_id = $1 AND user_id = $2", [postId, decoded.id]);
-      return success({ liked: false });
+      const countsResp = await pool.query("SELECT COUNT(*) FROM social_likes WHERE post_id = $1", [postId]);
+      return success({ liked: false, likesCount: parseInt(countsResp.rows[0].count) });
     } else {
       await pool.query("INSERT INTO social_likes (post_id, user_id) VALUES ($1, $2)", [postId, decoded.id]);
-      return success({ liked: true });
+      const countsResp = await pool.query("SELECT COUNT(*) FROM social_likes WHERE post_id = $1", [postId]);
+      return success({ liked: true, likesCount: parseInt(countsResp.rows[0].count) });
     }
   } catch (err: any) {
     return error(err.message || "Failed to toggle like", 500);
+  }
+}
+
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const postId = searchParams.get("postId");
+    if (!postId) return error("postId is required", 400);
+
+    const likesRes = await pool.query(
+      "SELECT user_id FROM social_likes WHERE post_id = $1 ORDER BY created_at DESC",
+      [postId]
+    );
+
+    const userIds = likesRes.rows.map(r => r.user_id);
+    const validIds = userIds.filter(id => /^[0-9a-fA-F]{24}$/.test(id));
+    if (validIds.length === 0) return success([]);
+
+    await connectDB();
+    const users = await User.find({ _id: { $in: validIds } }).select("name profilePhoto _id username");
+
+    const result = users.map(u => ({
+      id: u._id.toString(),
+      name: u.name,
+      username: u.username || `user_${u._id.toString().substring(0,6)}`,
+      avatar: u.profilePhoto?.url || null
+    }));
+
+    return success(result);
+  } catch (err: any) {
+    return error(err.message || "Failed to get likes");
   }
 }

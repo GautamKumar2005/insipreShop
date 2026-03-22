@@ -16,7 +16,7 @@ export async function createOrder(
   }));
 
   const totalAmount = items.reduce(
-    (sum, i) => sum + i.price * i.quantity,
+    (sum: number, i: any) => sum + i.price * i.quantity,
     0
   );
 

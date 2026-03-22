@@ -19,11 +19,7 @@ export async function GET(req: NextRequest) {
     const query: any = { isActive: true }; // Only active products
 
     if (search) {
-      query.$or = [
-        { name: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { category: { $regex: search, $options: "i" } }, // Allow searching by category name too
-      ];
+      query.$text = { $search: search };
     }
 
     if (category && category !== "All") {

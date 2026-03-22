@@ -34,14 +34,26 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
 
+  // Password Change State
+  const [showSecurityOptions, setShowSecurityOptions] = useState(false);
+  const [passwordMethod, setPasswordMethod] = useState<"otp" | "direct" | null>(null);
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+    otp: "",
+  });
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+
   useEffect(() => {
     if (user) {
       setFormData({
         name: user.name || "",
-        phone: (user as any).phone || "",
+        phone: user.phone || "",
         address: user.address || "",
-        dob: (user as any).dob
-          ? new Date((user as any).dob).toISOString().split("T")[0]
+        dob: user.dob
+          ? new Date(user.dob).toISOString().split("T")[0]
           : "",
       });
 
@@ -63,8 +75,7 @@ export default function ProfilePage() {
       if (data.success) {
         setOrders(data.data.slice(0, 5)); // Show recent 5
       }
-    } catch (err) {
-          }
+    } catch (err) {}
   };
 
   const handleSave = async () => {
@@ -88,7 +99,7 @@ export default function ProfilePage() {
         alert(data.message || "Failed to update");
       }
     } catch (err) {
-            alert("Error saving profile");
+      alert("Error saving profile");
     } finally {
       setSaving(false);
     }
@@ -125,10 +136,92 @@ export default function ProfilePage() {
         }
       };
     } catch (err) {
-            alert("Something went wrong uploading the image.");
+      alert("Something went wrong uploading the image.");
     } finally {
       // Re-enable form after processing starts
       setTimeout(() => setUploadingImage(false), 2000);
+    }
+  };
+
+  const handleRequestOtp = async () => {
+    if (!user?.email) return;
+    setSendingOtp(true);
+    try {
+      const res = await fetch("/api/auth/send-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: user.email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("OTP sent to your registered email!");
+      } else {
+        alert(data.message || "Failed to send OTP");
+      }
+    } catch (err) {
+      alert("Error sending OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("New passwords do not match!");
+      return;
+    }
+    if (passwordData.newPassword.length < 6) {
+      alert("Password must be at least 6 characters long");
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      const token = localStorage.getItem("token");
+      let res, data;
+
+      if (passwordMethod === "otp") {
+        res = await fetch("/api/auth/reset-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: user?.email,
+            otp: passwordData.otp,
+            newPassword: passwordData.newPassword,
+          }),
+        });
+      } else {
+        res = await fetch("/api/auth/change-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            oldPassword: passwordData.oldPassword,
+            newPassword: passwordData.newPassword,
+          }),
+        });
+      }
+
+      data = await res.json();
+      if (data.success) {
+        alert("Password changed successfully!");
+        setPasswordMethod(null);
+        setPasswordData({
+          oldPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+          otp: "",
+        });
+        setShowSecurityOptions(false);
+      } else {
+        alert(data.message || "Failed to change password");
+      }
+    } catch (err) {
+      alert("Error changing password");
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -160,21 +253,19 @@ export default function ProfilePage() {
   }
 
   const profileImageUrl =
-    (user as any).profilePhoto?.url ||
+    user.profilePhoto?.url ||
     "https://ui-avatars.com/api/?name=" +
       encodeURIComponent(user.name) +
       "&background=F3E8FF&color=9333EA&size=200";
 
   return (
     <div className="bg-gray-50/50 min-h-screen pb-16">
-      {/* Dynamic Header Badge Section */}
       <div className="h-48 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 w-full relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl -mt-24 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl -mt-16 md:-mt-24 relative z-10">
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* LEFT COLUMN: Profile Identity Card */}
           <div className="lg:col-span-1 space-y-6">
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex flex-col items-center pt-8 pb-10 px-6 border border-gray-100">
               <div className="relative group">
@@ -192,7 +283,6 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                {/* Upload Button overlaying avatar */}
                 <label className="absolute bottom-1 right-2 w-10 h-10 bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg border-2 border-white">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -213,9 +303,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="text-center mt-5 w-full">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {user.name}
-                </h1>
+                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
                 <p className="text-purple-600 font-medium text-sm mt-1 mb-2 capitalize px-3 py-1 bg-purple-50 rounded-full inline-block">
                   {user.role}
                 </p>
@@ -225,10 +313,10 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <div className="w-full mt-8 border-t border-gray-100 pt-6">
+              <div className="w-full mt-6 md:mt-8 border-t border-gray-100 dark:border-gray-700 pt-6">
                 <Button
                   variant="outline"
-                  className="w-full text-red-500 border-red-100 hover:bg-red-50 hover:border-red-200 transition-colors h-12 rounded-xl font-semibold"
+                  className="w-full text-red-500 border-red-100 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors h-12 rounded-2xl font-bold"
                   onClick={() => logout()}
                 >
                   Sign Out Securely
@@ -236,7 +324,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Role Specific Control Panel injected here for cleanliness */}
             {user.role === "seller" && (
               <div className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl shadow-xl p-8 text-white relative overflow-hidden group">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-10 -mt-10 blur-2xl group-hover:bg-white/20 transition-all duration-500"></div>
@@ -274,7 +361,6 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {/* RIGHT COLUMN: Edit Forms & History */}
           <div className="lg:col-span-2 space-y-8">
             <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
               <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
@@ -388,11 +474,11 @@ export default function ProfilePage() {
               </div>
 
               {isEditing && (
-                <div className="flex justify-end mt-8 pt-6 border-t border-gray-100">
+                <div className="flex justify-end mt-8 pt-6 border-t border-gray-100 dark:border-gray-700">
                   <Button
                     onClick={handleSave}
                     disabled={saving}
-                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto px-10 rounded-full h-12 shadow-lg shadow-purple-200 transition-all font-bold text-lg"
+                    className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto px-10 rounded-2xl h-12 shadow-lg shadow-purple-200 dark:shadow-none transition-all font-bold text-lg"
                   >
                     {saving ? "Processing..." : "Save Configuration"}
                   </Button>
@@ -400,13 +486,187 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* BUYER: Order History */}
+            {/* SECURITY SECTION */}
+            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
+                <h2 className="text-2xl font-bold text-gray-800">Security & Access</h2>
+                {!showSecurityOptions && (
+                  <Button
+                    variant="outline"
+                    className="rounded-full border-purple-200 text-purple-600 hover:bg-purple-50 px-6 font-bold"
+                    onClick={() => setShowSecurityOptions(true)}
+                  >
+                    Change Password
+                  </Button>
+                )}
+              </div>
+
+              {!showSecurityOptions ? (
+                <div className="flex items-center gap-4 text-gray-500">
+                  <div className="p-3 bg-purple-50 rounded-2xl">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6 text-purple-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                  </div>
+                  <div>
+                    <p className="font-bold text-gray-800">Password Control</p>
+                    <p className="text-sm">Manage your account protection and sign-in preferences.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {!passwordMethod ? (
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <button
+                        onClick={() => setPasswordMethod("direct")}
+                        className="p-6 border-2 border-purple-100 rounded-3xl hover:border-purple-500 hover:bg-purple-50 transition-all text-left flex flex-col gap-2 group"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <span className="font-black text-gray-800">Use Old Password</span>
+                        <span className="text-xs text-gray-400">Verify using your current secure password.</span>
+                      </button>
+
+                      <button
+                        onClick={() => setPasswordMethod("otp")}
+                        className="p-6 border-2 border-blue-100 rounded-3xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left flex flex-col gap-2 group"
+                      >
+                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-5 w-5"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
+                          >
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                          </svg>
+                        </div>
+                        <span className="font-black text-gray-800">Use Email OTP</span>
+                        <span className="text-xs text-gray-400">Receive a one-time code to your registered email.</span>
+                      </button>
+
+                      <button
+                        className="sm:col-span-2 text-gray-400 hover:text-gray-600 font-bold py-2"
+                        onClick={() => setShowSecurityOptions(false)}
+                      >
+                        Back to Settings
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="max-w-md mx-auto space-y-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="font-bold text-gray-900 capitalize">Method: {passwordMethod.replace("_", " ")}</h3>
+                        <button
+                          onClick={() => setPasswordMethod(null)}
+                          className="text-xs text-purple-600 font-bold hover:underline"
+                        >
+                          Change Method
+                        </button>
+                      </div>
+
+                      {passwordMethod === "direct" && (
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current Password</label>
+                          <input
+                            type="password"
+                            placeholder="••••••••"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            value={passwordData.oldPassword}
+                            onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
+                          />
+                        </div>
+                      )}
+
+                      {passwordMethod === "otp" && (
+                        <div className="space-y-4">
+                          <div className="flex items-end gap-2">
+                            <div className="flex-1">
+                              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Email Verification Code</label>
+                              <input
+                                type="text"
+                                placeholder="6-digit OTP"
+                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all font-mono tracking-[0.5em]"
+                                maxLength={6}
+                                value={passwordData.otp}
+                                onChange={(e) => setPasswordData({ ...passwordData, otp: e.target.value })}
+                              />
+                            </div>
+                            <Button
+                              disabled={sendingOtp}
+                              onClick={handleRequestOtp}
+                              className="h-12 px-6 rounded-2xl bg-gray-900 hover:bg-black font-bold text-xs text-white"
+                            >
+                              {sendingOtp ? "Sending..." : "Get OTP"}
+                            </Button>
+                          </div>
+                          <p className="text-[10px] text-gray-400 italic">Code will be sent to {user?.email}</p>
+                        </div>
+                      )}
+
+                      <div className="space-y-4 pt-4 border-t border-gray-50">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">New Password</label>
+                          <input
+                            type="password"
+                            placeholder="Min. 6 characters"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            value={passwordData.newPassword}
+                            onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Confirm New Password</label>
+                          <input
+                            type="password"
+                            placeholder="Confirm your entry"
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            value={passwordData.confirmPassword}
+                            onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
+                          />
+                        </div>
+
+                        <Button
+                          disabled={changingPassword}
+                          onClick={handleChangePassword}
+                          className="w-full h-14 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl font-black uppercase tracking-widest text-sm shadow-xl shadow-purple-200 dark:shadow-none transition-all mt-4"
+                        >
+                          {changingPassword ? "Updating Secret..." : "Complete Change"}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
             {user.role === "buyer" && (
               <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
                 <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-                  <h2 className="text-2xl font-bold text-gray-800">
-                    Order History
-                  </h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Order History</h2>
                   <Link href="/orders">
                     <Button
                       variant="outline"
@@ -435,12 +695,8 @@ export default function ProfilePage() {
                         />
                       </svg>
                     </div>
-                    <p className="text-gray-500 font-medium">
-                      No order history available.
-                    </p>
-                    <p className="text-gray-400 text-sm mt-1">
-                      When you make a purchase, it will appear here.
-                    </p>
+                    <p className="text-gray-500 font-medium">No order history available.</p>
+                    <p className="text-gray-400 text-sm mt-1">When you make a purchase, it will appear here.</p>
                   </div>
                 ) : (
                   <div className="space-y-5">
@@ -450,11 +706,7 @@ export default function ProfilePage() {
                         firstProduct?.images?.[0]?.url || "/placeholder.png";
 
                       return (
-                        <Link
-                          href={`/orders/${order._id}`}
-                          key={order._id}
-                          className="block group"
-                        >
+                        <Link href={`/orders/${order._id}`} key={order._id} className="block group">
                           <div className="flex gap-5 items-center p-4 rounded-2xl border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all bg-white hover:bg-purple-50/30">
                             <div className="relative w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-gray-200/50">
                               <Image
@@ -493,12 +745,8 @@ export default function ProfilePage() {
                               </h3>
 
                               <div className="flex justify-between items-center mt-2">
-                                <p className="text-sm text-gray-500">
-                                  {formatDateShort(order.createdAt)}
-                                </p>
-                                <p className="font-bold text-gray-900 text-lg">
-                                  ₹{order.totalAmount}
-                                </p>
+                                <p className="text-sm text-gray-500">{formatDateShort(order.createdAt)}</p>
+                                <p className="font-bold text-gray-900 text-lg">₹{order.totalAmount}</p>
                               </div>
                             </div>
 

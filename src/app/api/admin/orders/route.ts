@@ -25,9 +25,6 @@ export async function GET(req: NextRequest) {
         orConditions.push({ _id: search });
       }
 
-      orConditions.push({ status: { $regex: search, $options: "i" } });
-      orConditions.push({ paymentStatus: { $regex: search, $options: "i" } });
-
       // Match Users
       const matchingUsers = await User.find({
         $or: [

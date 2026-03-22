@@ -5,12 +5,14 @@ interface LoaderProps {
   size?: "sm" | "md" | "lg";
   fullScreen?: boolean;
   className?: string;
+  color?: string;
 }
 
 export const Loader: React.FC<LoaderProps> = ({
   size = "md",
   fullScreen = false,
   className,
+  color,
 }) => {
   return (
     <div
@@ -22,6 +24,7 @@ export const Loader: React.FC<LoaderProps> = ({
       )}
     >
       <span
+        style={color ? { borderTopColor: color } : {}}
         className={clsx(
           "inline-block animate-spin rounded-full border-4 border-gray-300 border-t-black",
 
@@ -33,3 +36,5 @@ export const Loader: React.FC<LoaderProps> = ({
     </div>
   );
 };
+
+export default Loader;

@@ -13,7 +13,7 @@ export async function GET(
   try {
     await connectDB();
     const { id } = await params;
-    const user = await User.findById(id).select("_id name username bio profilePhoto role followers following");
+    const user = await User.findById(id).select("_id name username bio profilePhoto role followers following isOnline lastSeen");
     if (!user) return error("User not found", 404);
 
     return success(user);

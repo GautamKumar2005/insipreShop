@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { NotificationItem } from "@/components/notification/NotificationItem";
+import NotificationItem from "@/components/notification/NotificationItem";
 import Loader from "@/components/ui/Loader";
 
 interface Notification {
@@ -63,7 +63,7 @@ export default function NotificationsPage() {
         <NotificationItem
           key={notif._id}
           notification={notif}
-          onClick={() => markAsRead(notif._id)}
+          onMarkAsRead={() => markAsRead(notif._id)}
         />
       ))}
     </div>

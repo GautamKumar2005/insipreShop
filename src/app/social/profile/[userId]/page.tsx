@@ -45,9 +45,10 @@ const SocialProfile = () => {
   const fetchProfileData = async () => {
     try {
       setLoading(true);
-      // Fetch posts for this user
+      const token = window.localStorage.getItem('token');
+      const fetchOpts = { headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) } };
       const [socialRes, userRes, statsRes] = await Promise.all([
-        fetch(`/api/social?userId=${userId}`),
+        fetch(`/api/social?userId=${userId}`, fetchOpts),
         fetch(`/api/users/${userId}`),
         fetch(`/api/social/stats?userId=${userId}`)
       ]);
@@ -145,7 +146,9 @@ const SocialProfile = () => {
     try {
       setFollowUsersList([]);
       setShowFollowModal(type);
-      const res = await fetch(`/api/social/${type}?userId=${userId}`);
+      const token = window.localStorage.getItem('token');
+      const fetchOpts = { headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) } };
+      const res = await fetch(`/api/social/${type}?userId=${userId}`, fetchOpts);
       const data = await res.json();
       if (data.success) {
         setFollowUsersList(data.data);
@@ -191,12 +194,15 @@ const SocialProfile = () => {
                 <p className="text-center text-gray-500 py-10 font-medium">No one found.</p>
               ) : (
                 followUsersList.map(u => (
-                  <div key={u._id} className="flex items-center justify-between">
+                  <div key={u._id} className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden flex items-center justify-center text-purple-600 font-bold border border-gray-100 dark:border-gray-800">
+                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden flex items-center justify-center text-purple-600 font-bold border border-gray-100 dark:border-gray-800 shadow-sm">
                         {u.avatar ? <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"/> : u.name?.[0]}
                       </div>
-                      <Link onClick={() => setShowFollowModal(null)} href={`/social/profile/${u._id}`} className="font-bold text-sm hover:underline">{u.name}</Link>
+                      <div className="flex flex-col">
+                         <Link onClick={() => setShowFollowModal(null)} href={`/social/profile/${u._id}`} className="font-bold text-sm hover:underline">{u.name}</Link>
+                         <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">@{u.username || `user_${u._id.substring(0,6)}`}</span>
+                      </div>
                     </div>
                   </div>
                 ))
@@ -286,7 +292,7 @@ const SocialProfile = () => {
                         postId={post.id}
                         initialLikes={post.likes_count || 0}
                         initialComments={post.comments_count || 0}
-                        initialViews={(post.views_count || 0) + 1}
+                        initialViews={post.views_count || 0}
                         isLikedInitially={post.liked_by_me || false}
                     />
                   </div>

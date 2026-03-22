@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
+import "@/models/User"; // Import User model to fix populate crash
 import { success, error } from "@/lib/response";
 
 export async function GET(req: NextRequest) {
@@ -25,6 +26,7 @@ export async function GET(req: NextRequest) {
 
     return success(products);
   } catch (err: any) {
+    console.error("Product search error:", err);
     return error(err.message || "Product search failed");
   }
 }

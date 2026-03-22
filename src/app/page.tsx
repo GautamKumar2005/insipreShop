@@ -45,8 +45,8 @@ const LandingPage = () => {
 
       {/* Category Scroll Bar */}
       <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-[0_4px_20px_-10px_rgba(0,0,0,0.1)] border-b dark:border-gray-800 py-1 sticky top-[56px] z-30 transition-all">
-        <div className="container mx-auto px-4">
-          <div className="flex overflow-x-auto no-scrollbar gap-4 items-center hide-scroll-bar pb-1 pt-1">
+        <div className="container mx-auto">
+          <div className="flex overflow-x-auto no-scrollbar gap-3 md:gap-5 items-center hide-scroll-bar py-3 px-4 sm:px-0">
             {PRODUCT_CATEGORIES.map((cat, i) => {
               const gradients = [
                 "hover:from-pink-500 hover:to-orange-400",
@@ -224,7 +224,7 @@ function ProductSection({
       <div className="flex justify-between items-end mb-8 border-b dark:border-gray-800 pb-4">
         <div>
           <h2
-            className={`${compact ? "text-2xl" : "text-3xl lg:text-4xl"} font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight`}
+            className={`${compact ? "text-xl md:text-2xl" : "text-2xl md:text-3xl lg:text-4xl"} font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 tracking-tight`}
           >
             {title}
           </h2>

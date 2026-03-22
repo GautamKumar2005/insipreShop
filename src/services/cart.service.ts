@@ -14,7 +14,7 @@ export async function addToCart(userId: string, productId: string) {
     });
   } else {
     const item = cart.items.find(
-      (i) => i.product.toString() === productId
+      (i: any) => i.product.toString() === productId
     );
     if (item) item.quantity += 1;
     else cart.items.push({ product: productId, quantity: 1 });

@@ -11,6 +11,8 @@ export interface IProduct extends Document {
   isActive: boolean;
   isEdited?: boolean;
   rating: number;
+  originalPrice?: number;
+  brand?: string;
   images: {
     publicId: string;
     url: string;
@@ -32,6 +34,11 @@ const ProductSchema = new Schema<IProduct>(
       trim: true,
     },
 
+    brand: {
+      type: String,
+      trim: true,
+    },
+
     description: {
       type: String,
       trim: true,
@@ -40,6 +47,10 @@ const ProductSchema = new Schema<IProduct>(
     price: {
       type: Number,
       required: true,
+    },
+
+    originalPrice: {
+      type: Number,
     },
 
     stock: {
@@ -116,18 +127,9 @@ ProductSchema.statics.searchProducts = async function (params: {
     stock: { $gt: 0 }, // Only show products in stock
   };
 
-  // Text search by name, description, or category
+  // Text search by name or description
   if (search) {
-    const searchTerms = search.trim().split(/\s+/);
-    if (searchTerms.length > 0) {
-      query.$and = searchTerms.map((term) => ({
-        $or: [
-          { name: { $regex: term, $options: "i" } },
-          { description: { $regex: term, $options: "i" } },
-          { category: { $regex: term, $options: "i" } },
-        ],
-      }));
-    }
+    query.$text = { $search: search };
   }
 
   // Category filter

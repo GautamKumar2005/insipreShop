@@ -17,15 +17,16 @@ export async function GET(req: NextRequest) {
     );
 
     const followerIds = followersRes.rows.map(r => r.follower_id);
-
-    if (followerIds.length === 0) return success([]);
+    const validIds = followerIds.filter(id => /^[0-9a-fA-F]{24}$/.test(id));
+    if (validIds.length === 0) return success([]);
 
     await connectDB();
-    const users = await User.find({ _id: { $in: followerIds } }).select("name profilePhoto _id");
+    const users = await User.find({ _id: { $in: validIds } }).select("name profilePhoto _id username");
     
     const result = users.map(u => ({
       _id: u._id,
       name: u.name,
+      username: u.username || `user_${u._id.toString().substring(0,6)}`,
       avatar: u.profilePhoto?.url || null
     }));
 

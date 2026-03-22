@@ -3,11 +3,8 @@ import { connectDB } from "@/lib/db";
 import Cart from "@/models/Cart";
 import { success, error } from "@/lib/response";
 
-interface Params {
-  params: { id: string };
-}
-
-export async function PUT(req: NextRequest, { params }: Params) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     await connectDB();
 
@@ -17,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
     const { quantity } = await req.json();
 
     const cartItem = await Cart.findOneAndUpdate(
-      { _id: params.id, user: userId },
+      { _id: id, user: userId },
       { quantity },
       { new: true }
     ).populate("product");
@@ -30,7 +27,8 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: Params) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   try {
     await connectDB();
 
@@ -38,7 +36,7 @@ export async function DELETE(req: NextRequest, { params }: Params) {
     if (!userId) return error("Unauthorized", 401);
 
     const cartItem = await Cart.findOneAndDelete({
-      _id: params.id,
+      _id: id,
       user: userId,
     });
 

@@ -208,15 +208,15 @@ function Stat({ title, value }: any) {
 function OrderCard({ order, onChat }: any) {
   return (
     <div className="border rounded-xl p-5 shadow-sm bg-white transition hover:shadow-md">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
+        <div className="flex flex-col gap-1 w-full">
+          <div className="flex items-center justify-between sm:justify-start gap-2">
             <span
               className={`text-[10px] px-2 py-1 uppercase tracking-wide rounded font-bold ${getStatusColor(order.status)}`}
             >
               {order.status}
             </span>
-            <span className="text-xs text-gray-500 font-mono">
+            <span className="text-xs text-gray-400 font-mono">
               #{order._id.slice(-6)}
             </span>
           </div>
@@ -224,7 +224,7 @@ function OrderCard({ order, onChat }: any) {
             Placed on: {formatDate(order.createdAt)}
           </p>
         </div>
-        <div className="font-bold text-lg text-emerald-600">
+        <div className="font-black text-xl text-emerald-600 sm:text-right w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0">
           ₹{order.totalAmount}
         </div>
       </div>

@@ -129,43 +129,42 @@ export default function SellerProductsPage() {
                 <h2 className="font-semibold text-lg mb-1 truncate">{product.name}</h2>
                 <p className="mb-2 text-gray-800 font-medium text-xl">₹{product.price}</p>
                 <div className="flex items-center gap-2 mb-2">
-                  <Badge color={product.stock > 0 ? "green" : "red"}>
+                  <Badge variant={product.stock > 0 ? "success" : "error"}>
                     {product.stock > 0 ? "In stock" : "Out of stock"}
                   </Badge>
-                  <span className="text-xs text-gray-500">Qty: {product.stock}</span>
+                  <span className="text-xs text-gray-500 font-medium">Qty: {product.stock}</span>
                 </div>
               </div>
 
-              <div className="flex gap-2 mt-auto pt-4">
+              <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-gray-50">
                 <Button
-                  variant="outline"
-                  size="sm"
+                  className="w-full rounded-xl bg-black text-white hover:bg-gray-800 font-bold h-11"
                   onClick={() => router.push(`/products/${product._id}`)}
                 >
-                  View
+                  View Product
                 </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation();
-                    router.push(`/seller/products/edit/${product._id}`);
-                  }}
-                  className="flex items-center gap-1"
-                >
-                  <IoMdCreate /> Edit
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={e => {
-                    e.stopPropagation();
-                    handleDelete(product._id);
-                  }}
-                  className="flex items-center gap-1"
-                >
-                  <IoMdTrash /> Delete
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    className="flex-1 rounded-xl h-11 font-bold flex items-center justify-center gap-2"
+                    onClick={e => {
+                      e.stopPropagation();
+                      router.push(`/seller/products/edit/${product._id}`);
+                    }}
+                  >
+                    <IoMdCreate size={18} /> Edit
+                  </Button>
+                  <Button
+                    variant="danger"
+                    className="flex-1 rounded-xl h-11 font-bold flex items-center justify-center gap-2"
+                    onClick={e => {
+                      e.stopPropagation();
+                      handleDelete(product._id);
+                    }}
+                  >
+                    <IoMdTrash size={18} /> Delete
+                  </Button>
+                </div>
               </div>
             </div>
           ))}

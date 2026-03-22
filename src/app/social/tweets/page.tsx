@@ -47,11 +47,11 @@ const TweetsPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="mb-10 text-center">
-        <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400 mb-2">
+      <div className="mb-8 text-center px-4">
+        <h1 className="text-3xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-cyan-400 mb-2">
           Tweets
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 font-medium">Join the conversation with short updates.</p>
+        <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-widest">Global Conversations • Real-time</p>
       </div>
 
       {loading ? (
@@ -59,12 +59,12 @@ const TweetsPage = () => {
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
         </div>
       ) : tweets.length === 0 ? (
-        <div className="text-center py-20 text-gray-400 bg-blue-50/30 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20 mx-2">
+        <div className="text-center py-20 text-gray-400 bg-blue-50/30 dark:bg-blue-900/10 rounded-3xl border border-blue-100 dark:border-blue-900/20 mx-4">
           <p className="text-xl font-bold">No tweets found.</p>
           <p className="mt-2 text-sm text-blue-400">Be the first to share a tweet from your dashboard!</p>
         </div>
       ) : (
-        <div className="space-y-6 px-2">
+        <div className="space-y-4 md:space-y-6 px-4 pb-10">
           {tweets.map((tweet) => (
             <Card key={tweet.id} className="p-6 border-none shadow-xl bg-white dark:bg-[#0a0a0a] rounded-[2rem] hover:shadow-2xl transition-all duration-300 ring-1 ring-black/5 dark:ring-white/5">
               <div className="flex gap-4">

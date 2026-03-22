@@ -11,10 +11,12 @@ export async function POST(req: NextRequest) {
     const { postId } = await req.json();
     if (!postId) return error("Post ID is required", 400);
 
-    let userId = "guest";
+    let userId = "guest_" + Math.random().toString(36).substring(7);
     if (authHeader && authHeader.startsWith("Bearer ")) {
-      const decoded = verifyAccessToken(authHeader.split(" ")[1]) as any;
-      if (decoded && decoded.id) userId = decoded.id;
+      try {
+        const decoded = verifyAccessToken(authHeader.split(" ")[1]) as any;
+        if (decoded && decoded.id) userId = decoded.id;
+      } catch (e) {}
     }
 
     // Upsert view
@@ -23,8 +25,46 @@ export async function POST(req: NextRequest) {
       [postId, userId]
     );
 
-    return success({ viewed: true });
+    // Get exact new count to return
+    const viewsRes = await pool.query("SELECT COUNT(*) FROM social_views WHERE post_id = $1", [postId]);
+    const newCount = parseInt(viewsRes.rows[0].count);
+
+    return success({ viewed: true, viewsCount: newCount });
   } catch (err: any) {
     return error(err.message || "Failed to record view", 500);
+  }
+}
+
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
+
+export async function GET(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const postId = searchParams.get("postId");
+    if (!postId) return error("postId is required", 400);
+
+    const viewsRes = await pool.query(
+      "SELECT user_id FROM social_views WHERE post_id = $1 AND user_id != 'guest'",
+      [postId]
+    );
+
+    const userIds = viewsRes.rows.map(r => r.user_id);
+    const validIds = userIds.filter(id => /^[0-9a-fA-F]{24}$/.test(id));
+    if (validIds.length === 0) return success([]);
+
+    await connectDB();
+    const users = await User.find({ _id: { $in: validIds } }).select("name profilePhoto _id username");
+
+    const result = users.map(u => ({
+      id: u._id.toString(),
+      name: u.name,
+      username: u.username || `user_${u._id.toString().substring(0,6)}`,
+      avatar: u.profilePhoto?.url || null
+    }));
+
+    return success(result);
+  } catch (err: any) {
+    return error(err.message || "Failed to get views");
   }
 }

@@ -10,6 +10,10 @@ interface User {
   email: string;
   role: Role;
   address?: string;
+  avatar?: string;
+  profilePhoto?: { url: string };
+  phone?: string;
+  dob?: string | Date;
 }
 
 interface AuthResponse {
@@ -173,6 +177,20 @@ export function useAuth() {
     };
   };
 
+  const refreshToken = async () => {
+    try {
+      const res = await fetch("/api/auth/refresh", { method: "POST" });
+      const data = await res.json();
+      if (data.success && data.data?.accessToken) {
+        localStorage.setItem("token", data.data.accessToken);
+        return { success: true };
+      }
+      return { success: false, message: data.message || "Session expired" };
+    } catch (err: any) {
+      return { success: false, message: err.message || "Failed to refresh token" };
+    }
+  };
+
   return {
     user,
     loading,
@@ -182,5 +200,6 @@ export function useAuth() {
     logout,
     getToken,
     getAuthHeaders,
+    refreshToken,
   };
 }

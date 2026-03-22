@@ -11,6 +11,8 @@ import {
   Mail,
   Phone,
   MapPin,
+  Youtube,
+  Github,
 } from "lucide-react";
 
 export default function Footer() {
@@ -159,30 +161,58 @@ export default function Footer() {
               </a>
             </li>
           </ul>
-          <div className="flex gap-4 mt-6">
+        </div>
+      </div>
+
+      {/* Social Links Section */}
+      <div className="container mx-auto px-6 mt-12 py-8 border-t border-white/5">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="text-center md:text-left">
+            <h3 className="text-xl font-bold text-white mb-2">Connect with us</h3>
+            <p className="text-sm text-gray-400">Join our community and stay updated with the latest trends.</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
             <Link
               href="#"
-              className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-all"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-purple-600 hover:border-purple-500 hover:scale-110 transition-all duration-300 group"
+              aria-label="Facebook"
             >
-              <Facebook className="w-5 h-5" />
+              <Facebook className="w-6 h-6 text-gray-400 group-hover:text-white" />
             </Link>
             <Link
               href="#"
-              className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-all"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-[#1DA1F2] hover:border-[#1DA1F2] hover:scale-110 transition-all duration-300 group"
+              aria-label="Twitter"
             >
-              <Twitter className="w-5 h-5" />
+              <Twitter className="w-6 h-6 text-gray-400 group-hover:text-white" />
             </Link>
             <Link
               href="#"
-              className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-all"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] hover:border-transparent hover:scale-110 transition-all duration-300 group"
+              aria-label="Instagram"
             >
-              <Instagram className="w-5 h-5" />
+              <Instagram className="w-6 h-6 text-gray-400 group-hover:text-white" />
             </Link>
             <Link
               href="#"
-              className="p-2 bg-gray-800 rounded-full hover:bg-purple-600 transition-all"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-[#0077b5] hover:border-[#0077b5] hover:scale-110 transition-all duration-300 group"
+              aria-label="LinkedIn"
             >
-              <Linkedin className="w-5 h-5" />
+              <Linkedin className="w-6 h-6 text-gray-400 group-hover:text-white" />
+            </Link>
+            <Link
+              href="#"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-[#FF0000] hover:border-[#FF0000] hover:scale-110 transition-all duration-300 group"
+              aria-label="Youtube"
+            >
+              <Youtube className="w-6 h-6 text-gray-400 group-hover:text-white" />
+            </Link>
+            <Link
+              href="#"
+              className="p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-gray-700 hover:border-gray-600 hover:scale-110 transition-all duration-300 group"
+              aria-label="Github"
+            >
+              <Github className="w-6 h-6 text-gray-400 group-hover:text-white" />
             </Link>
           </div>
         </div>

@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
 
     // 🔹 UPDATE CART
     const itemIndex = cart.items.findIndex(
-      (item) => item.product.toString() === productId
+      (item: any) => item.product.toString() === productId
     );
 
     if (itemIndex !== -1) {
@@ -97,7 +97,7 @@ export async function PUT(req: NextRequest) {
     if (!cart) return error("Cart not found", 404);
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.product.toString() === productId
+      (item: any) => item.product.toString() === productId
     );
 
     if (itemIndex !== -1) {
@@ -141,7 +141,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     const itemIndex = cart.items.findIndex(
-      (item) => item.product.toString() === productId
+      (item: any) => item.product.toString() === productId
     );
 
     if (itemIndex !== -1) {

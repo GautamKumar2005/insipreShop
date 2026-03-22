@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
     pathname.startsWith("/api/products") || // products + products/[id]
     pathname.startsWith("/api/search") || // Allow search API publicly
     pathname.startsWith("/api/feedback") || // Allow feedback submissions publicly
-    (pathname.startsWith("/api/social") && !pathname.startsWith("/api/social/follow")) || // Allow guests to view social hub (but NOT follow actions)
+    (pathname.startsWith("/api/social") && pathname !== "/api/social/follow") || // Allow guests to view social hub (but NOT the POST follow action)
     (pathname.startsWith("/api/users") && req.method === "GET") // Allow guests to view public user data ONLY
   ) {
     return NextResponse.next();

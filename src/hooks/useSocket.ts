@@ -58,5 +58,13 @@ export function useSocket(token: string | null) {
     };
   }, [token]);
 
-  return { socket };
+  const on = (event: string, callback: (...args: any[]) => void) => {
+    socket?.on(event, callback);
+  };
+
+  const off = (event: string, callback: (...args: any[]) => void) => {
+    socket?.off(event, callback);
+  };
+
+  return { socket, on, off };
 }
