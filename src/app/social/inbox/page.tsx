@@ -173,14 +173,30 @@ const InboxPage = () => {
       if (!user) return;
       try {
         setLoading(true);
+        const currentToken = getToken();
+        
         const meRes = await fetch(`/api/users/${user.id}`);
         const meData = await meRes.json();
         const myData = meData.data;
 
-        if (myData) {
+        let messageContactIds: string[] = [];
+        if (currentToken) {
+          try {
+            const msgsRes = await fetch("/api/social/messages/contacts", {
+              headers: { Authorization: `Bearer ${currentToken}` }
+            });
+            const msgsData = await msgsRes.json();
+            if (msgsData.success) {
+              messageContactIds = msgsData.data.map((m: any) => m.contact_id);
+            }
+          } catch (e) { }
+        }
+
+        if (myData || messageContactIds.length > 0) {
           const authorizedIds = new Set([
-            ...(myData.following || []),
-            ...(myData.followers || [])
+            ...(myData?.following || []),
+            ...(myData?.followers || []),
+            ...messageContactIds
           ]);
 
           const usersRes = await fetch("/api/users");

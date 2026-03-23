@@ -1,0 +1,13 @@
+{
+  "total": 16,
+  "activeWithStock": 16,
+  "regex": 2,
+  "test": 1,
+  "textQueryOnlyNameAndDescRegex": 2,
+  "textIndexResults": 2,
+  "firstItem": {
+    "name": "Samsung S25",
+    "isAct": true,
+    "stock": 7
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "phoneSearchData": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "params": {
+        "search": "phone"
+      }
+    }
+  },
+  "phoneElectronicsData": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "params": {
+        "search": "phone",
+        "category": "Electronics"
+      }
+    }
+  },
+  "phoneMinPriceData": {
+    "success": true,
+    "message": "Success",
+    "data": {
+      "params": {
+        "search": "phone",
+        "minPrice": "1000"
+      }
+    }
+  }
+}
