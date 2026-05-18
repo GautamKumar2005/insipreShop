@@ -76,6 +76,19 @@ const initDb = async () => {
       );
     `);
 
+    // Notifications table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_notifications (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        recipient_id VARCHAR(255) NOT NULL,
+        sender_id VARCHAR(255) NOT NULL,
+        type VARCHAR(50) NOT NULL, -- 'like', 'comment', 'follow'
+        post_id UUID,
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
     // MESSAGE TABLE for direct chats
     await pool.query(`
       CREATE TABLE IF NOT EXISTS social_messages (

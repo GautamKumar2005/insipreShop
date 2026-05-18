@@ -3,6 +3,9 @@ import { NextRequest } from "next/server";
 import { pool } from "@/lib/supabase-db";
 import { success, error } from "@/lib/response";
 import { verifyAccessToken } from "@/lib/jwt";
+import { sendSocialNotification } from "@/lib/email";
+import { connectDB } from "@/lib/db";
+import User from "@/models/User";
 
 // Like or unlike a post
 export async function POST(req: NextRequest) {
@@ -28,6 +31,39 @@ export async function POST(req: NextRequest) {
     } else {
       await pool.query("INSERT INTO social_likes (post_id, user_id) VALUES ($1, $2)", [postId, decoded.id]);
       const countsResp = await pool.query("SELECT COUNT(*) FROM social_likes WHERE post_id = $1", [postId]);
+      
+      // Notify the post owner
+      try {
+        const postRes = await pool.query("SELECT user_id FROM social_posts WHERE id = $1", [postId]);
+        if (postRes.rows.length > 0) {
+          const postOwnerId = postRes.rows[0].user_id;
+          
+          if (postOwnerId !== decoded.id) {
+            // Save in DB
+            await pool.query(
+              "INSERT INTO social_notifications (recipient_id, sender_id, type, post_id) VALUES ($1, $2, 'like', $3)",
+              [postOwnerId, decoded.id, postId]
+            );
+            
+            // Send Email Notification
+            await connectDB();
+            const recipientUser = await User.findById(postOwnerId).select("email name");
+            const senderUser = await User.findById(decoded.id).select("name");
+            
+            if (recipientUser && senderUser) {
+              await sendSocialNotification(
+                recipientUser.email,
+                recipientUser.name,
+                senderUser.name,
+                "like"
+              );
+            }
+          }
+        }
+      } catch (notifyErr) {
+        console.error("Failed to process notification:", notifyErr);
+      }
+
       return success({ liked: true, likesCount: parseInt(countsResp.rows[0].count) });
     }
   } catch (err: any) {
@@ -35,8 +71,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-import { connectDB } from "@/lib/db";
-import User from "@/models/User";
+}
 
 export async function GET(req: NextRequest) {
   try {

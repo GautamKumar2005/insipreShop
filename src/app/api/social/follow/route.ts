@@ -4,8 +4,8 @@ import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { success, error } from "@/lib/response";
 import { pool } from "@/lib/supabase-db";
-
 import { verifyAccessToken } from "@/lib/jwt";
+import { sendSocialNotification } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -54,11 +54,34 @@ export async function POST(req: NextRequest) {
         "DELETE FROM social_follows WHERE follower_id = $1 AND following_id = $2",
         [currentUserId, targetUserId]
       );
-    } else {
       await pool.query(
         "INSERT INTO social_follows (follower_id, following_id) VALUES ($1, $2)",
         [currentUserId, targetUserId]
       );
+
+      // Notify the target user
+      try {
+        // Save in DB
+        await pool.query(
+          "INSERT INTO social_notifications (recipient_id, sender_id, type) VALUES ($1, $2, 'follow')",
+          [targetUserId, currentUserId]
+        );
+        
+        // Send Email Notification
+        const recipientUser = await User.findById(targetUserId).select("email name");
+        const senderUser = await User.findById(currentUserId).select("name");
+        
+        if (recipientUser && senderUser) {
+          await sendSocialNotification(
+            recipientUser.email,
+            recipientUser.name,
+            senderUser.name,
+            "follow"
+          );
+        }
+      } catch (notifyErr) {
+        console.error("Failed to process notification:", notifyErr);
+      }
     }
 
     // Get updated counts

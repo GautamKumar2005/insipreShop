@@ -5,6 +5,7 @@ import { success, error } from "@/lib/response";
 import { verifyAccessToken } from "@/lib/jwt";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import { sendSocialNotification } from "@/lib/email";
 
 // Get comments for a post
 export async function GET(req: NextRequest) {
@@ -57,6 +58,39 @@ export async function POST(req: NextRequest) {
       "INSERT INTO social_comments (post_id, user_id, content) VALUES ($1, $2, $3) RETURNING *",
       [postId, decoded.id, content]
     );
+
+    // Notify the post owner
+    try {
+      const postRes = await pool.query("SELECT user_id FROM social_posts WHERE id = $1", [postId]);
+      if (postRes.rows.length > 0) {
+        const postOwnerId = postRes.rows[0].user_id;
+        
+        if (postOwnerId !== decoded.id) {
+          // Save in DB
+          await pool.query(
+            "INSERT INTO social_notifications (recipient_id, sender_id, type, post_id) VALUES ($1, $2, 'comment', $3)",
+            [postOwnerId, decoded.id, postId]
+          );
+          
+          // Send Email Notification
+          await connectDB();
+          const recipientUser = await User.findById(postOwnerId).select("email name");
+          const senderUser = await User.findById(decoded.id).select("name");
+          
+          if (recipientUser && senderUser) {
+            await sendSocialNotification(
+              recipientUser.email,
+              recipientUser.name,
+              senderUser.name,
+              "comment",
+              content
+            );
+          }
+        }
+      }
+    } catch (notifyErr) {
+      console.error("Failed to process notification:", notifyErr);
+    }
 
     return success(res.rows[0]);
   } catch (err: any) {
