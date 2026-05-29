@@ -1,6 +1,6 @@
-# 🛍️ InspireShop 
+# 🛍️ Insipreshop 
 
-InspireShop is a modern, high-performance E-commerce platform integrated with a fully responsive **Social Hub**. Built with Next.js 16, it provides a seamless shopping experience along with a vibrant community feed for creators and buyers.
+Insipreshop is a modern, high-performance E-commerce platform integrated with a fully responsive **Social Hub**. Built with Next.js 16, it provides a seamless shopping experience along with a vibrant community feed for creators and buyers.
 
 ---
 

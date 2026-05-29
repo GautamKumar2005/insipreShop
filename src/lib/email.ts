@@ -9,7 +9,7 @@ export async function sendOTP(userEmail: string, otp: string) {
       to: [userEmail],
       subject: "Your OTP Code",
       text: `Your OTP is ${otp}`,
-      html: `<h3>Your OTP for inspireShop is <strong>${otp}</strong></h3>`
+      html: `<h3>Your OTP for insipreshop is <strong>${otp}</strong></h3>`
     });
 
     if (error) {
@@ -46,7 +46,7 @@ export async function sendSocialNotification(
       htmlContent = `
         <div style="${containerStyle}">
           <h2 style="${headerStyle}">New Like! ❤️</h2>
-          <p style="${textStyle}">Hi ${recipientName},<br/><br/><strong>${senderName}</strong> just liked your post on inspireShop.</p>
+          <p style="${textStyle}">Hi ${recipientName},<br/><br/><strong>${senderName}</strong> just liked your post on insipreshop.</p>
           <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/social" style="${buttonStyle}">View your post</a>
         </div>
       `;
@@ -72,7 +72,7 @@ export async function sendSocialNotification(
     }
 
     const { data, error } = await resend.emails.send({
-      from: "inspireShop Social <onboarding@resend.dev>",
+      from: "insipreshop Social <onboarding@resend.dev>",
       to: [toEmail],
       subject: subject,
       html: htmlContent,

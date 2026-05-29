@@ -30,7 +30,7 @@ export default function Footer() {
         {/* Brand & Address */}
         <div>
           <h2 className="text-2xl font-bold text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-400 w-fit">
-            InspireShop
+            Insipreshop
           </h2>
           <div className="flex items-start gap-2 mb-4">
             <MapPin className="w-5 h-5 text-purple-400 mt-1 flex-shrink-0" />
@@ -221,7 +221,7 @@ export default function Footer() {
       {/* Copyright Bar */}
       <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between text-sm text-gray-500 gap-4">
         <p>
-          &copy; {new Date().getFullYear()} InspireShop. All rights reserved.
+          &copy; {new Date().getFullYear()} Insipreshop. All rights reserved.
           <span className="hidden md:inline mx-2">|</span>
           Made with ❤️ in India
         </p>

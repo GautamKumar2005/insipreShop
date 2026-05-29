@@ -14,11 +14,11 @@ export default function PrivacyPolicyPage() {
             1. Introduction
           </h2>
           <p>
-            Welcome to <strong>InspireShop</strong>. Your privacy and digital
+            Welcome to <strong>Insipreshop</strong>. Your privacy and digital
             safety are our foremost priorities. This Privacy Policy strictly
-            governs how InspireShop collects, uses, maintains, and securely
+            governs how Insipreshop collects, uses, maintains, and securely
             discloses information collected from users. By registering an
-            account or executing a transaction on InspireShop, you expressly
+            account or executing a transaction on Insipreshop, you expressly
             consent to this policy. We maintain strict discipline over data
             processing standards and zero-tolerance toward unauthorized
             dissemination.
@@ -62,7 +62,7 @@ export default function PrivacyPolicyPage() {
               product delivery.
             </li>
             <li>
-              Enforcing InspireShop safety standards to protect users from
+              Enforcing Insipreshop safety standards to protect users from
               fraudulent activities.
             </li>
             <li>
@@ -77,7 +77,7 @@ export default function PrivacyPolicyPage() {
             4. Data Protection Protocol
           </h2>
           <p>
-            InspireShop actively engineers state-of-the-art cipher encryption
+            Insipreshop actively engineers state-of-the-art cipher encryption
             protocols to shield sensitive information against unauthorized
             external or internal access. We assert strict internal audits
             restricting data access to authorized personnel functionally
@@ -93,7 +93,7 @@ export default function PrivacyPolicyPage() {
             We unequivocally refuse to trade, sell, or rent user credentials.
             Information transfer is strictly permitted to thoroughly vetted
             external infrastructure partners (e.g., payment gateways and
-            Cloudinary media servers) inherently required to keep InspireShop
+            Cloudinary media servers) inherently required to keep Insipreshop
             fully operational.
           </p>
         </section>

@@ -15,7 +15,7 @@ export default function TermsConditionsPage() {
           </h2>
           <p>
             By accessing or conducting transactions via{" "}
-            <strong>InspireShop</strong>, you are agreeing to absolute
+            <strong>Insipreshop</strong>, you are agreeing to absolute
             compliance with these Terms and Conditions. Failure to uphold the
             disciplines established within this doctrine will result in
             immediate termination of operational access. We run a professional
@@ -52,9 +52,9 @@ export default function TermsConditionsPage() {
             3. Commercial Integrity
           </h2>
           <p>
-            Transactions orchestrated under the InspireShop infrastructure
+            Transactions orchestrated under the Insipreshop infrastructure
             constitute legally binding agreements. Fraudulent chargebacks,
-            abusive language, or systemic abuse compromises InspireShop
+            abusive language, or systemic abuse compromises Insipreshop
             operations and may be escalated to regional law enforcement.
           </p>
         </section>
@@ -65,9 +65,9 @@ export default function TermsConditionsPage() {
           </h2>
           <p>
             The branding, software execution, layout algorithms, and trade
-            dresses comprising <strong>InspireShop</strong> are strictly
+            dresses comprising <strong>Insipreshop</strong> are strictly
             proprietary property. Unauthorized scraping, replication, or
-            distribution of InspireShop logic or brand imagery represents a
+            distribution of Insipreshop logic or brand imagery represents a
             severe infringement globally enforceable by law.
           </p>
         </section>
@@ -77,7 +77,7 @@ export default function TermsConditionsPage() {
             5. Liability Limitation
           </h2>
           <p>
-            InspireShop functions as a centralized marketplace. We govern the
+            Insipreshop functions as a centralized marketplace. We govern the
             infrastructure but accept no sweeping liability for systemic
             failures resulting from forces outside technological boundaries (Act
             of God).

@@ -14,7 +14,7 @@ export default function ReturnPolicyPage() {
             1. Standard Implementation
           </h2>
           <p>
-            At <strong>InspireShop</strong>, our logistical operations are
+            At <strong>Insipreshop</strong>, our logistical operations are
             grounded in discipline. The Return framework exists to safeguard
             consumer confidence while preventing systemic abuse. Returns are
             legally permissible within an exact{" "}
@@ -38,7 +38,7 @@ export default function ReturnPolicyPage() {
             </li>
             <li>
               <strong>Proof of Action:</strong> Legitimate Order ID protocols
-              must be provided to the InspireShop verification network.
+              must be provided to the Insipreshop verification network.
             </li>
             <li>
               <strong>Quality Flags:</strong> Items displaying fraudulent
