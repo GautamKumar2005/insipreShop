@@ -12,8 +12,9 @@ export async function GET(req: NextRequest) {
     let supabaseStatus = "ok";
     try {
       await pool.query('SELECT 1');
-    } catch (supabaseError: any) {
-      console.warn("Supabase ping warning:", supabaseError.message);
+    } catch (supabaseError: unknown) {
+      const msg = supabaseError instanceof Error ? supabaseError.message : String(supabaseError);
+      console.warn("Supabase ping warning:", msg);
       supabaseStatus = "error";
     }
 
@@ -22,7 +23,8 @@ export async function GET(req: NextRequest) {
       message: "Backend, MongoDB & Supabase connected",
       supabaseStatus
     });
-  } catch (err: any) {
-    return error(err.message || "Backend or Database not connected");
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return error(msg || "Backend or Database not connected");
   }
 }
