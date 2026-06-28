@@ -37,10 +37,10 @@ const SocialProfile = () => {
   const [profileUser, setProfileUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
   
-  // Follow states
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [followers, setFollowers] = useState(0);
-  const [followingCount, setFollowingCount] = useState(0);
+  // Connection states
+  const [connectStatus, setConnectStatus] = useState<string>("none"); // "none" | "pending" | "accepted"
+  const [connectSenderId, setConnectSenderId] = useState<string>("");
+  const [connectionsCount, setConnectionsCount] = useState<number>(0);
 
   const fetchProfileData = async () => {
     try {
@@ -62,8 +62,7 @@ const SocialProfile = () => {
       }
 
       if (statsData.success) {
-        setFollowers(statsData.data.followers);
-        setFollowingCount(statsData.data.following);
+        setConnectionsCount(statsData.data.connections);
       }
 
       if (userData.success && userData.data) {
@@ -72,22 +71,24 @@ const SocialProfile = () => {
           avatar: userData.data.profilePhoto?.url || null,
           role: userData.data.role || "Social Member"
         });
-        
-        // We still check if currentUser is following using MongoDB array for backward compatibility
-        if (currentUser) {
-           const followerIds = (userData.data.followers || []).map((f: any) => f.toString());
-           setIsFollowing(followerIds.includes(currentUser.id));
-        }
       } else if (socialData.success && socialData.data?.length > 0 && socialData.data[0].user) {
-        // Fallback: get user info from social post enrichment
         setProfileUser({
           name: socialData.data[0].user.name,
           avatar: socialData.data[0].user.avatar,
           role: "Social Member"
         });
       }
+
+      if (currentUser) {
+        const connRes = await fetch(`/api/social/connections?userId=${currentUser.id}&type=status&targetUserId=${userId}`, fetchOpts);
+        const connData = await connRes.json();
+        if (connData.success) {
+          setConnectStatus(connData.data.status);
+          setConnectSenderId(connData.data.sender_id);
+        }
+      }
     } catch (err) {
-          } finally {
+    } finally {
       setLoading(false);
     }
   };
@@ -96,65 +97,45 @@ const SocialProfile = () => {
     if (userId) fetchProfileData();
   }, [userId, currentUser]);
 
-  const handleFollow = async () => {
-    if (!currentUser) {
-      alert("Please login to follow this user.");
-      return;
-    }
-    
-    // Optimistic UI updates
-    if (isFollowing) {
-      setIsFollowing(false);
-      setFollowers(f => Math.max(0, f - 1));
-    } else {
-      setIsFollowing(true);
-      setFollowers(f => f + 1);
-    }
-
+  const handleConnectAction = async (action: 'request' | 'accept' | 'decline' | 'disconnect') => {
+    if (!currentUser) return alert("Please login to connect!");
     try {
-      const res = await fetch('/api/social/follow', {
-        method: 'POST',
+      const res = await fetch("/api/social/connections", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${window.localStorage.getItem('token') || ''}`
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${window.localStorage.getItem('token') || ''}`
         },
-        body: JSON.stringify({ targetUserId: userId })
+        body: JSON.stringify({ targetUserId: userId, action })
       });
       const data = await res.json();
-      
       if (data.success) {
-        setIsFollowing(data.data.isFollowing);
-        setFollowers(data.data.followersCount);
-        setFollowingCount(data.data.followingCount);
+        setConnectStatus(data.data.status || "none");
+        setConnectSenderId(data.data.sender_id || "");
+        fetchProfileData();
       } else {
-        // Revert on failure
-        setIsFollowing(!isFollowing);
-        setFollowers(f => isFollowing ? f + 1 : Math.max(0, f - 1));
-        alert(data.message || "Failed to update follow status.");
+        alert(data.message || "Action failed");
       }
     } catch (err) {
-      // Revert on error
-      setIsFollowing(!isFollowing);
-      setFollowers(f => isFollowing ? f + 1 : Math.max(0, f - 1));
-          }
+      alert("Error processing connection request");
+    }
   };
 
-  const [showFollowModal, setShowFollowModal] = useState<'followers' | 'following' | null>(null);
-  const [followUsersList, setFollowUsersList] = useState<any[]>([]);
+  const [showConnectionsModal, setShowConnectionsModal] = useState<boolean>(false);
+  const [connectionsList, setConnectionsList] = useState<any[]>([]);
 
-  const fetchFollowList = async (type: 'followers' | 'following') => {
+  const fetchConnections = async () => {
     try {
-      setFollowUsersList([]);
-      setShowFollowModal(type);
+      setConnectionsList([]);
+      setShowConnectionsModal(true);
       const token = window.localStorage.getItem('token');
       const fetchOpts = { headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) } };
-      const res = await fetch(`/api/social/${type}?userId=${userId}`, fetchOpts);
+      const res = await fetch(`/api/social/connections?userId=${userId}&type=accepted`, fetchOpts);
       const data = await res.json();
       if (data.success) {
-        setFollowUsersList(data.data);
+        setConnectionsList(data.data);
       }
-    } catch (err) {
-          }
+    } catch (e) {}
   };
 
   if (loading) {
@@ -179,29 +160,29 @@ const SocialProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-[#050505] text-gray-900 dark:text-gray-100 relative">
-      {/* Modal for Followers/Following */}
-      {showFollowModal && (
+      {/* Modal for Connections */}
+      {showConnectionsModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden shadow-2xl">
             <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
-              <h3 className="font-bold text-lg capitalize">{showFollowModal}</h3>
-              <button onClick={() => setShowFollowModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+              <h3 className="font-bold text-lg">Connections</h3>
+              <button onClick={() => setShowConnectionsModal(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {followUsersList.length === 0 ? (
-                <p className="text-center text-gray-500 py-10 font-medium">No one found.</p>
+              {connectionsList.length === 0 ? (
+                <p className="text-center text-gray-500 py-10 font-medium">No connections found.</p>
               ) : (
-                followUsersList.map(u => (
-                  <div key={u._id} className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all">
+                connectionsList.map(item => (
+                  <div key={item.id} className="flex items-center justify-between p-2 hover:bg-gray-50 dark:hover:bg-white/5 rounded-2xl transition-all">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden flex items-center justify-center text-purple-600 font-bold border border-gray-100 dark:border-gray-800 shadow-sm">
-                        {u.avatar ? <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"/> : u.name?.[0]}
+                        {item.user?.avatar ? <img src={item.user.avatar} alt={item.user.name} className="w-full h-full object-cover"/> : item.user?.name?.[0]}
                       </div>
                       <div className="flex flex-col">
-                         <Link onClick={() => setShowFollowModal(null)} href={`/social/profile/${u._id}`} className="font-bold text-sm hover:underline">{u.name}</Link>
-                         <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">@{u.username || `user_${u._id.substring(0,6)}`}</span>
+                         <Link onClick={() => setShowConnectionsModal(false)} href={`/social/profile/${item.user?._id}`} className="font-bold text-sm hover:underline">{item.user?.name}</Link>
+                         <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest opacity-60">@{item.user?.username}</span>
                       </div>
                     </div>
                   </div>
@@ -229,36 +210,57 @@ const SocialProfile = () => {
           <h1 className="text-3xl font-black tracking-tight mb-1">{profileUser?.name || "Member"}</h1>
           <p className="text-gray-500 font-medium lowercase">@user_{userId.slice(-6)}</p>
           
-          <div className="flex gap-4 mt-6 w-full">
-            <button 
-              onClick={handleFollow}
-              className={`flex-1 py-3 rounded-2xl font-bold transition-transform active:scale-95 ${
-                isFollowing 
-                  ? 'bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-white border-2 border-gray-300 dark:border-gray-700' 
-                  : 'bg-gray-900 dark:bg-white dark:text-gray-900 text-white border-2 border-transparent'
-              }`}
-            >
-                {isFollowing ? 'Following' : 'Follow'}
-            </button>
-            <Link href={`/social/inbox?user=${userId}`} className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold transition-transform active:scale-95 flex items-center justify-center">
-                Message
-            </Link>
-          </div>
+          {currentUser && currentUser.id !== userId && (
+            <div className="flex gap-4 mt-6 w-full">
+              {connectStatus === "none" && (
+                <button 
+                  onClick={() => handleConnectAction('request')}
+                  className="flex-1 py-3 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-2xl font-bold transition-transform active:scale-95 border-2 border-transparent"
+                >
+                  Connect
+                </button>
+              )}
+              {connectStatus === "pending" && connectSenderId === currentUser.id && (
+                <button 
+                  onClick={() => handleConnectAction('decline')}
+                  className="flex-1 py-3 bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400 rounded-2xl font-bold transition-transform active:scale-95 border-2 border-gray-300 dark:border-gray-700"
+                >
+                  Requested (Cancel)
+                </button>
+              )}
+              {connectStatus === "pending" && connectSenderId !== currentUser.id && (
+                <button 
+                  onClick={() => handleConnectAction('accept')}
+                  className="flex-1 py-3 bg-purple-600 text-white rounded-2xl font-bold transition-transform active:scale-95 border-2 border-transparent"
+                >
+                  Accept Request
+                </button>
+              )}
+              {connectStatus === "accepted" && (
+                <button 
+                  onClick={() => handleConnectAction('disconnect')}
+                  className="flex-1 py-3 bg-gray-100 dark:bg-gray-800 text-red-600 rounded-2xl font-bold transition-transform active:scale-95 border-2 border-red-500/20"
+                >
+                  Disconnect
+                </button>
+              )}
+              
+              <Link href={`/social/inbox?user=${userId}`} className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold transition-transform active:scale-95 flex items-center justify-center">
+                  Message
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-10 py-4 border-y border-gray-100 dark:border-gray-800">
+        <div className="grid grid-cols-2 gap-4 mb-10 py-4 border-y border-gray-100 dark:border-gray-800">
             <div className="text-center">
                 <div className="font-black text-xl">{posts.length}</div>
                 <div className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Posts</div>
             </div>
-            <div className="text-center cursor-pointer hover:opacity-75 transition-opacity" onClick={() => fetchFollowList('followers')}>
-                <div className="font-black text-xl">{followers}</div>
-                <div className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Followers</div>
-            </div>
-            <div className="text-center cursor-pointer hover:opacity-75 transition-opacity" onClick={() => fetchFollowList('following')}>
-                <div className="font-black text-xl">{followingCount}</div>
-                <div className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Following</div>
+            <div className="text-center cursor-pointer hover:opacity-75 transition-opacity" onClick={fetchConnections}>
+                <div className="font-black text-xl">{connectionsCount}</div>
+                <div className="text-[10px] uppercase font-black text-gray-400 tracking-widest">Connections</div>
             </div>
         </div>
 

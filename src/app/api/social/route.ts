@@ -30,6 +30,7 @@ export async function GET(req: NextRequest) {
         (SELECT COUNT(*) FROM social_likes WHERE post_id = p.id) as likes_count,
         (SELECT COUNT(*) FROM social_comments WHERE post_id = p.id) as comments_count,
         (SELECT COUNT(*) FROM social_views WHERE post_id = p.id) as views_count,
+        (SELECT COUNT(*) FROM social_messages WHERE content LIKE '%' || p.id || '%') as shares_count,
         EXISTS(SELECT 1 FROM social_likes WHERE post_id = p.id AND user_id = $1) as liked_by_me
       FROM social_posts p
       WHERE 1=1
@@ -105,9 +106,10 @@ export async function GET(req: NextRequest) {
     const enrichedRows = rows.map((r: any) => ({
       ...r,
       user: userMap[r.user_id] || { name: "Unknown User", avatar: null },
-      likes_count: parseInt(r.likes_count),
-      comments_count: parseInt(r.comments_count),
-      views_count: parseInt(r.views_count)
+      likes_count: parseInt(r.likes_count) || 0,
+      comments_count: parseInt(r.comments_count) || 0,
+      views_count: parseInt(r.views_count) || 0,
+      shares_count: parseInt(r.shares_count) || 0
     }));
 
     return success(enrichedRows);

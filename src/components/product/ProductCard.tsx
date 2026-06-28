@@ -23,13 +23,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300 overflow-hidden flex flex-col border border-transparent dark:border-gray-700">
       {/* Product Image */}
-      <Link href={`/products/${product._id}`}>
+      <Link href={`/products/${product._id}`} className="block relative w-full h-56 bg-white dark:bg-gray-50/90 overflow-hidden">
         <Image
           src={imageUrl}
           alt={product.name}
-          width={400}
-          height={400}
-          className="w-full h-56 object-cover hover:scale-105 transition-transform duration-300"
+          fill
+          className="object-contain p-4 hover:scale-105 transition-transform duration-300"
+          sizes="(max-width: 640px) 280px, 320px"
         />
       </Link>
 

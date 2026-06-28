@@ -177,7 +177,7 @@ export default function AdminDashboard() {
     { id: "users", label: "All Users", icon: Users },
     { id: "orders", label: "All Orders", icon: ShoppingBag },
     { id: "feedback", label: "User Feedback", icon: MessageSquare },
-    { id: "social", label: "Social Metrics", icon: Activity },
+    { id: "ADS", label: "ADS Metrics", icon: Activity },
   ];
 
   return (

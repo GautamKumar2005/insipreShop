@@ -12,16 +12,22 @@ export async function GET(req: NextRequest) {
       return error("userId is required", 400);
     }
 
-    const followersRes = await pool.query("SELECT COUNT(*) FROM social_follows WHERE following_id = $1", [userId]);
-    const followingRes = await pool.query("SELECT COUNT(*) FROM social_follows WHERE follower_id = $1", [userId]);
+    const connectionsRes = await pool.query(
+      "SELECT COUNT(*) FROM social_connections WHERE status = 'accepted' AND (user_id_1 = $1 OR user_id_2 = $1)",
+      [userId]
+    );
+    const pendingRes = await pool.query(
+      "SELECT COUNT(*) FROM social_connections WHERE status = 'pending' AND (user_id_1 = $1 OR user_id_2 = $1) AND sender_id != $1",
+      [userId]
+    );
     const postsRes = await pool.query("SELECT COUNT(*) FROM social_posts WHERE user_id = $1", [userId]);
 
     return success({
-      followers: parseInt(followersRes.rows[0].count),
-      following: parseInt(followingRes.rows[0].count),
+      connections: parseInt(connectionsRes.rows[0].count),
+      pendingRequests: parseInt(pendingRes.rows[0].count),
       posts: parseInt(postsRes.rows[0].count)
     });
   } catch (err: any) {
-        return error(err.message || "Failed to fetch stats");
+    return error(err.message || "Failed to fetch stats");
   }
 }

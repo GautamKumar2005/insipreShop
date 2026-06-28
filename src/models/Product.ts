@@ -17,6 +17,9 @@ export interface IProduct extends Document {
     publicId: string;
     url: string;
   }[];
+  views: number;
+  likes: number;
+  shares: number;
 }
 
 const ProductSchema = new Schema<IProduct>(
@@ -88,6 +91,21 @@ const ProductSchema = new Schema<IProduct>(
       default: 4.0,
       min: 1,
       max: 5,
+    },
+
+    views: {
+      type: Number,
+      default: 0,
+    },
+
+    likes: {
+      type: Number,
+      default: 0,
+    },
+
+    shares: {
+      type: Number,
+      default: 0,
     },
 
   },

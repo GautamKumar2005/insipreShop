@@ -21,6 +21,7 @@ interface Order {
   items: OrderItem[];
   totalAmount: number;
   status: string;
+  paymentStatus: string;
   createdAt: string;
 }
 
@@ -67,9 +68,16 @@ export default function OrdersPage() {
             <p className="font-semibold">
               Order ID: <span className="text-gray-600">{order._id}</span>
             </p>
-            <span className="text-sm px-3 py-1 rounded bg-gray-100">
-              {order.status}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
+                (order.paymentStatus === "PAID" || ["DELIVERED", "COMPLETED"].includes(order.status)) ? "bg-green-50 text-green-700 dark:bg-green-950/20" : "bg-amber-50 text-amber-700 dark:bg-amber-950/20"
+              }`}>
+                {(order.paymentStatus === "PAID" || ["DELIVERED", "COMPLETED"].includes(order.status)) ? "PAID" : order.paymentStatus || "PENDING"}
+              </span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-gray-100 dark:bg-gray-800 font-bold">
+                {order.status}
+              </span>
+            </div>
           </div>
 
           <div className="text-sm text-gray-600">
@@ -116,9 +124,18 @@ export default function OrdersPage() {
           <div className="flex justify-between items-center pt-2 border-t">
             <p className="font-semibold">Total: ₹{order.totalAmount}</p>
 
-            <Link href={`/orders/${order._id}`}>
-              <Button>View Details</Button>
-            </Link>
+            <div className="flex gap-2">
+              {order.paymentStatus !== "PAID" && !["DELIVERED", "COMPLETED", "CANCELLED"].includes(order.status) && (
+                <Link href={`/orders/${order._id}?pay=true`}>
+                  <Button className="bg-amber-600 hover:bg-amber-700 text-white font-bold">
+                    Make Payment
+                  </Button>
+                </Link>
+              )}
+              <Link href={`/orders/${order._id}`}>
+                <Button variant="outline">View Details</Button>
+              </Link>
+            </div>
           </div>
         </div>
       ))}

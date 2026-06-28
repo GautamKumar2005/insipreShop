@@ -1,10 +1,14 @@
 @import "tailwindcss";
 
+/* Dark mode activates when next-themes adds .dark class */
 @custom-variant dark (&:is(.dark *));
 
+/* ══════════════════════════════════════════════
+   CSS VARIABLES — Light defaults
+══════════════════════════════════════════════ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #111827;
   color-scheme: light;
 }
 
@@ -15,14 +19,25 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* .dark class is added by next-themes */
+/* Dark CSS variables (class-based via next-themes) */
 .dark {
-  /* Using a sleek, interactive dark slate background instead of pure black */
-  --background: #0d1117; 
-  --foreground: #f8fafc;
+  --background: #0d1117;
+  --foreground: #f0f6fc;
   color-scheme: dark;
 }
 
+/* Dark CSS variables (system preference — before JS loads) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0d1117;
+    --foreground: #f0f6fc;
+    color-scheme: dark;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   BASE STYLES
+══════════════════════════════════════════════ */
 html, body {
   overflow-x: hidden;
   max-width: 100vw;
@@ -31,78 +46,181 @@ html, body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-tap-highlight-color: transparent;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* 
-  ==============================================================
-  GLOBAL DARK MODE FIXES
-  Automatically fixes hardcoded light-mode classes in dark mode
-  so text remains visible and interactive!
-  ==============================================================
-*/
+/* ══════════════════════════════════════════════
+   DARK MODE — .dark class overrides
+══════════════════════════════════════════════ */
+
+/* Text */
 .dark .text-gray-900,
 .dark .text-gray-800,
 .dark .text-gray-700,
 .dark .text-black {
-  /* Makes hardcoded dark text visible and legible */
-  color: #f8fafc !important; 
+  color: #f0f6fc !important;
 }
 
 .dark .text-gray-600,
 .dark .text-gray-500 {
-  color: #cbd5e1 !important;
+  color: #8b949e !important;
 }
 
+.dark .text-gray-400 {
+  color: #6e7681 !important;
+}
+
+/* Backgrounds */
 .dark .bg-white {
-  /* Replace blinding white backgrounds with sleek dark cards */
   background-color: #161b22 !important;
-  color: #f8fafc;
+  color: #f0f6fc;
   border-color: #30363d !important;
 }
 
-.dark .bg-gray-50,
-.dark .bg-gray-100,
-.dark .bg-gray-200 {
+.dark .bg-gray-50 {
   background-color: #0d1117 !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #161b22 !important;
+}
+
+.dark .bg-gray-200 {
+  background-color: #21262d !important;
+}
+
+/* Borders */
+.dark .border-gray-100,
+.dark .border-gray-200 {
   border-color: #21262d !important;
 }
 
-/* Fix generic inputs/textareas lacking dark mode variants */
-.dark input:not([type="submit"]):not([type="button"]), 
-.dark textarea,
-.dark select {
-  background-color: #0d1117 !important;
-  color: #f8fafc !important;
+.dark .border-gray-300 {
   border-color: #30363d !important;
 }
 
-.dark input::placeholder, 
-.dark textarea::placeholder {
-  color: #6b7280 !important;
+/* Inputs */
+.dark input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+.dark textarea,
+.dark select {
+  background-color: #0d1117 !important;
+  color: #f0f6fc !important;
+  border-color: #30363d !important;
 }
 
-.dark input:focus, 
-.dark textarea:focus {
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #6e7681 !important;
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
   border-color: #a855f7 !important;
   outline: none;
-  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15) !important;
 }
 
-/* Responsive utilities */
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
+/* Dividers */
+.dark hr {
+  border-color: #21262d !important;
+}
+
+/* ══════════════════════════════════════════════
+   SYSTEM DARK MODE — media query overrides
+   (fires before JS/next-themes loads)
+══════════════════════════════════════════════ */
+@media (prefers-color-scheme: dark) {
+  .text-gray-900,
+  .text-gray-800,
+  .text-gray-700,
+  .text-black {
+    color: #f0f6fc !important;
   }
+
+  .text-gray-600,
+  .text-gray-500 {
+    color: #8b949e !important;
+  }
+
+  .text-gray-400 {
+    color: #6e7681 !important;
+  }
+
+  .bg-white {
+    background-color: #161b22 !important;
+    color: #f0f6fc;
+    border-color: #30363d !important;
+  }
+
+  .bg-gray-50 {
+    background-color: #0d1117 !important;
+  }
+
+  .bg-gray-100 {
+    background-color: #161b22 !important;
+  }
+
+  .bg-gray-200 {
+    background-color: #21262d !important;
+  }
+
+  .border-gray-100,
+  .border-gray-200 {
+    border-color: #21262d !important;
+  }
+
+  .border-gray-300 {
+    border-color: #30363d !important;
+  }
+
+  input:not([type="submit"]):not([type="button"]):not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: #0d1117 !important;
+    color: #f0f6fc !important;
+    border-color: #30363d !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: #6e7681 !important;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: #a855f7 !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15) !important;
+  }
+
+  hr {
+    border-color: #21262d !important;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════════ */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
 }
 
+/* ══════════════════════════════════════════════
+   SELECTION
+══════════════════════════════════════════════ */
 ::selection {
-  background-color: rgba(168, 85, 247, 0.5);
+  background-color: rgba(168, 85, 247, 0.4);
   color: #ffffff;
 }

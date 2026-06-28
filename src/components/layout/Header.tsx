@@ -28,6 +28,9 @@ const Header = () => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  // Social section has its own header — hide global header there
+  if (pathname?.startsWith("/social")) return null;
+
   return (
     <header className="top-0 w-full z-50 transition-all duration-300 sticky bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-md py-3 text-gray-900 dark:text-gray-100">
       <div className="container mx-auto px-4 flex items-center justify-between">
@@ -120,7 +123,7 @@ const Header = () => {
               href="/social"
               className="text-sm font-medium hover:text-purple-600 transition-all relative group"
             >
-              Social
+              ADS
               <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-600 to-pink-600 transition-all group-hover:w-full"></span>
             </Link>
 
@@ -329,7 +332,7 @@ const Header = () => {
             href="/social"
             className="text-base font-semibold p-3 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors"
           >
-            Social
+            ADS
           </Link>
 
           {(!user || user.role === ROLES.BUYER) && (

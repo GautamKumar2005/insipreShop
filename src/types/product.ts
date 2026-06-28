@@ -12,6 +12,9 @@ export interface IProduct {
   }[];
   createdAt: string;
   updatedAt: string;
+  views?: number;
+  likes?: number;
+  shares?: number;
 }
 
 export type Product = IProduct;

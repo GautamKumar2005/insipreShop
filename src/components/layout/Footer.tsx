@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { usePathname } from "next/navigation";
 import {
   Facebook,
   Twitter,
@@ -17,6 +18,7 @@ import {
 
 export default function Footer() {
   const { user } = useAuth();
+  const pathname = usePathname();
 
   return (
     <footer
@@ -84,7 +86,7 @@ export default function Footer() {
                     href="/social"
                     className="hover:text-purple-400 transition-colors"
                   >
-                    Social Hub
+                    ADS
                   </Link>
                 </li>
                 {user.role === "buyer" && (

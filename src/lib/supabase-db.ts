@@ -102,6 +102,43 @@ const initDb = async () => {
       );
     `);
     
+    // CONNECTIONS TABLE for mutual connections
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS social_connections (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id_1 VARCHAR(255) NOT NULL,
+        user_id_2 VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending', -- 'pending', 'accepted'
+        sender_id VARCHAR(255) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id_1, user_id_2)
+      );
+    `);
+
+    // ORDER PAYMENTS TRANSACTION LOGS TABLE
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS order_payments (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id VARCHAR(255) NOT NULL,
+        amount DECIMAL(10, 2) NOT NULL,
+        payment_method VARCHAR(50) NOT NULL,
+        transaction_id VARCHAR(255) NOT NULL,
+        status VARCHAR(50) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      );
+    `);
+
+    // PAYMENT TIMER SESSIONS TABLE
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS payment_sessions (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        order_id VARCHAR(255) NOT NULL,
+        started_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL,
+        status VARCHAR(50) DEFAULT 'active'
+      );
+    `);
+    
     try {
       await pool.query('ALTER TABLE social_posts ADD COLUMN media_url TEXT');
     } catch(e) { }

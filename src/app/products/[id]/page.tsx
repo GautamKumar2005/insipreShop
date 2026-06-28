@@ -63,16 +63,16 @@ export default async function ProductPage({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
         {/* LEFT: IMAGE */}
         <div className="flex justify-center md:justify-start">
-          <div className="w-full max-w-[520px] md:max-w-none bg-gray-50 rounded-xl overflow-hidden shadow-md border border-gray-100">
-            <div className="relative aspect-square md:aspect-[4/5]">
+          <div className="w-full max-w-[520px] md:max-w-none bg-white rounded-xl overflow-hidden shadow-md border border-gray-100">
+            <div className="relative aspect-square w-full p-4">
               <Image
                 src={mainImage}
                 alt={product.name}
                 fill
-                className="object-contain md:object-cover hover:scale-[1.03] transition-transform duration-400"
+                className="object-contain p-4 hover:scale-[1.03] transition-transform duration-500"
                 priority
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 520px"
-                quality={82}
+                quality={85}
               />
             </div>
           </div>

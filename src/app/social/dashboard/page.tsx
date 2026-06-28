@@ -29,9 +29,9 @@ const SocialDashboard = () => {
   const [type, setType] = useState<'page' | 'reel' | 'tweet'>('page');
   const [mediaUrls, setMediaUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'page' | 'my_content' | 'settings'>('page');
+  const [activeTab, setActiveTab] = useState<'my_content' | 'settings'>('my_content');
   const [posts, setPosts] = useState<SocialPost[]>([]);
-  const [stats, setStats] = useState({ followers: 0, following: 0, posts: 0 });
+  const [stats, setStats] = useState({ connections: 0, pendingRequests: 0, posts: 0 });
   const [profileData, setProfileData] = useState({ name: "", username: "", bio: "" });
 
   const fetchMyPosts = async () => {
@@ -43,7 +43,7 @@ const SocialDashboard = () => {
         setPosts(data.data);
       }
     } catch (err) {
-          }
+    }
   };
 
   const fetchStats = async () => {
@@ -55,7 +55,7 @@ const SocialDashboard = () => {
         setStats(data.data);
       }
     } catch (err) {
-          }
+    }
   };
 
   const fetchProfile = async () => {
@@ -71,24 +71,55 @@ const SocialDashboard = () => {
         });
       }
     } catch (err) {
-          }
+    }
   };
 
-  const [showFollowModal, setShowFollowModal] = useState<'followers' | 'following' | null>(null);
-  const [followUsersList, setFollowUsersList] = useState<any[]>([]);
+  const [showConnectionModal, setShowConnectionModal] = useState<'connections' | 'pending' | null>(null);
+  const [connectionList, setConnectionList] = useState<any[]>([]);
 
-  const fetchFollowList = async (type: 'followers' | 'following') => {
+  const fetchConnectionList = async (type: 'connections' | 'pending') => {
     if (!user) return;
     try {
-      setFollowUsersList([]);
-      setShowFollowModal(type);
-      const res = await fetch(`/api/social/${type}?userId=${user.id}`);
+      setConnectionList([]);
+      setShowConnectionModal(type);
+      const token = getToken();
+      const res = await fetch(`/api/social/connections?userId=${user.id}&type=${type}`, {
+        headers: {
+          Authorization: `Bearer ${token || ""}`
+        }
+      });
       const data = await res.json();
       if (data.success) {
-        setFollowUsersList(data.data);
+        setConnectionList(data.data);
       }
     } catch (err) {
-          }
+    }
+  };
+
+  const handleConnectionAction = async (targetUserId: string, action: 'accept' | 'decline' | 'disconnect') => {
+    const token = getToken();
+    if (!token) return;
+    try {
+      const res = await fetch("/api/social/connections", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ targetUserId, action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (showConnectionModal) {
+          fetchConnectionList(showConnectionModal);
+        }
+        fetchStats();
+      } else {
+        alert(data.message || "Action failed");
+      }
+    } catch (err) {
+      alert("Error processing connection request");
+    }
   };
 
   useEffect(() => {
@@ -224,7 +255,7 @@ const SocialDashboard = () => {
           <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6 text-purple-600">
              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter">Your Social Sanctuary</h1>
+          <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tighter">Your ADS Dashboard</h1>
           <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium">Join our community to share stories, connect with creators, and build your own social feed.</p>
           
           <div className="grid gap-3">
@@ -245,29 +276,59 @@ const SocialDashboard = () => {
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      {/* Modal for Followers/Following */}
-      {showFollowModal && (
+    <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Modal for Connections/Pending Requests */}
+      {showConnectionModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in">
-          <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-sm max-h-[70vh] flex flex-col overflow-hidden shadow-2xl">
-            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
-              <h3 className="font-bold text-lg capitalize">{showFollowModal}</h3>
-              <button onClick={() => setShowFollowModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-md max-h-[70vh] flex flex-col overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800">
+            <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
+              <h3 className="font-black text-xl tracking-tight capitalize">
+                {showConnectionModal === 'connections' ? 'My Connections' : 'Connection Requests'}
+              </h3>
+              <button onClick={() => setShowConnectionModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {followUsersList.length === 0 ? (
-                <p className="text-center text-gray-500 py-10 font-medium">No one found.</p>
+            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+              {connectionList.length === 0 ? (
+                <p className="text-center text-gray-500 py-10 font-bold opacity-50">
+                  {showConnectionModal === 'connections' ? 'No connections yet.' : 'No pending requests.'}
+                </p>
               ) : (
-                followUsersList.map(u => (
-                  <div key={u._id} className="flex items-center justify-between">
+                connectionList.map(item => (
+                  <div key={item.id} className="flex items-center justify-between p-2 rounded-2xl hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden flex items-center justify-center text-purple-600 font-bold border border-gray-100 dark:border-gray-800">
-                        {u.avatar ? <img src={u.avatar} alt={u.name} className="w-full h-full object-cover"/> : u.name?.[0]}
+                      <div className="w-11 h-11 rounded-full bg-purple-100 dark:bg-purple-900 overflow-hidden flex items-center justify-center text-purple-600 font-bold border border-gray-100 dark:border-gray-800 shadow-sm">
+                        {item.user?.avatar ? <img src={item.user.avatar} alt={item.user.name} className="w-full h-full object-cover"/> : item.user?.name?.[0]}
                       </div>
-                      <Link onClick={() => setShowFollowModal(null)} href={`/social/profile/${u._id}`} className="font-bold text-sm hover:underline">{u.name}</Link>
+                      <div>
+                        <Link onClick={() => setShowConnectionModal(null)} href={`/social/profile/${item.user?._id}`} className="font-bold text-sm hover:underline hover:text-purple-600 block">{item.user?.name}</Link>
+                        <span className="text-[10px] text-gray-400 font-black uppercase tracking-wider">@{item.user?.username}</span>
+                      </div>
                     </div>
+                    {showConnectionModal === 'pending' ? (
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleConnectionAction(item.user?._id, 'accept')}
+                          className="bg-purple-600 text-white font-bold text-xs px-4 py-2 rounded-full hover:bg-purple-700 active:scale-95 transition-all shadow-md shadow-purple-500/10"
+                        >
+                          Accept
+                        </button>
+                        <button 
+                          onClick={() => handleConnectionAction(item.user?._id, 'decline')}
+                          className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold text-xs px-4 py-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 active:scale-95 transition-all"
+                        >
+                          Decline
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={() => handleConnectionAction(item.user?._id, 'disconnect')}
+                        className="bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 font-bold text-xs px-4 py-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/20 active:scale-95 transition-all"
+                      >
+                        Disconnect
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -276,163 +337,85 @@ const SocialDashboard = () => {
         </div>
       )}
 
-      <Card className="mb-8 p-8 border-none shadow-xl bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-[#0a0a0a] rounded-[2rem] ring-1 ring-black/5 dark:ring-white/5 relative overflow-hidden">
-        <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-pink-500/10 dark:bg-pink-500/20 rounded-full blur-3xl"></div>
-        
-        <div className="relative z-10 flex flex-col items-center sm:flex-row sm:items-start gap-6 md:gap-8">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-xl flex-shrink-0 bg-white">
-            <div className="w-full h-full bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center text-3xl sm:text-4xl font-black text-purple-600">
-              {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover"/> : user.name?.[0].toUpperCase()}
+      {/* Compact Profile Card */}
+      <div className="bg-white dark:bg-[#0d0d0d] rounded-2xl sm:rounded-3xl border border-gray-100 dark:border-gray-900/80 shadow-sm overflow-hidden mb-4">
+        {/* Gradient top strip */}
+        <div className="h-14 sm:h-16 bg-gradient-to-r from-purple-600/20 via-indigo-500/10 to-pink-500/20" />
+        <div className="px-4 sm:px-5 pb-4 sm:pb-5 -mt-7">
+          <div className="flex items-end gap-3 sm:gap-4 mb-3">
+            {/* Avatar */}
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden border-2 border-white dark:border-[#0d0d0d] shadow-md bg-gradient-to-tr from-purple-100 to-pink-100 dark:from-purple-900/40 dark:to-pink-900/40 flex items-center justify-center text-lg font-black text-purple-600 shrink-0">
+              {user.avatar ? <img src={user.avatar} className="w-full h-full object-cover" alt="" /> : user.name?.[0].toUpperCase()}
+            </div>
+            {/* Name + handle */}
+            <div className="flex-1 min-w-0 pb-1">
+              <h1 className="text-base sm:text-lg font-extrabold text-gray-900 dark:text-white truncate leading-tight">
+                {profileData.name || user.name}
+              </h1>
+              <span className="text-[11px] font-bold text-purple-500">
+                @{profileData.username || `user_${user.id.slice(-6)}`}
+              </span>
             </div>
           </div>
-          
-          <div className="flex-1 text-center sm:text-left">
-             <div className="inline-block px-3 py-1 mb-2 rounded-full bg-purple-100/50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-xs sm:text-sm font-bold tracking-widest uppercase">
-               @{profileData.username || `user_${user.id.slice(-6)}`}
-             </div>
-             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-gray-900 dark:text-white mb-2">{profileData.name || user.name}</h1>
-             
-             {profileData.bio && (
-                <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-6 max-w-md font-medium">{profileData.bio}</p>
-             )}
- 
-             <div className="flex justify-center sm:justify-start gap-4 sm:gap-8 mt-4">
-               <div onClick={() => fetchFollowList('followers')} className="text-center md:text-left cursor-pointer hover:opacity-75 transition-opacity">
-                 <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.followers}</p>
-                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Followers</p>
-               </div>
-               <div onClick={() => fetchFollowList('following')} className="text-center md:text-left cursor-pointer hover:opacity-75 transition-opacity">
-                 <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.following}</p>
-                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Following</p>
-               </div>
-               <div className="text-center md:text-left">
-                 <p className="text-2xl font-black text-gray-900 dark:text-white">{stats.posts}</p>
-                 <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Posts</p>
-               </div>
-             </div>
+
+          {/* Bio */}
+          {profileData.bio && (
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-3 leading-relaxed">
+              {profileData.bio}
+            </p>
+          )}
+
+          {/* Stats row */}
+          <div className="flex items-center gap-5">
+            <button
+              onClick={() => fetchConnectionList('connections')}
+              className="flex flex-col items-center text-center hover:opacity-70 transition-opacity group"
+            >
+              <span className="text-lg font-extrabold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">{stats.connections}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Connects</span>
+            </button>
+            <div className="w-px h-6 bg-gray-100 dark:bg-gray-900" />
+            <button
+              onClick={() => fetchConnectionList('pending')}
+              className="flex flex-col items-center text-center hover:opacity-70 transition-opacity group"
+            >
+              <span className="text-lg font-extrabold text-gray-900 dark:text-white group-hover:text-purple-600 transition-colors">{stats.pendingRequests}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Requests</span>
+            </button>
+            <div className="w-px h-6 bg-gray-100 dark:bg-gray-900" />
+            <div className="flex flex-col items-center text-center">
+              <span className="text-lg font-extrabold text-gray-900 dark:text-white">{stats.posts}</span>
+              <span className="text-[10px] font-black uppercase tracking-wider text-gray-400">Posts</span>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
 
-      <div className="flex gap-2 sm:gap-4 mb-8 border-b border-gray-200 dark:border-gray-800 pb-4 overflow-x-auto no-scrollbar">
-        <button
-          onClick={() => setActiveTab('page')}
-          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
-            activeTab === 'page' 
-              ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
-              : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
-          }`}
-        >
-          Create Content
-        </button>
+      {/* Tab bar */}
+      <div className="flex bg-gray-100 dark:bg-[#111] p-1 rounded-2xl gap-1 mb-4">
         <button
           onClick={() => setActiveTab('my_content')}
-          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
-            activeTab === 'my_content' 
-              ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
-              : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+          className={`flex-1 py-2.5 px-4 rounded-xl text-[11px] font-extrabold uppercase tracking-wider transition-all ${
+            activeTab === 'my_content'
+              ? 'bg-white dark:bg-[#1a1a1a] text-purple-600 shadow-sm'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
           }`}
         >
           My Content
         </button>
         <button
           onClick={() => setActiveTab('settings')}
-          className={`px-3 sm:px-4 py-2 font-bold rounded-xl transition-all text-sm sm:text-base shrink-0 ${
-            activeTab === 'settings' 
-              ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30' 
-              : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+          className={`flex-1 py-2.5 px-4 rounded-xl text-[11px] font-extrabold uppercase tracking-wider transition-all ${
+            activeTab === 'settings'
+              ? 'bg-white dark:bg-[#1a1a1a] text-purple-600 shadow-sm'
+              : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
           }`}
         >
           Settings
         </button>
       </div>
 
-      {activeTab === 'page' && (
-        <Card className="p-8 border-none shadow-2xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-3xl ring-1 ring-black/5 dark:ring-white/5">
-          <h2 className="text-2xl font-bold mb-6">What do you want to share today?</h2>
-          <form onSubmit={handleShare} className="space-y-6">
-            <div className="flex items-center gap-2 p-1 bg-gray-100 dark:bg-gray-800 rounded-2xl w-full sm:w-fit overflow-x-auto no-scrollbar">
-              {(['page', 'reel', 'tweet'] as const).map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => setType(t)}
-                  className={`flex-1 sm:flex-none px-6 sm:px-8 py-3 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-widest transition-all ${
-                    type === t 
-                      ? 'bg-white dark:bg-gray-700 shadow-lg text-purple-600 scale-105' 
-                      : 'text-gray-400 hover:text-gray-600'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
 
-            <div className="space-y-2">
-               <textarea
-                 placeholder={`Write your ${type} content here... (Use #Hashtag and @Mention)`}
-                 value={content}
-                 onChange={(e) => setContent(e.target.value)}
-                 className="w-full min-h-[160px] bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border-none focus:ring-2 focus:ring-purple-500 text-xl resize-none shadow-inner"
-               />
-               {content.includes('#') || content.includes('@') ? (
-                  <div className="p-4 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-900/20">
-                     <p className="text-[10px] font-black uppercase text-purple-500 mb-2 tracking-[0.2em]">Post Preview:</p>
-                     <div className="text-lg">
-                        <FormattedText text={content} />
-                     </div>
-                  </div>
-               ) : null}
-            </div>
-
-            <div className="flex flex-col gap-4">
-              <label className="text-sm font-bold text-gray-700 dark:text-gray-300">Attach Media</label>
-              <CldUploadWidget 
-                signatureEndpoint="/api/cloudinary-sign"
-                onSuccess={(result: any) => {
-                  setMediaUrls(prev => [...prev, result.info.secure_url]);
-                }}
-                options={{ multiple: true, maxFiles: 10, sources: ['local', 'camera'], cropping: true } as any}
-              >
-                {({ open }) => (
-                  <button 
-                    type="button" 
-                    onClick={() => open()} 
-                    className="w-full text-left py-6 px-8 rounded-3xl border-2 border-dashed border-purple-200 dark:border-gray-800 text-lg font-bold bg-purple-50/50 hover:bg-purple-50 dark:bg-gray-800/50 text-purple-700 dark:text-purple-400 transition-all cursor-pointer flex flex-col items-center gap-2"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-                    <span>Upload Images/Videos</span>
-                  </button>
-                )}
-              </CldUploadWidget>
-
-              {mediaUrls.length > 0 && (
-                <div className="flex gap-4 flex-wrap bg-gray-50/50 dark:bg-gray-800/50 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
-                  {mediaUrls.map((url, i) => (
-                    <div key={i} className="w-20 h-20 rounded-xl overflow-hidden border-2 border-white dark:border-gray-800 shadow-md relative group">
-                       <img src={url} className="w-full h-full object-cover" />
-                       <button type="button" onClick={() => setMediaUrls(urls => urls.filter((_, idx) => idx !== i))} className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white flex items-center justify-center">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-                       </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="flex justify-end">
-              <Button 
-                type="submit" 
-                disabled={loading || !content.trim()}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-4 px-10 rounded-full transition-all disabled:opacity-50 text-lg shadow-xl"
-              >
-                {loading ? "Publishing..." : `Publish ${type}`}
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
 
       {activeTab === 'settings' && (
         <Card className="p-8 border-none shadow-2xl bg-white/70 dark:bg-gray-900/70 backdrop-blur-2xl rounded-3xl ring-1 ring-black/5 dark:ring-white/5">
@@ -524,12 +507,22 @@ const SocialDashboard = () => {
                         <div className="text-lg leading-relaxed">
                             <FormattedText text={post.content} />
                         </div>
-                        <div className="flex gap-4 mt-2">
-                            <button onClick={() => {
+                        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-50 dark:border-gray-900/50">
+                            <button 
+                              onClick={() => {
                                 setEditingPost(post);
                                 setEditContent(post.content);
-                            }} className="text-purple-500 text-xs font-bold hover:underline">Edit</button>
-                            <button onClick={() => handleDelete(post.id)} className="text-red-500 text-xs font-bold hover:underline">Delete</button>
+                              }} 
+                              className="px-4 py-1.5 bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-extrabold text-xs rounded-xl hover:bg-purple-100 dark:hover:bg-purple-950/50 transition-all active:scale-95"
+                            >
+                              ✍️ Edit Post
+                            </button>
+                            <button 
+                              onClick={() => handleDelete(post.id)} 
+                              className="px-4 py-1.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 font-extrabold text-xs rounded-xl hover:bg-red-100 dark:hover:bg-red-950/50 transition-all active:scale-95"
+                            >
+                              🗑️ Delete Post
+                            </button>
                         </div>
                       </>
                     )}
