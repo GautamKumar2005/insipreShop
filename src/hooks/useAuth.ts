@@ -27,10 +27,10 @@ interface AuthResponse {
 
 // Helpers for simple obfuscation to hide raw JSON/Tokens in dev tools
 const PFX = "enc_";
-const encodeData = (str: string) => {
+export const encodeData = (str: string) => {
   return PFX + btoa(encodeURIComponent(str));
 };
-const decodeData = (str: string | null) => {
+export const decodeData = (str: string | null) => {
   if (!str) return null;
   if (str.startsWith(PFX)) {
     try {
@@ -54,7 +54,7 @@ export function useAuth() {
     const rawToken = localStorage.getItem("token");
     
     const storedUser = decodeData(rawUser);
-    const token = decodeData(rawToken);
+    const token = rawToken; // Token is no longer encrypted to prevent breaking other pages
 
     if (token) {
         if (storedUser) {
@@ -113,7 +113,8 @@ export function useAuth() {
         };
 
         localStorage.setItem("user", encodeData(JSON.stringify(normalizedUser)));
-        localStorage.setItem("token", encodeData(data.data.token));
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("userId", normalizedUser.id);
 
         setUser(normalizedUser);
       }
@@ -162,7 +163,8 @@ export function useAuth() {
         };
 
         localStorage.setItem("user", encodeData(JSON.stringify(normalizedUser)));
-        localStorage.setItem("token", encodeData(data.data.token));
+        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("userId", normalizedUser.id);
 
         setUser(normalizedUser);
       }
@@ -184,7 +186,7 @@ export function useAuth() {
 
   const getToken = () => {
     if (typeof window === "undefined") return null;
-    return decodeData(localStorage.getItem("token"));
+    return localStorage.getItem("token");
   };
 
   const getAuthHeaders = () => {
@@ -210,7 +212,7 @@ export function useAuth() {
       const res = await fetch("/api/auth/refresh", { method: "POST" });
       const data = await res.json();
       if (data.success && data.data?.accessToken) {
-        localStorage.setItem("token", encodeData(data.data.accessToken));
+        localStorage.setItem("token", data.data.accessToken);
         return { success: true };
       }
       return { success: false, message: data.message || "Session expired" };

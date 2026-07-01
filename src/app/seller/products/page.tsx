@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { decodeData } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import { Skeleton } from "@/components/ui/Skeleton";
@@ -40,13 +41,15 @@ export default function SellerProductsPage() {
     setLoading(true);
     setError("");
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const userStr = decodeData(localStorage.getItem("user"));
+      const user = userStr ? JSON.parse(userStr) : null;
       const token = localStorage.getItem("token");
       if (!user?.id || !token) {
         setError("Please login again");
         return;
       }
       const res = await fetch("/api/seller/products", {
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,
