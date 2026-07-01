@@ -90,14 +90,10 @@ function ProductsContent() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 pb-12 transition-colors duration-300">
       {/* Hero / Header Section */}
       <div className="bg-white dark:bg-gray-900 shadow-sm border-b dark:border-gray-800">
-        <div className="container mx-auto px-4 py-8">
-          <h1 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 mb-2">
+        <div className="container mx-auto px-4 py-3">
+          <h1 className="text-xl md:text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600">
             Explore Our Collection
           </h1>
-          <p className="text-sm md:text-base text-gray-500 dark:text-gray-400 max-w-2xl">
-            Find the best products curated just for you. Use the filters below
-            to narrow down your search.
-          </p>
         </div>
       </div>
 

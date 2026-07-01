@@ -6,10 +6,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Captcha } from "@/components/ui/Captcha";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { register, loading } = useAuth();
+  const { register, loading, logout } = useAuth();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,6 +19,7 @@ export default function RegisterPage() {
   const [role, setRole] = useState("BUYER"); // default role
   const [errorMsg, setErrorMsg] = useState("");
   const [verified, setVerified] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,14 +34,10 @@ export default function RegisterPage() {
       const res = await register(name, email, phone, password, role as any);
 
       if (res.success && res.data?.user) {
-        // Redirect to respective dashboard based on user role
-        const userRole = res.data.user.role;
-        if (userRole === "admin") window.location.href = "/admin/dashboard";
-        else if (userRole === "seller")
-          window.location.href = "/seller/dashboard";
-        else if (userRole === "delivery")
-          window.location.href = "/delivery/dashboard";
-        else window.location.href = "/products"; // buyer or default
+        // Clear auto-login data so the user explicitly logs in
+        logout();
+        // Redirect to login page after successful registration
+        router.push("/auth/login");
       } else {
         setErrorMsg(res.message || "Registration failed");
       }
@@ -130,14 +128,23 @@ export default function RegisterPage() {
             className="bg-white/50 dark:bg-gray-900/50 border-white/60 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 rounded-xl py-3 shadow-sm transition-all hover:bg-white/70 dark:hover:bg-gray-800/80 dark:text-white"
           />
 
-          <Input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="bg-white/50 dark:bg-gray-900/50 border-white/60 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 rounded-xl py-3 shadow-sm transition-all hover:bg-white/70 dark:hover:bg-gray-800/80 dark:text-white"
-          />
+          <div className="relative">
+            <Input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="bg-white/50 dark:bg-gray-900/50 border-white/60 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-900 rounded-xl py-3 pr-10 shadow-sm transition-all hover:bg-white/70 dark:hover:bg-gray-800/80 dark:text-white"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-indigo-500 transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
 
           <div className="relative">
             <select

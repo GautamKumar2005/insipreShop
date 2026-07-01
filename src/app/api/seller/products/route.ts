@@ -1,5 +1,6 @@
 // seller/products/route.ts
 export const runtime = "nodejs"; // ✅ Force Node runtime
+export const dynamic = "force-dynamic";
 
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
@@ -71,7 +72,8 @@ export async function GET(req: NextRequest) {
     await connectDB();
 
     // Fetch all products
-    const products = await Product.find({}).sort({ createdAt: -1 });
+    const user = await getUserFromToken(req);
+    const products = await Product.find({ seller: user.id }).sort({ createdAt: -1 });
 
     return success(products);
   } catch (err: any) {

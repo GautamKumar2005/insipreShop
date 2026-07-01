@@ -1,4 +1,5 @@
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import "@/models/Product";
 import Order from "@/models/Order";
 import User from "@/models/User";

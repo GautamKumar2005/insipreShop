@@ -25,6 +25,23 @@ interface AuthResponse {
   };
 }
 
+// Helpers for simple obfuscation to hide raw JSON/Tokens in dev tools
+const PFX = "enc_";
+const encodeData = (str: string) => {
+  return PFX + btoa(encodeURIComponent(str));
+};
+const decodeData = (str: string | null) => {
+  if (!str) return null;
+  if (str.startsWith(PFX)) {
+    try {
+      return decodeURIComponent(atob(str.replace(PFX, "")));
+    } catch {
+      return null;
+    }
+  }
+  return str; // Fallback for legacy plain text data
+};
+
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -33,11 +50,16 @@ export function useAuth() {
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    const storedUser = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    const rawUser = localStorage.getItem("user");
+    const rawToken = localStorage.getItem("token");
+    
+    const storedUser = decodeData(rawUser);
+    const token = decodeData(rawToken);
 
     if (token) {
-        if (storedUser) setUser(JSON.parse(storedUser));
+        if (storedUser) {
+            try { setUser(JSON.parse(storedUser)); } catch (e) {}
+        }
         
         // Fetch fresh user data
         fetch("/api/auth/me", {
@@ -48,11 +70,13 @@ export function useAuth() {
             if (data.success && data.data?.user) {
                 const freshUser = { ...data.data.user, role: data.data.user.role.toLowerCase() };
                 setUser(freshUser);
-                localStorage.setItem("user", JSON.stringify(freshUser));
+                localStorage.setItem("user", encodeData(JSON.stringify(freshUser)));
             } else {
-                // Token might be invalid if me fails 401
+                // Token is invalid, log the user out and redirect
                 if (!data.success) {
-                    // Optional: logout() or ignore
+                    localStorage.clear();
+                    setUser(null);
+                    window.location.href = "/auth/login";
                 }
             }
         })
@@ -88,8 +112,8 @@ export function useAuth() {
           role: data.data.user.role.toLowerCase() as Role,
         };
 
-        localStorage.setItem("user", JSON.stringify(normalizedUser));
-        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", encodeData(JSON.stringify(normalizedUser)));
+        localStorage.setItem("token", encodeData(data.data.token));
 
         setUser(normalizedUser);
       }
@@ -137,8 +161,8 @@ export function useAuth() {
           role: data.data.user.role.toLowerCase() as Role,
         };
 
-        localStorage.setItem("user", JSON.stringify(normalizedUser));
-        localStorage.setItem("token", data.data.token);
+        localStorage.setItem("user", encodeData(JSON.stringify(normalizedUser)));
+        localStorage.setItem("token", encodeData(data.data.token));
 
         setUser(normalizedUser);
       }
@@ -160,14 +184,18 @@ export function useAuth() {
 
   const getToken = () => {
     if (typeof window === "undefined") return null;
-    return localStorage.getItem("token");
+    return decodeData(localStorage.getItem("token"));
   };
 
   const getAuthHeaders = () => {
     const token = getToken();
-    const storedUser = localStorage.getItem("user");
+    const rawUser = localStorage.getItem("user");
+    const storedUser = decodeData(rawUser);
 
-    const u = storedUser ? JSON.parse(storedUser) : null;
+    let u = null;
+    if (storedUser) {
+        try { u = JSON.parse(storedUser); } catch(e) {}
+    }
 
     return {
       "Content-Type": "application/json",
@@ -182,7 +210,7 @@ export function useAuth() {
       const res = await fetch("/api/auth/refresh", { method: "POST" });
       const data = await res.json();
       if (data.success && data.data?.accessToken) {
-        localStorage.setItem("token", data.data.accessToken);
+        localStorage.setItem("token", encodeData(data.data.accessToken));
         return { success: true };
       }
       return { success: false, message: data.message || "Session expired" };

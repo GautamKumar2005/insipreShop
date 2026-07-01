@@ -1,5 +1,6 @@
 // app/api/cart/route.ts
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 import "@/models/_init"; // 🔥 ensures all models registered
 
