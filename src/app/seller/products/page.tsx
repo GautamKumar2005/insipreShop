@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { IoMdAdd, IoMdCreate, IoMdTrash, IoMdMegaphone } from "react-icons/io";
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
+import { PackageOpen } from "lucide-react";
 
 interface Product {
   _id: string;
@@ -146,7 +147,7 @@ export default function SellerProductsPage() {
         </div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <img src="/empty-box.svg" width={120} alt="No products" className="mb-4" />
+          <PackageOpen className="w-32 h-32 text-gray-300 mb-4" strokeWidth={1.5} />
           <p className="text-center text-gray-500 mb-4 text-lg">
             No products yet. Start by adding your first product.
           </p>
