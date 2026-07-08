@@ -4,7 +4,7 @@ import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
 import { success, error } from "@/lib/response";
-import { getOTP, deleteOTP } from "@/lib/supabase-db";
+import { getOTP, deleteOTP, hashOTP } from "@/lib/supabase-db";
 import { hashPassword } from "@/utils/hash";
 
 export async function POST(req: NextRequest) {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     // Verify OTP
     const storedOtp = await getOTP(email);
 
-    if (!storedOtp || storedOtp !== otp) {
+    if (!storedOtp || storedOtp !== hashOTP(otp)) {
       return error("Invalid or expired OTP", 401);
     }
 

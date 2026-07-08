@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+import crypto from 'crypto';
 
 const globalForPg = global as unknown as { pgPool: Pool };
 
@@ -151,15 +152,20 @@ const initDb = async () => {
 
 initDb();
 
+export function hashOTP(otp: string): string {
+  return crypto.createHmac('sha256', process.env.JWT_SECRET || 'secret').update(otp).digest('hex');
+}
+
 export async function setOTP(email: string, otp: string): Promise<void> {
   const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
   await pool.query(`DELETE FROM temp_otps WHERE expires_at <= NOW()`);
+  const hashedOtp = hashOTP(otp);
   await pool.query(`
     INSERT INTO temp_otps (email, otp, expires_at)
     VALUES ($1, $2, $3)
     ON CONFLICT (email)
     DO UPDATE SET otp = EXCLUDED.otp, expires_at = EXCLUDED.expires_at;
-  `, [email, otp, expiresAt]);
+  `, [email, hashedOtp, expiresAt]);
 }
 
 export async function getOTP(email: string): Promise<string | null> {

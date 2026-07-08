@@ -1,12 +1,12 @@
 import User from "@/models/User";
-import bcrypt from "bcryptjs";
+import { hashPassword, comparePassword } from "@/utils/hash";
 import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 
 export async function registerUser(data: any) {
   const exists = await User.findOne({ email: data.email });
   if (exists) throw new Error("User already exists");
 
-  const hashedPassword = await bcrypt.hash(data.password, 10);
+  const hashedPassword = await hashPassword(data.password);
 
   const user = await User.create({
     ...data,
@@ -20,7 +20,7 @@ export async function loginUser(email: string, password: string) {
   const user = await User.findOne({ email });
   if (!user) throw new Error("Invalid credentials");
 
-  const isMatch = await bcrypt.compare(password, user.password);
+  const isMatch = await comparePassword(password, user.password);
   if (!isMatch) throw new Error("Invalid credentials");
 
   const accessToken = signAccessToken({ id: user._id, role: user.role });

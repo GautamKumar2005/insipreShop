@@ -5,7 +5,7 @@ import User from "@/models/User";
 import { comparePassword } from "@/utils/hash";
 import { success, error } from "@/lib/response";
 import { generateToken } from "@/lib/jwt";
-import { getOTP, deleteOTP } from "@/lib/supabase-db";
+import { getOTP, deleteOTP, hashOTP } from "@/lib/supabase-db";
 
 export async function POST(req: NextRequest) {
   try {
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
     if (otp) {
       const storedOtp = await getOTP(email);
       
-      if (!storedOtp || storedOtp !== otp) {
+      if (!storedOtp || storedOtp !== hashOTP(otp)) {
         return error("Invalid or expired OTP", 401);
       }
       

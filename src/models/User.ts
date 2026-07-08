@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
+import { encryptField, decryptField } from "@/utils/encryption";
 
 export interface IUser extends Document {
   name: string;
@@ -27,7 +28,12 @@ const UserSchema = new Schema<IUser>(
     username: { type: String, unique: true, sparse: true }, // Sparse because existing users won't have it yet
     bio: { type: String },
     email: { type: String, required: true, unique: true },
-    phone: { type: String, required: true },
+    phone: { 
+      type: String, 
+      required: true,
+      get: decryptField,
+      set: encryptField
+    },
     password: { type: String, required: true },
 
     role: {
@@ -48,13 +54,21 @@ const UserSchema = new Schema<IUser>(
     },
 
     dob: Date,
-    address: String,
+    address: { 
+      type: String,
+      get: decryptField,
+      set: encryptField
+    },
     lastSeen: { type: Date, default: Date.now },
     isOnline: { type: Boolean, default: false },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    toJSON: { getters: true },
+    toObject: { getters: true }
+  }
 );
 
 export default mongoose.models.User ||
