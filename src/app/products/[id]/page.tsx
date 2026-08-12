@@ -1,10 +1,10 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { connectDB } from "@/lib/db";
 import Product from "@/models/Product";
 import mongoose from "mongoose";
 import BuySection from "@/components/product/BuySection";
 import ProductReviews from "@/components/product/ProductReviews";
+import ProductImages from "@/components/product/ProductImages";
 
 async function getProduct(id: string) {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
@@ -22,8 +22,12 @@ export default async function ProductPage({
 
   if (!product) notFound();
 
-  const mainImage =
-    product.images?.[0]?.url || "/images/placeholder-product.jpg";
+  const serializableImages = product.images
+    ? product.images.map((img: any) => ({
+        url: img.url || "",
+        publicId: img.publicId || "",
+      }))
+    : [];
 
   // Clean description lines
   const descriptionLines = product.description
@@ -62,20 +66,11 @@ export default async function ProductPage({
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
         {/* LEFT: IMAGE */}
-        <div className="flex justify-center md:justify-start">
-          <div className="w-full max-w-[520px] md:max-w-none bg-white rounded-xl overflow-hidden shadow-md border border-gray-100">
-            <div className="relative aspect-square w-full p-4">
-              <Image
-                src={mainImage}
-                alt={product.name}
-                fill
-                className="object-contain p-4 hover:scale-[1.03] transition-transform duration-500"
-                priority
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 45vw, 520px"
-                quality={85}
-              />
-            </div>
-          </div>
+        <div className="flex justify-center md:justify-start w-full">
+          <ProductImages
+            images={serializableImages}
+            productName={product.name}
+          />
         </div>
 
         {/* RIGHT COLUMN: name, price, stock, highlights, buy */}
