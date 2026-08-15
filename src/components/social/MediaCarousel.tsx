@@ -3,15 +3,24 @@
 import React, { useState } from "react";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 
-export const MediaCarousel = ({ mediaString, type }: { mediaString?: string; type: string }) => {
+export const MediaCarousel = ({ mediaString, type }: { mediaString?: any; type: string }) => {
   if (!mediaString) return null;
 
   let urls: string[] = [];
-  try {
-    urls = JSON.parse(mediaString);
-    if (!Array.isArray(urls)) urls = [mediaString]; // fallback to old single string style
-  } catch (e) {
-    urls = [mediaString]; // fallback if not JSON
+  if (Array.isArray(mediaString)) {
+    urls = mediaString;
+  } else if (typeof mediaString === "string") {
+    const trimmed = mediaString.trim();
+    if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        urls = JSON.parse(trimmed);
+        if (!Array.isArray(urls)) urls = [trimmed];
+      } catch (e) {
+        urls = [trimmed];
+      }
+    } else {
+      urls = [trimmed];
+    }
   }
 
   if (urls.length === 0) return null;
