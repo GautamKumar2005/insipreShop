@@ -14,34 +14,44 @@ export default function CreateProductPage() {
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState(""); // Image URL input
-  const [imageFile, setImageFile] = useState<File | null>(null); // File input
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  
+  // Multiple images state
+  const [selectedImages, setSelectedImages] = useState<
+    { type: "file" | "url"; payload: string | File; preview: string }[]
+  >([]);
+  const [urlInput, setUrlInput] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImageUrl(""); // Clear URL if file is selected
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setSelectedImages((prev) => [
+            ...prev,
+            { type: "file", payload: file, preview: reader.result as string },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value);
-    if (e.target.value) {
-      setImageFile(null); // Clear file if URL is typed
-      setImagePreview(e.target.value);
-    } else {
-      setImagePreview(null);
-    }
+  const handleAddUrl = () => {
+    if (!urlInput.trim()) return;
+    const url = urlInput.trim();
+    setSelectedImages((prev) => [
+      ...prev,
+      { type: "url", payload: url, preview: url },
+    ]);
+    setUrlInput(""); // Clear URL input
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setSelectedImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,10 +89,26 @@ export default function CreateProductPage() {
 
       const createdProduct = data.data;
 
-      // 2. Upload image to Cloudinary (either from local file or provided URL)
-      const uploadImageToCloudinary = async (imagePayload: string) => {
+      // 2. Read and upload all images to Cloudinary in a single request
+      const getPayload = (img: { type: "file" | "url"; payload: string | File; preview: string }): Promise<string> => {
+        return new Promise((resolve) => {
+          if (img.type === "url") {
+            resolve(img.payload as string);
+          } else {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result as string);
+            };
+            reader.readAsDataURL(img.payload as File);
+          }
+        });
+      };
+
+      const payloads = await Promise.all(selectedImages.map(getPayload));
+
+      if (payloads.length > 0) {
         try {
-          await fetch("/api/upload/product", {
+          const uploadRes = await fetch("/api/upload/product", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -92,29 +118,23 @@ export default function CreateProductPage() {
             },
             body: JSON.stringify({
               productId: createdProduct._id,
-              images: [imagePayload],
+              images: payloads,
             }),
           });
-          // Proceed to dashboard regardless of upload success
-          router.push("/seller/dashboard");
+          const uploadData = await uploadRes.json();
+          if (!uploadData.success) {
+            setError("Product created, but some image uploads failed.");
+            setLoading(false);
+            return;
+          }
         } catch (uploadErr) {
-                    setError("Product created, but image upload failed.");
+          setError("Product created, but image upload failed.");
+          setLoading(false);
+          return;
         }
-      };
-
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          await uploadImageToCloudinary(base64data);
-        };
-      } else if (imageUrl) {
-        await uploadImageToCloudinary(imageUrl);
-      } else {
-        router.push("/seller/dashboard");
       }
+
+      router.push("/seller/dashboard");
     } catch {
       setError("Something went wrong");
       setLoading(false);
@@ -205,7 +225,7 @@ export default function CreateProductPage() {
 
           <div className="border-t pt-4">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Product Image
+              Product Images
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-4">
@@ -214,6 +234,7 @@ export default function CreateProductPage() {
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
@@ -233,9 +254,9 @@ export default function CreateProductPage() {
                     </svg>
                     <p className="mt-1 text-sm text-gray-600">
                       <span className="text-purple-600 font-semibold inline-block">
-                        Upload a file
+                        Upload file(s)
                       </span>{" "}
-                      or drag and drop
+                      or drag & drop
                     </p>
                     <p className="text-xs text-gray-500 mt-1">
                       PNG, JPG, GIF up to 5MB
@@ -252,25 +273,68 @@ export default function CreateProductPage() {
                 </div>
 
                 {/* External URL Option */}
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={handleUrlChange}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://example.com/image.jpg"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddUrl}
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
 
               {/* Image Preview Window */}
-              <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden">
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
+              <div className="w-full min-h-[192px] bg-gray-50 rounded-xl p-3 border border-gray-200/60 overflow-hidden flex flex-col">
+                <span className="text-xs font-black uppercase text-purple-600 tracking-wider mb-2">
+                  Previews ({selectedImages.length})
+                </span>
+                
+                {selectedImages.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg py-12">
+                    <span className="text-gray-400 text-sm font-medium">
+                      No images added yet
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-gray-400 text-sm font-medium">
-                    Image Preview
-                  </span>
+                  <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-[220px] pr-1">
+                    {selectedImages.map((img, i) => (
+                      <div
+                        key={i}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-white group shadow-sm animate-in zoom-in-95"
+                      >
+                        <img
+                          src={img.preview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(i)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md transition-all active:scale-90"
+                          title="Remove image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -298,7 +362,7 @@ export default function CreateProductPage() {
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={loading || (!imageUrl && !imageFile)}>
+          <Button type="submit" disabled={loading || selectedImages.length === 0}>
             {loading ? "Publishing..." : "Publish Product"}
           </Button>
         </div>

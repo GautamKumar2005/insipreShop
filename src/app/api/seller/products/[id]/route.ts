@@ -83,13 +83,21 @@ export async function PUT(
       return error("Product not found or unauthorized", 404);
     }
 
-    if (productBefore.isEdited) {
-      return error("This product has already been edited once. Further edits are not allowed to avoid misleading assignments.", 400);
-    }
-
     const body = await req.json();
     delete body.seller;
-    body.isEdited = true; // Mark as edited
+
+    // Check if the description is being modified
+    const isDescriptionModified = body.description !== undefined && body.description !== productBefore.description;
+
+    if (isDescriptionModified) {
+      if (productBefore.isEdited) {
+        return error("The product description has already been edited once. Further description edits are not allowed.", 400);
+      }
+      body.isEdited = true; // Mark as edited since description is modified
+    } else {
+      // Retain the existing isEdited value
+      body.isEdited = productBefore.isEdited;
+    }
 
     const product = await Product.findByIdAndUpdate(
       productBefore._id,

@@ -21,11 +21,16 @@ export default function EditProductPage({
   const [stock, setStock] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
-  const [imageUrl, setImageUrl] = useState(""); // Image URL input
-  const [imageFile, setImageFile] = useState<File | null>(null); // File input
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [originalDescription, setOriginalDescription] = useState("");
 
-  // New states for agreement checkbox
+  // Multiple images state
+  const [existingImages, setExistingImages] = useState<{ publicId: string; url: string }[]>([]);
+  const [newImages, setNewImages] = useState<
+    { type: "file" | "url"; payload: string | File; preview: string }[]
+  >([]);
+  const [urlInput, setUrlInput] = useState("");
+
+  // Agreement and edit lock policy states
   const [agreed, setAgreed] = useState(false);
   const [isAlreadyEdited, setIsAlreadyEdited] = useState(false);
 
@@ -54,17 +59,15 @@ export default function EditProductPage({
         setPrice(product.price.toString());
         setStock(product.stock.toString());
         setDescription(product.description || "");
+        setOriginalDescription(product.description || "");
         setCategory(product.category || "");
 
-        if (product.images && product.images.length > 0) {
-          setImagePreview(product.images[0].url);
+        if (product.images) {
+          setExistingImages(product.images);
         }
 
         if (product.isEdited) {
           setIsAlreadyEdited(true);
-          setError(
-            "This product has already been edited once and cannot be edited again.",
-          );
         }
       } catch (err: any) {
         setError(err.message || "Something went wrong.");
@@ -76,32 +79,45 @@ export default function EditProductPage({
   }, [productId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImageFile(file);
-      setImageUrl(""); // Clear URL if file is selected
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    const files = e.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewImages((prev) => [
+            ...prev,
+            { type: "file", payload: file, preview: reader.result as string },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImageUrl(e.target.value);
-    if (e.target.value) {
-      setImageFile(null); // Clear file if URL is typed
-      setImagePreview(e.target.value);
-    } else {
-      setImagePreview(null);
-    }
+  const handleAddUrl = () => {
+    if (!urlInput.trim()) return;
+    const url = urlInput.trim();
+    setNewImages((prev) => [
+      ...prev,
+      { type: "url", payload: url, preview: url },
+    ]);
+    setUrlInput("");
+  };
+
+  const handleRemoveNewImage = (index: number) => {
+    setNewImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleRemoveExistingImage = (index: number) => {
+    setExistingImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!agreed) {
-      setError("You must agree to the one-time edit policy.");
+
+    const isDescriptionChanged = description !== originalDescription;
+    if (isDescriptionChanged && !isAlreadyEdited && !agreed) {
+      setError("You must agree to the one-time edit policy to change the description.");
       return;
     }
 
@@ -111,7 +127,7 @@ export default function EditProductPage({
     try {
       const token = localStorage.getItem("token");
 
-      // 1. Update Product first (without modifying images in main request initially)
+      // 1. Update Product details and existing images
       const res = await fetch(`/api/seller/products/${productId}`, {
         method: "PUT",
         headers: {
@@ -124,6 +140,7 @@ export default function EditProductPage({
           stock: Number(stock),
           description,
           category,
+          images: existingImages, // synchronize deleted images
         }),
       });
 
@@ -135,10 +152,26 @@ export default function EditProductPage({
         return;
       }
 
-      // 2. Upload image to Cloudinary (either from local file or provided URL) ONLY if modified
-      const uploadImageToCloudinary = async (imagePayload: string) => {
+      // 2. Read and upload any new images
+      const getPayload = (img: { type: "file" | "url"; payload: string | File; preview: string }): Promise<string> => {
+        return new Promise((resolve) => {
+          if (img.type === "url") {
+            resolve(img.payload as string);
+          } else {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              resolve(reader.result as string);
+            };
+            reader.readAsDataURL(img.payload as File);
+          }
+        });
+      };
+
+      const payloads = await Promise.all(newImages.map(getPayload));
+
+      if (payloads.length > 0) {
         try {
-          await fetch(`/api/upload/product`, {
+          const uploadRes = await fetch(`/api/upload/product`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -148,29 +181,23 @@ export default function EditProductPage({
             },
             body: JSON.stringify({
               productId: productId,
-              images: [imagePayload],
+              images: payloads,
             }),
           });
-          // Proceed to dashboard regardless of upload success
-          router.push("/seller/dashboard");
+          const uploadData = await uploadRes.json();
+          if (!uploadData.success) {
+            setError("Product details saved, but new image uploads failed.");
+            setSaving(false);
+            return;
+          }
         } catch (uploadErr) {
-                    setError("Product updated, but image upload failed.");
+          setError("Product details saved, but image upload failed.");
+          setSaving(false);
+          return;
         }
-      };
-
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.readAsDataURL(imageFile);
-
-        reader.onloadend = async () => {
-          const base64data = reader.result as string;
-          await uploadImageToCloudinary(base64data);
-        };
-      } else if (imageUrl) {
-        await uploadImageToCloudinary(imageUrl);
-      } else {
-        router.push("/seller/dashboard");
       }
+
+      router.push("/seller/dashboard");
     } catch {
       setError("Something went wrong");
       setSaving(false);
@@ -181,6 +208,9 @@ export default function EditProductPage({
     return <div className="p-10 text-center">Loading product data...</div>;
   }
 
+  const isDescriptionChanged = description !== originalDescription;
+  const hasNoImages = existingImages.length === 0 && newImages.length === 0;
+
   return (
     <div className="p-6 max-w-2xl mx-auto space-y-8">
       <div>
@@ -188,8 +218,8 @@ export default function EditProductPage({
           Edit Product
         </h1>
         <p className="text-gray-500 mt-2">
-          Update the fields below. Note: You can only edit a product{" "}
-          <strong>once</strong>!
+          Update the fields below. Note: You can only edit the description{" "}
+          <strong>once</strong>! Other details and images can be updated freely.
         </p>
       </div>
 
@@ -213,7 +243,6 @@ export default function EditProductPage({
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              disabled={isAlreadyEdited}
             />
           </div>
 
@@ -228,7 +257,6 @@ export default function EditProductPage({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
-                disabled={isAlreadyEdited}
               />
             </div>
             <div className="flex-1">
@@ -241,7 +269,6 @@ export default function EditProductPage({
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 required
-                disabled={isAlreadyEdited}
               />
             </div>
           </div>
@@ -251,11 +278,10 @@ export default function EditProductPage({
               Category
             </label>
             <select
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white px-3 py-2 border disabled:opacity-50"
+              className="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white px-3 py-2 border"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required
-              disabled={isAlreadyEdited}
             >
               <option value="" disabled>
                 Select a category
@@ -270,20 +296,18 @@ export default function EditProductPage({
 
           <div className="border-t pt-4">
             <label className="block text-sm font-medium text-gray-700 mb-3">
-              Update Product Image (Optional)
+              Product Images
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-4">
                 {/* Upload File Option */}
-                <div
-                  className={`border-2 border-dashed border-gray-200 rounded-lg p-4 transition relative ${isAlreadyEdited ? "bg-gray-100 cursor-not-allowed" : "hover:bg-gray-50 cursor-pointer"}`}
-                >
+                <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition cursor-pointer relative">
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleFileChange}
-                    disabled={isAlreadyEdited}
-                    className={`absolute inset-0 w-full h-full opacity-0 ${isAlreadyEdited ? "cursor-not-allowed" : "cursor-pointer"}`}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <div className="text-center">
                     <svg
@@ -301,9 +325,9 @@ export default function EditProductPage({
                     </svg>
                     <p className="mt-1 text-sm text-gray-600">
                       <span className="text-purple-600 font-semibold inline-block">
-                        Upload a file
+                        Upload file(s)
                       </span>{" "}
-                      or drag and drop
+                      or drag & drop
                     </p>
                   </div>
                 </div>
@@ -316,26 +340,105 @@ export default function EditProductPage({
                   <div className="flex-grow border-t border-gray-200"></div>
                 </div>
 
-                <Input
-                  placeholder="https://example.com/image.jpg"
-                  value={imageUrl}
-                  onChange={handleUrlChange}
-                  disabled={isAlreadyEdited}
-                />
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://example.com/image.jpg"
+                    value={urlInput}
+                    onChange={(e) => setUrlInput(e.target.value)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleAddUrl}
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
 
               {/* Image Preview Window */}
-              <div className="w-full h-48 bg-gray-100 rounded-lg flex items-center justify-center border overflow-hidden">
-                {imagePreview ? (
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-full object-cover"
-                  />
+              <div className="w-full min-h-[192px] bg-gray-50 rounded-xl p-3 border border-gray-200/60 overflow-hidden flex flex-col">
+                <span className="text-xs font-black uppercase text-purple-600 tracking-wider mb-2">
+                  Images Gallery ({existingImages.length + newImages.length})
+                </span>
+
+                {existingImages.length === 0 && newImages.length === 0 ? (
+                  <div className="flex-1 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg py-12">
+                    <span className="text-gray-400 text-sm font-medium">
+                      No images left
+                    </span>
+                  </div>
                 ) : (
-                  <span className="text-gray-400 text-sm font-medium">
-                    Image Preview
-                  </span>
+                  <div className="grid grid-cols-3 gap-3 overflow-y-auto max-h-[220px] pr-1">
+                    {/* Render saved existing images */}
+                    {existingImages.map((img, i) => (
+                      <div
+                        key={`existing-${i}`}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-white group shadow-sm"
+                      >
+                        <img
+                          src={img.url}
+                          alt="Product image"
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(i)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md transition-all active:scale-90"
+                          title="Delete image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Render new added images */}
+                    {newImages.map((img, i) => (
+                      <div
+                        key={`new-${i}`}
+                        className="relative aspect-square rounded-xl overflow-hidden border border-purple-200 bg-white group shadow-sm animate-in zoom-in-95"
+                      >
+                        <img
+                          src={img.preview}
+                          alt="New preview"
+                          className="w-full h-full object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 px-1.5 py-0.5 text-[9px] font-black uppercase bg-purple-600 text-white rounded shadow-sm">
+                          New
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewImage(i)}
+                          className="absolute top-1 right-1 p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md transition-all active:scale-90"
+                          title="Remove image"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -345,6 +448,11 @@ export default function EditProductPage({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
             </label>
+            {isAlreadyEdited && (
+              <span className="text-xs font-semibold text-yellow-600 dark:text-yellow-500 block mb-1">
+                ⚠️ Description is locked (one-time edit policy). Other fields are fully editable.
+              </span>
+            )}
             <textarea
               placeholder="Tell buyers about your product..."
               value={description}
@@ -354,8 +462,8 @@ export default function EditProductPage({
             />
           </div>
 
-          {!isAlreadyEdited && (
-            <div className="border-t pt-4 flex items-start gap-3 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+          {isDescriptionChanged && !isAlreadyEdited && (
+            <div className="border-t pt-4 flex items-start gap-3 bg-yellow-50 p-4 rounded-lg border border-yellow-200 animate-in fade-in slide-in-from-top-2">
               <input
                 type="checkbox"
                 id="editAgreement"
@@ -367,12 +475,9 @@ export default function EditProductPage({
                 htmlFor="editAgreement"
                 className="text-sm text-yellow-800"
               >
-                <strong>One-Time Edit Agreement:</strong> By checking this box,
-                I acknowledge that I can only edit this product{" "}
-                <strong>once</strong>. Any errors in the updated product
-                information will remain permanent, and severe issues may result
-                in it being dismissed from the platform. Please make sure
-                everything is correct!
+                <strong>One-Time Description Edit Agreement:</strong> I acknowledge that
+                I can only edit this product's description <strong>once</strong>.
+                Any typos or errors will remain permanent. Please make sure everything is correct!
               </label>
             </div>
           )}
@@ -387,7 +492,10 @@ export default function EditProductPage({
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={saving || isAlreadyEdited || !agreed}>
+          <Button
+            type="submit"
+            disabled={saving || hasNoImages || (isDescriptionChanged && !isAlreadyEdited && !agreed)}
+          >
             {saving ? "Updating..." : "Update Product"}
           </Button>
         </div>
