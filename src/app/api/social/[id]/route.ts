@@ -61,7 +61,7 @@ export async function PUT(req: NextRequest, segmentData: { params: Promise<{ id:
 
     const { id: postId } = await segmentData.params;
     const body = await req.json();
-    const { content } = body;
+    const { content, media_urls } = body;
 
     if (!content) return error("Content is required", 400);
 
@@ -70,10 +70,12 @@ export async function PUT(req: NextRequest, segmentData: { params: Promise<{ id:
     if (checkRes.rows.length === 0) return error("Post not found", 404);
     if (checkRes.rows[0].user_id !== decoded.id) return error("Forbidden", 403);
 
+    const dbMediaUrl = media_urls && media_urls.length > 0 ? JSON.stringify(media_urls) : null;
+
     // Update
     const updateRes = await pool.query(
-      "UPDATE social_posts SET content = $1 WHERE id = $2 RETURNING *",
-      [content, postId]
+      "UPDATE social_posts SET content = $1, media_url = $2 WHERE id = $3 RETURNING *",
+      [content, dbMediaUrl, postId]
     );
 
     return success(updateRes.rows[0]);

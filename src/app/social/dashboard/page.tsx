@@ -167,6 +167,7 @@ const SocialDashboard = () => {
 
   const [editingPost, setEditingPost] = useState<SocialPost | null>(null);
   const [editContent, setEditContent] = useState("");
+  const [editMediaUrls, setEditMediaUrls] = useState<string[]>([]);
 
   const handleDelete = async (postId: string) => {
     if (!confirm("Are you sure you want to delete this post?")) return;
@@ -200,11 +201,15 @@ const SocialDashboard = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
-        body: JSON.stringify({ content: editContent })
+        body: JSON.stringify({ 
+          content: editContent,
+          media_urls: editMediaUrls
+        })
       });
       const data = await res.json();
       if (data.success) {
-        setPosts(posts.map(p => p.id === postId ? { ...p, content: editContent } : p));
+        const updatedMediaUrl = editMediaUrls.length > 0 ? JSON.stringify(editMediaUrls) : undefined;
+        setPosts(posts.map(p => p.id === postId ? { ...p, content: editContent, media_url: updatedMediaUrl } : p));
         setEditingPost(null);
       } else {
         alert(data.message || "Failed to edit.");
@@ -493,13 +498,89 @@ const SocialDashboard = () => {
                     {editingPost?.id === post.id ? (
                       <div className="space-y-4">
                         <textarea
-                          className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-none focus:ring-2 focus:ring-purple-500 resize-none h-24"
+                          className="w-full p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border-none focus:ring-2 focus:ring-purple-500 resize-none h-24 text-sm font-medium"
                           value={editContent}
                           onChange={(e) => setEditContent(e.target.value)}
                         />
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => setEditingPost(null)} className="bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-xl px-4 py-1 font-bold text-xs">Cancel</button>
-                          <button onClick={() => handleEditSubmit(post.id)} className="bg-purple-600 text-white hover:bg-purple-700 rounded-xl px-4 py-1 font-bold text-xs">Save</button>
+
+                        {/* Edit Media Gallery */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                              Post Media ({editMediaUrls.length})
+                            </span>
+                            <CldUploadWidget
+                              signatureEndpoint="/api/cloudinary-sign"
+                              onSuccess={(result: any) => {
+                                setEditMediaUrls((prev) => [...prev, result.info.secure_url]);
+                              }}
+                              options={{
+                                multiple: true,
+                                maxFiles: 5,
+                                sources: ["local", "camera"],
+                              } as any}
+                            >
+                              {({ open }) => (
+                                <button
+                                  type="button"
+                                  onClick={() => open()}
+                                  className="text-xs text-purple-600 font-bold hover:underline"
+                                >
+                                  + Add Image/Video
+                                </button>
+                              )}
+                            </CldUploadWidget>
+                          </div>
+
+                          {editMediaUrls.length > 0 && (
+                            <div className="flex gap-2 flex-wrap p-2 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-900">
+                              {editMediaUrls.map((url, i) => (
+                                <div
+                                  key={i}
+                                  className="w-14 h-14 rounded-lg overflow-hidden border-2 border-white dark:border-gray-900 shadow relative group flex-shrink-0"
+                                >
+                                  <img src={url} className="w-full h-full object-cover" alt="" />
+                                  <button
+                                    type="button"
+                                    onClick={() => setEditMediaUrls((urls) => urls.filter((_, idx) => idx !== i))}
+                                    className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity text-white flex items-center justify-center"
+                                  >
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="14"
+                                      height="14"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.5"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
+                                      <path d="M18 6 6 18" />
+                                      <path d="m6 6 12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2">
+                          <button 
+                            type="button" 
+                            onClick={() => setEditingPost(null)} 
+                            className="bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-850 dark:text-gray-300 dark:hover:bg-gray-800 rounded-xl px-4 py-2 font-bold text-xs"
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            type="button" 
+                            onClick={() => handleEditSubmit(post.id)} 
+                            className="bg-purple-600 text-white hover:bg-purple-700 rounded-xl px-5 py-2 font-bold text-xs shadow-md shadow-purple-500/10 active:scale-95 transition-all"
+                          >
+                            Save
+                          </button>
                         </div>
                       </div>
                     ) : (
@@ -509,15 +590,27 @@ const SocialDashboard = () => {
                         </div>
                         <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-50 dark:border-gray-900/50">
                             <button 
+                              type="button"
                               onClick={() => {
                                 setEditingPost(post);
                                 setEditContent(post.content);
+                                let urls: string[] = [];
+                                if (post.media_url) {
+                                  try {
+                                    urls = JSON.parse(post.media_url);
+                                    if (!Array.isArray(urls)) urls = [post.media_url];
+                                  } catch (e) {
+                                    urls = [post.media_url];
+                                  }
+                                }
+                                setEditMediaUrls(urls);
                               }} 
                               className="px-4 py-1.5 bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 font-extrabold text-xs rounded-xl hover:bg-purple-100 dark:hover:bg-purple-950/50 transition-all active:scale-95"
                             >
                               ✍️ Edit Post
                             </button>
                             <button 
+                              type="button"
                               onClick={() => handleDelete(post.id)} 
                               className="px-4 py-1.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 font-extrabold text-xs rounded-xl hover:bg-red-100 dark:hover:bg-red-950/50 transition-all active:scale-95"
                             >
