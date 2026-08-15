@@ -83,9 +83,9 @@ export default function SellerProductsPage() {
     );
     setShareType("page");
     
-    // Add product primary image if exists
-    const prodImg = product.images?.[0]?.url;
-    setShareMediaUrls(prodImg ? [prodImg] : []);
+    // Add all product images if they exist
+    const mediaUrls = product.images?.map((img) => img.url) || [];
+    setShareMediaUrls(mediaUrls);
   };
 
   const handlePublishPost = async () => {
