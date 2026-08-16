@@ -70,9 +70,9 @@ export async function DELETE(
     await pool.query("DELETE FROM social_comments WHERE user_id = $1", [userId]);
     await pool.query("DELETE FROM social_likes WHERE user_id = $1", [userId]);
     await pool.query("DELETE FROM social_views WHERE user_id = $1", [userId]);
-    await pool.query("DELETE FROM social_follows WHERE follower_id = $1 OR following_id = $1", [userId, userId]);
-    await pool.query("DELETE FROM social_notifications WHERE recipient_id = $1 OR sender_id = $1", [userId, userId]);
-    await pool.query("DELETE FROM social_messages WHERE sender_id = $1 OR receiver_id = $1", [userId, userId]);
+    await pool.query("DELETE FROM social_follows WHERE follower_id = $1 OR following_id = $2", [userId, userId]);
+    await pool.query("DELETE FROM social_notifications WHERE recipient_id = $1 OR sender_id = $2", [userId, userId]);
+    await pool.query("DELETE FROM social_messages WHERE sender_id = $1 OR receiver_id = $2", [userId, userId]);
 
     return success({ message: "User and all related data purged and archived successfully." });
   } catch (err: any) {
