@@ -1128,7 +1128,15 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.topSellers?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.topSellers.map((s: any, idx: number) => (
-                                <div key={s.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <div
+                                  key={s.id}
+                                  onClick={() => {
+                                    setActiveTab("users");
+                                    setSearchQuery(s.email);
+                                  }}
+                                  className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200"
+                                  title="View User Details"
+                                >
                                   <div className="min-w-0 flex-1">
                                     <p className="font-bold text-gray-800 dark:text-gray-200 truncate">#{idx + 1} {s.name}</p>
                                     <p className="text-[10px] text-gray-400 truncate">{s.email}</p>
@@ -1151,7 +1159,14 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.mostBoughtProducts?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.mostBoughtProducts.map((p: any, idx: number) => (
-                                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <a
+                                  key={p.id}
+                                  href={`/products/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200 block"
+                                  title="View Product Page"
+                                >
                                   <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {p.image ? (
                                       <img src={p.image} className="w-8 h-8 rounded object-cover flex-shrink-0" alt="" />
@@ -1167,7 +1182,7 @@ export default function AdminDashboard() {
                                     <p className="font-extrabold text-emerald-600 dark:text-emerald-400">{p.salesCount} sold</p>
                                     <p className="text-[10px] text-gray-400">₹{p.totalEarnings.toLocaleString("en-IN")}</p>
                                   </div>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           ) : (
@@ -1181,7 +1196,14 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.mostViewedProducts?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.mostViewedProducts.map((p: any, idx: number) => (
-                                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                <a
+                                  key={p.id}
+                                  href={`/products/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200 block"
+                                  title="View Product Page"
+                                >
                                   <div className="flex items-center gap-2 min-w-0 flex-1">
                                     {p.image ? (
                                       <img src={p.image} className="w-8 h-8 rounded object-cover flex-shrink-0" alt="" />
@@ -1196,7 +1218,7 @@ export default function AdminDashboard() {
                                   <div className="text-right flex-shrink-0 pl-2">
                                     <p className="font-extrabold text-blue-600 dark:text-blue-400">👁️ {p.views} views</p>
                                   </div>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           ) : (
@@ -1218,13 +1240,20 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.topLikedPosts?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.topLikedPosts.map((p: any, idx: number) => (
-                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                <a
+                                  key={p.id}
+                                  href={`/social/post/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200 space-y-2"
+                                  title="View Social Post"
+                                >
                                   <div className="flex justify-between items-center">
                                     <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
                                     <span className="text-[10px] bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 px-1.5 py-0.5 rounded font-black">❤️ {p.likes_count} likes</span>
                                   </div>
                                   <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           ) : (
@@ -1238,13 +1267,20 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.topCommentedPosts?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.topCommentedPosts.map((p: any, idx: number) => (
-                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                <a
+                                  key={p.id}
+                                  href={`/social/post/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200 space-y-2"
+                                  title="View Social Post"
+                                >
                                   <div className="flex justify-between items-center">
                                     <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
                                     <span className="text-[10px] bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 px-1.5 py-0.5 rounded font-black">💬 {p.comments_count} comments</span>
                                   </div>
                                   <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           ) : (
@@ -1258,13 +1294,20 @@ export default function AdminDashboard() {
                           {dashboardData.rankings?.topViewedPosts?.length > 0 ? (
                             <div className="space-y-3">
                               {dashboardData.rankings.topViewedPosts.map((p: any, idx: number) => (
-                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                <a
+                                  key={p.id}
+                                  href={`/social/post/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:border-indigo-200 cursor-pointer transition-all duration-200 space-y-2"
+                                  title="View Social Post"
+                                >
                                   <div className="flex justify-between items-center">
                                     <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
                                     <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded font-black">👁️ {p.views_count} views</span>
                                   </div>
                                   <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
-                                </div>
+                                </a>
                               ))}
                             </div>
                           ) : (
