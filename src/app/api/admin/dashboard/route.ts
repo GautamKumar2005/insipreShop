@@ -5,6 +5,7 @@ import User from "@/models/User";
 import SellerProfile from "@/models/SellerProfile";
 import DeliveryProfile from "@/models/DeliveryProfile";
 import Order from "@/models/Order";
+import Product from "@/models/Product";
 import { success, error } from "@/lib/response";
 import { ROLES } from "@/lib/constants";
 
@@ -96,6 +97,122 @@ export async function GET(req: NextRequest) {
         }
     } catch(e) {}
 
+    // Rankings lists across social and inspireShop
+    // 1. Top Sellers (inspireShop)
+    const topSellersAgg = await Order.aggregate([
+      { $group: { _id: "$seller", totalSales: { $sum: "$totalAmount" }, ordersCount: { $sum: 1 } } },
+      { $sort: { totalSales: -1 } },
+      { $limit: 5 }
+    ]);
+    const topSellers = [];
+    for (const s of topSellersAgg) {
+      const u = await User.findById(s._id).select("name email");
+      if (u) {
+        topSellers.push({
+          id: s._id,
+          name: u.name,
+          email: u.email,
+          totalSales: s.totalSales,
+          ordersCount: s.ordersCount
+        });
+      }
+    }
+
+    // 2. Most Bought Products (inspireShop)
+    const topProductsAgg = await Order.aggregate([
+      { $unwind: "$items" },
+      { $group: { _id: "$items.product", salesCount: { $sum: "$items.quantity" }, totalEarnings: { $sum: { $multiply: ["$items.price", "$items.quantity"] } } } },
+      { $sort: { salesCount: -1 } },
+      { $limit: 5 }
+    ]);
+    const mostBoughtProducts = [];
+    for (const p of topProductsAgg) {
+      const dbProd = await Product.findById(p._id).select("name price images");
+      if (dbProd) {
+        mostBoughtProducts.push({
+          id: p._id,
+          name: dbProd.name,
+          price: dbProd.price,
+          image: dbProd.images?.[0]?.url || "",
+          salesCount: p.salesCount,
+          totalEarnings: p.totalEarnings
+        });
+      }
+    }
+
+    // 3. Most Viewed Products (inspireShop)
+    const dbViewed = await Product.find({ isActive: true })
+      .select("name price images views")
+      .sort({ views: -1 })
+      .limit(5);
+    const mostViewedProducts = dbViewed.map((p: any) => ({
+      id: p._id,
+      name: p.name,
+      price: p.price,
+      image: p.images?.[0]?.url || "",
+      views: p.views || 0
+    }));
+
+    // 4. Social Lists (social network)
+    const topLikedPosts = [];
+    const topCommentedPosts = [];
+    const topViewedPosts = [];
+
+    try {
+      // Top Liked
+      const likedRes = await pool.query(`
+        SELECT p.*, COUNT(l.id) as likes_count 
+        FROM social_posts p 
+        LEFT JOIN social_likes l ON p.id = l.post_id 
+        GROUP BY p.id 
+        ORDER BY likes_count DESC 
+        LIMIT 5
+      `);
+      for (const row of likedRes.rows) {
+        const u = await User.findById(row.user_id).select("name email");
+        topLikedPosts.push({
+          ...row,
+          author: u ? { name: u.name, email: u.email } : null
+        });
+      }
+
+      // Top Commented
+      const commentedRes = await pool.query(`
+        SELECT p.*, COUNT(c.id) as comments_count 
+        FROM social_posts p 
+        LEFT JOIN social_comments c ON p.id = c.post_id 
+        GROUP BY p.id 
+        ORDER BY comments_count DESC 
+        LIMIT 5
+      `);
+      for (const row of commentedRes.rows) {
+        const u = await User.findById(row.user_id).select("name email");
+        topCommentedPosts.push({
+          ...row,
+          author: u ? { name: u.name, email: u.email } : null
+        });
+      }
+
+      // Top Viewed
+      const viewedRes = await pool.query(`
+        SELECT p.*, COUNT(v.id) as views_count 
+        FROM social_posts p 
+        LEFT JOIN social_views v ON p.id = v.post_id 
+        GROUP BY p.id 
+        ORDER BY views_count DESC 
+        LIMIT 5
+      `);
+      for (const row of viewedRes.rows) {
+        const u = await User.findById(row.user_id).select("name email");
+        topViewedPosts.push({
+          ...row,
+          author: u ? { name: u.name, email: u.email } : null
+        });
+      }
+    } catch (e) {
+      console.error("Failed to query social ranks:", e);
+    }
+
     // Generate dates for the last 7 days
     const chartData = [];
     for (let i = 6; i >= 0; i--) {
@@ -122,7 +239,15 @@ export async function GET(req: NextRequest) {
       recentUsers,
       recentOrders,
       chartData,
-      socialMetrics
+      socialMetrics,
+      rankings: {
+        topSellers,
+        mostBoughtProducts,
+        mostViewedProducts,
+        topLikedPosts,
+        topCommentedPosts,
+        topViewedPosts
+      }
     });
   } catch (err: any) {
     return error(err.message || "Failed to fetch dashboard");

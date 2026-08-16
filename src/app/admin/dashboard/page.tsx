@@ -1096,92 +1096,182 @@ export default function AdminDashboard() {
 
           {/* SOCIAL METRICS TAB */}
           {activeTab === "social" && dashboardData?.socialMetrics && (
-             <div className="space-y-6">
-                 {/* Quick Stats Header */}
-                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <StatCard
-                        title="Total Active Users"
-                        value={dashboardData.totalUsers || 0}
-                        icon={Users}
-                        color="bg-blue-500"
-                        trend="Total Users on Platform"
-                    />
-                    <StatCard
-                        title="Total Posts Made"
-                        value={dashboardData.socialMetrics.totalPosts || 0}
-                        icon={Activity}
-                        color="bg-purple-500"
-                        trend="Overall Network Content"
-                    />
-                 </div>
+             <div className="space-y-8">
+                  {/* Quick Stats Header */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                     <StatCard
+                         title="Total Active Users"
+                         value={dashboardData.totalUsers || 0}
+                         icon={Users}
+                         color="bg-blue-500"
+                         trend="Total Users on Platform"
+                     />
+                     <StatCard
+                         title="Total Posts Made"
+                         value={dashboardData.socialMetrics.totalPosts || 0}
+                         icon={Activity}
+                         color="bg-purple-500"
+                         trend="Overall Network Content"
+                     />
+                  </div>
 
-                 {/* Top Content Row */}
-                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                    
-                    {/* Highest Liked */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center">
-                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  {/* inspireShop Rankings Section */}
+                  <div className="space-y-4">
+                     <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                        🛍️ inspireShop Top Performances
+                     </h3>
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Top Sellers */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Top Sellers</h4>
+                          {dashboardData.rankings?.topSellers?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.topSellers.map((s: any, idx: number) => (
+                                <div key={s.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="font-bold text-gray-800 dark:text-gray-200 truncate">#{idx + 1} {s.name}</p>
+                                    <p className="text-[10px] text-gray-400 truncate">{s.email}</p>
+                                  </div>
+                                  <div className="text-right flex-shrink-0 pl-2">
+                                    <p className="font-extrabold text-indigo-600 dark:text-indigo-400">₹{s.totalSales.toLocaleString("en-IN")}</p>
+                                    <p className="text-[10px] text-gray-400">{s.ordersCount} orders</p>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-800">Highest Liked Post</h3>
-                                <p className="text-xs text-gray-500">Most engaged content overall</p>
-                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No sales data yet.</p>
+                          )}
                         </div>
-                        {dashboardData.socialMetrics.highestLikedPost ? (
-                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                                <h4 className="text-3xl font-black text-red-500 mb-1">{dashboardData.socialMetrics.highestLikedPost.interactions}</h4>
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Total Likes</span>
-                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-red-200 pl-3">"{dashboardData.socialMetrics.highestLikedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestLikedPost.content?.length > 100 ? '...' : ''}"</p>
-                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestLikedPost.id.split('-')[0]}</span>
-                            </div>
-                        ) : <div className="p-4 text-center text-gray-400 text-sm">No likes data.</div>}
-                    </div>
 
-                    {/* Highest Viewed */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center">
-                               <Activity size={20} />
+                        {/* Most Bought Products */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Most Bought Products</h4>
+                          {dashboardData.rankings?.mostBoughtProducts?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.mostBoughtProducts.map((p: any, idx: number) => (
+                                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    {p.image ? (
+                                      <img src={p.image} className="w-8 h-8 rounded object-cover flex-shrink-0" alt="" />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex-shrink-0" />
+                                    )}
+                                    <div className="min-w-0">
+                                      <p className="font-bold text-gray-800 dark:text-gray-200 truncate">#{idx + 1} {p.name}</p>
+                                      <p className="text-[10px] text-gray-400">₹{p.price}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right flex-shrink-0 pl-2">
+                                    <p className="font-extrabold text-emerald-600 dark:text-emerald-400">{p.salesCount} sold</p>
+                                    <p className="text-[10px] text-gray-400">₹{p.totalEarnings.toLocaleString("en-IN")}</p>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-800">Highest Viewed Post</h3>
-                                <p className="text-xs text-gray-500">Maximum organic reach</p>
-                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No sales data yet.</p>
+                          )}
                         </div>
-                        {dashboardData.socialMetrics.highestViewedPost ? (
-                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                                <h4 className="text-3xl font-black text-blue-500 mb-1">{dashboardData.socialMetrics.highestViewedPost.interactions}</h4>
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Unique Views</span>
-                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-blue-200 pl-3">"{dashboardData.socialMetrics.highestViewedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestViewedPost.content?.length > 100 ? '...' : ''}"</p>
-                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestViewedPost.id.split('-')[0]}</span>
-                            </div>
-                        ) : <div className="p-4 text-center text-gray-400 text-sm">No views data.</div>}
-                    </div>
 
-                    {/* Highest Shared */}
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition-shadow">
-                        <div className="flex items-center gap-3 mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center">
-                               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                        {/* Most Viewed Products */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Most Viewed Products</h4>
+                          {dashboardData.rankings?.mostViewedProducts?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.mostViewedProducts.map((p: any, idx: number) => (
+                                <div key={p.id} className="flex items-center justify-between text-xs p-2.5 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800">
+                                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                                    {p.image ? (
+                                      <img src={p.image} className="w-8 h-8 rounded object-cover flex-shrink-0" alt="" />
+                                    ) : (
+                                      <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded flex-shrink-0" />
+                                    )}
+                                    <div className="min-w-0">
+                                      <p className="font-bold text-gray-800 dark:text-gray-200 truncate">#{idx + 1} {p.name}</p>
+                                      <p className="text-[10px] text-gray-400">₹{p.price}</p>
+                                    </div>
+                                  </div>
+                                  <div className="text-right flex-shrink-0 pl-2">
+                                    <p className="font-extrabold text-blue-600 dark:text-blue-400">👁️ {p.views} views</p>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
-                            <div>
-                                <h3 className="font-bold text-gray-800">Highest Shared Post</h3>
-                                <p className="text-xs text-gray-500">Most virality and DM shares</p>
-                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No views data available yet.</p>
+                          )}
                         </div>
-                        {dashboardData.socialMetrics.highestSharedPost ? (
-                            <div className="flex-1 bg-gray-50/50 border border-gray-100 p-4 rounded-xl flex flex-col items-center justify-center text-center">
-                                <h4 className="text-3xl font-black text-green-500 mb-1">{dashboardData.socialMetrics.highestSharedPost.interactions}</h4>
-                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Chat Shares</span>
-                                <p className="text-sm font-medium text-gray-700 italic border-l-2 border-green-200 pl-3">"{dashboardData.socialMetrics.highestSharedPost.content?.substring(0, 100)}{dashboardData.socialMetrics.highestSharedPost.content?.length > 100 ? '...' : ''}"</p>
-                                <span className="text-xs bg-gray-200 px-2 py-0.5 rounded-full mt-3 font-mono">{dashboardData.socialMetrics.highestSharedPost.id.split('-')[0]}</span>
-                            </div>
-                        ) : <div className="p-4 text-center text-gray-400 text-sm">No sharing data available yet.</div>}
-                    </div>
+                     </div>
+                  </div>
 
-                 </div>
+                  {/* Social Network Content Rankings */}
+                  <div className="space-y-4">
+                     <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 border-b border-gray-100 dark:border-gray-800 pb-2">
+                        📣 Social Content Performance
+                     </h3>
+                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Highest Liked Posts */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Highest Liked Posts</h4>
+                          {dashboardData.rankings?.topLikedPosts?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.topLikedPosts.map((p: any, idx: number) => (
+                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
+                                    <span className="text-[10px] bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 px-1.5 py-0.5 rounded font-black">❤️ {p.likes_count} likes</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No liked posts available.</p>
+                          )}
+                        </div>
+
+                        {/* Highest Commented Posts */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Highest Commented Posts</h4>
+                          {dashboardData.rankings?.topCommentedPosts?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.topCommentedPosts.map((p: any, idx: number) => (
+                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
+                                    <span className="text-[10px] bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 px-1.5 py-0.5 rounded font-black">💬 {p.comments_count} comments</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No commented posts available.</p>
+                          )}
+                        </div>
+
+                        {/* Highest Viewed Posts */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-5">
+                          <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 text-sm">Highest Viewed Posts</h4>
+                          {dashboardData.rankings?.topViewedPosts?.length > 0 ? (
+                            <div className="space-y-3">
+                              {dashboardData.rankings.topViewedPosts.map((p: any, idx: number) => (
+                                <div key={p.id} className="text-xs p-3 bg-gray-50 dark:bg-gray-800/40 rounded-xl border border-gray-100 dark:border-gray-800 space-y-2">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-bold text-gray-800 dark:text-gray-200 truncate max-w-[120px]">#{idx + 1} {p.author?.name || "Anonymous"}</span>
+                                    <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400 px-1.5 py-0.5 rounded font-black">👁️ {p.views_count} views</span>
+                                  </div>
+                                  <p className="text-[11px] text-gray-500 dark:text-gray-400 italic truncate font-medium">"{p.content}"</p>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No viewed posts available.</p>
+                          )}
+                        </div>
+                     </div>
+                  </div>
              </div>
           )}
 
