@@ -54,19 +54,19 @@ export default function OrdersPage() {
     fetchOrders();
   }, []);
 
-  if (loading) return <p className="p-4">Loading orders...</p>;
+  if (loading) return <p className="p-4 text-center text-gray-500 dark:text-gray-400">Loading orders...</p>;
   if (orders.length === 0)
-    return <p className="p-4">You have no orders yet.</p>;
+    return <p className="p-4 text-center text-gray-500 dark:text-gray-400">You have no orders yet.</p>;
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-2xl font-bold">My Orders</h1>
+    <div className="container mx-auto p-4 space-y-6 text-gray-850 dark:text-gray-100">
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Orders</h1>
 
       {orders.map((order) => (
-        <div key={order._id} className="border rounded-lg p-4 space-y-3">
+        <div key={order._id} className="bg-white dark:bg-gray-900 border border-gray-250 dark:border-gray-800 rounded-lg p-4 space-y-3">
           <div className="flex justify-between items-center">
-            <p className="font-semibold">
-              Order ID: <span className="text-gray-600">{order._id}</span>
+            <p className="font-semibold text-gray-900 dark:text-white">
+              Order ID: <span className="text-gray-600 dark:text-gray-400 font-mono text-sm">#{order._id.slice(-6).toUpperCase()}</span>
             </p>
             <div className="flex items-center gap-2">
               <span className={`text-xs px-2.5 py-1 rounded-full font-bold ${
@@ -80,7 +80,7 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 dark:text-gray-400">
             Placed on: {formatDate(order.createdAt)}
           </div>
 
@@ -88,10 +88,10 @@ export default function OrdersPage() {
             {order.items.map((item, index) => (
               <div
                 key={index}
-                className="flex gap-4 items-center border-b pb-2 last:border-0"
+                className="flex gap-4 items-center border-b border-gray-100 dark:border-gray-800 pb-2 last:border-0"
               >
                 {/* Product Image */}
-                <div className="w-16 h-16 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden border">
+                <div className="w-16 h-16 flex-shrink-0 bg-gray-100 dark:bg-gray-800 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
                   {item.product?.images?.[0]?.url ? (
                     <img
                       src={item.product.images[0].url}
@@ -99,17 +99,17 @@ export default function OrdersPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500 text-xs">
                       No Img
                     </div>
                   )}
                 </div>
 
                 <div className="flex-1">
-                  <p className="font-medium text-sm line-clamp-1">
+                  <p className="font-medium text-sm text-gray-900 dark:text-white line-clamp-1">
                     {item.product?.name || "Product Unavailable"}
                   </p>
-                  <div className="flex justify-between mt-1 text-sm text-gray-600">
+                  <div className="flex justify-between mt-1 text-sm text-gray-600 dark:text-gray-400">
                     <span>Qty: {item.quantity}</span>
                     <span className="font-semibold">
                       ₹
@@ -121,8 +121,8 @@ export default function OrdersPage() {
             ))}
           </div>
 
-          <div className="flex justify-between items-center pt-2 border-t">
-            <p className="font-semibold">Total: ₹{order.totalAmount}</p>
+          <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-800">
+            <p className="font-semibold text-gray-900 dark:text-white">Total: ₹{order.totalAmount}</p>
 
             <div className="flex gap-2">
               {order.paymentStatus !== "PAID" && !["DELIVERED", "COMPLETED", "CANCELLED"].includes(order.status) && (

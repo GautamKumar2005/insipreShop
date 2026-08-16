@@ -124,19 +124,19 @@ export default function DeliveryDashboardPage() {
   if (authLoading || loading) return <div className="p-6">Loading...</div>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-4xl mx-auto text-gray-800 dark:text-gray-100">
       <h1 className="text-3xl font-bold mb-6">Delivery Dashboard</h1>
 
       {/* Tabs - Scrollable on mobile */}
-      <div className="flex overflow-x-auto no-scrollbar space-x-2 sm:space-x-4 mb-6 border-b -mx-6 px-6">
+      <div className="flex overflow-x-auto no-scrollbar space-x-2 sm:space-x-4 mb-6 border-b border-gray-100 dark:border-gray-850 -mx-6 px-6">
         <button
-          className={`pb-2 px-4 whitespace-nowrap text-sm sm:text-base transition-all ${activeTab === "available" ? "border-b-2 border-black font-black text-black" : "text-gray-400 font-medium"}`}
+          className={`pb-2 px-4 whitespace-nowrap text-sm sm:text-base transition-all ${activeTab === "available" ? "border-b-2 border-black dark:border-white font-black text-black dark:text-white" : "text-gray-400 font-medium"}`}
           onClick={() => setActiveTab("available")}
         >
           Available Tasks ({availableTasks.length})
         </button>
         <button
-          className={`pb-2 px-4 whitespace-nowrap text-sm sm:text-base transition-all ${activeTab === "my" ? "border-b-2 border-black font-black text-black" : "text-gray-400 font-medium"}`}
+          className={`pb-2 px-4 whitespace-nowrap text-sm sm:text-base transition-all ${activeTab === "my" ? "border-b-2 border-black dark:border-white font-black text-black dark:text-white" : "text-gray-400 font-medium"}`}
           onClick={() => setActiveTab("my")}
         >
           My Deliveries ({myTasks.filter((t) => t.status !== "COMPLETED").length})
@@ -146,7 +146,7 @@ export default function DeliveryDashboardPage() {
       <div className="space-y-4">
         {activeTab === "available" ? (
           availableTasks.length === 0 ? (
-            <p className="text-gray-500">No tasks available nearby.</p>
+            <p className="text-gray-500 dark:text-gray-400">No tasks available nearby.</p>
           ) : (
             availableTasks.map((task) => (
               <TaskCard
@@ -158,7 +158,7 @@ export default function DeliveryDashboardPage() {
             ))
           )
         ) : myTasks.length === 0 ? (
-          <p className="text-gray-500">No tasks assigned to you.</p>
+          <p className="text-gray-500 dark:text-gray-400">No tasks assigned to you.</p>
         ) : (
           myTasks.map((task) => (
             <TaskCard
@@ -187,7 +187,7 @@ function TaskCard({
 
   return (
     <div
-      className={`border rounded-2xl p-4 md:p-6 shadow-sm bg-white hover:shadow-md transition-all ${isCompleted ? "opacity-60" : ""}`}
+      className={`border border-gray-200 dark:border-gray-800 rounded-2xl p-4 md:p-6 shadow-sm bg-white dark:bg-gray-900 hover:shadow-md transition-all ${isCompleted ? "opacity-60" : ""}`}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div className="flex-1 w-full">
@@ -197,47 +197,47 @@ function TaskCard({
             >
               {task.status}
             </span>
-            <span className="text-xs text-gray-400 font-mono">
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
               #{task.order?._id.slice(-6)}
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 bg-gray-50/50 dark:bg-gray-800/20 p-4 rounded-xl border border-gray-100 dark:border-gray-800">
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Pickup From</p>
-              <p className="font-bold text-gray-800 leading-tight mb-1">{task.pickupLocation}</p>
-              <p className="text-xs text-indigo-600 font-medium bg-indigo-50 w-fit px-2 py-0.5 rounded-full">
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest mb-1">Pickup From</p>
+              <p className="font-bold text-gray-800 dark:text-gray-200 leading-tight mb-1">{task.pickupLocation}</p>
+              <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium bg-indigo-50 dark:bg-indigo-950/40 w-fit px-2 py-0.5 rounded-full">
                 {task.order?.seller?.name}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Drop To</p>
-              <p className="font-bold text-gray-800 leading-tight mb-1">{task.dropLocation}</p>
-              <p className="text-xs text-green-600 font-medium bg-green-50 w-fit px-2 py-0.5 rounded-full">
+              <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase font-black tracking-widest mb-1">Drop To</p>
+              <p className="font-bold text-gray-800 dark:text-gray-200 leading-tight mb-1">{task.dropLocation}</p>
+              <p className="text-xs text-green-600 dark:text-green-400 font-medium bg-green-50 dark:bg-green-950/40 w-fit px-2 py-0.5 rounded-full">
                 {task.order?.buyer?.name}
               </p>
             </div>
           </div>
 
           <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm font-bold text-gray-700">
+            <div className="text-sm font-bold text-gray-700 dark:text-gray-300">
               Total Value: <span className="text-lg text-emerald-600 ml-1">₹{task.order?.totalAmount}</span>
             </div>
           </div>
 
           {/* Product Items Display */}
           {task.order?.items && task.order.items.length > 0 && (
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-3">
+            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+              <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">
                 Items to Deliver
               </p>
               <div className="grid grid-cols-1 gap-2">
                 {task.order.items.map((item: any, idx: number) => (
                   <div
                     key={idx}
-                    className="flex items-center gap-3 bg-white dark:bg-gray-800 p-2 rounded-xl border border-gray-100 shadow-sm"
+                    className="flex items-center gap-3 bg-white dark:bg-gray-800/40 p-2 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm"
                   >
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex-shrink-0">
                       {item.product?.images?.[0]?.url ? (
                         <img
                           src={item.product.images[0].url}
@@ -245,7 +245,7 @@ function TaskCard({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="flex items-center justify-center h-full text-[10px] text-gray-400 uppercase">
+                        <div className="flex items-center justify-center h-full text-[10px] text-gray-400 dark:text-gray-500 uppercase">
                           No Pic
                         </div>
                       )}
@@ -254,7 +254,7 @@ function TaskCard({
                       <p className="text-sm font-bold truncate text-gray-800 dark:text-gray-100">
                         {item.product?.name || "Premium Item"}
                       </p>
-                      <p className="text-xs text-gray-500 font-medium">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
                         Quantity: {item.quantity}
                       </p>
                     </div>
@@ -269,14 +269,14 @@ function TaskCard({
               <Button
                 onClick={() => onChat(task.order.buyer._id, task.order._id)}
                 variant="outline"
-                className="text-[11px] px-4 h-9 rounded-xl border-purple-200 text-purple-600 hover:bg-purple-50 flex-1 sm:flex-none font-bold"
+                className="text-[11px] px-4 h-9 rounded-xl border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 flex-1 sm:flex-none font-bold"
               >
                 💬 Chat Buyer
               </Button>
               <Button
                 onClick={() => onChat(task.order.seller._id, task.order._id)}
                 variant="outline"
-                className="text-[11px] px-4 h-9 rounded-xl border-indigo-200 text-indigo-600 hover:bg-indigo-50 flex-1 sm:flex-none font-bold"
+                className="text-[11px] px-4 h-9 rounded-xl border-indigo-200 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 flex-1 sm:flex-none font-bold"
               >
                 💬 Chat Seller
               </Button>
@@ -284,9 +284,9 @@ function TaskCard({
           )}
         </div>
 
-        <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 mt-2 sm:mt-0">
+        <div className="flex flex-col gap-2 w-full sm:w-auto shrink-0 border-t sm:border-t-0 border-gray-100 dark:border-gray-850 pt-4 sm:pt-0 mt-2 sm:mt-0">
           {!isMyTask && onAction && (
-            <Button onClick={onAction} className="w-full sm:w-auto h-11 rounded-xl bg-black hover:bg-gray-800 font-black text-sm px-8">
+            <Button onClick={onAction} className="w-full sm:w-auto h-11 rounded-xl bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 font-black text-sm px-8">
               {actionLabel}
             </Button>
           )}
@@ -294,12 +294,12 @@ function TaskCard({
           {isMyTask && !isCompleted && onStatusUpdate && (
             <div className="flex flex-col gap-2 w-full">
               {task.status === "ASSIGNED" && (
-                <Button onClick={() => onStatusUpdate(task._id, "PICKED")} className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-700 font-black text-sm shadow-lg shadow-purple-100">
+                <Button onClick={() => onStatusUpdate(task._id, "PICKED")} className="w-full h-11 rounded-xl bg-purple-600 hover:bg-purple-700 font-black text-sm shadow-lg shadow-purple-100 dark:shadow-none">
                   Mark as Picked Up
                 </Button>
               )}
               {task.status === "IN_TRANSIT" && (
-                <Button onClick={() => onStatusUpdate(task._id, "DELIVERED")} className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-sm shadow-lg shadow-emerald-100">
+                <Button onClick={() => onStatusUpdate(task._id, "DELIVERED")} className="w-full h-11 rounded-xl bg-emerald-600 hover:bg-emerald-700 font-black text-sm shadow-lg shadow-emerald-100 dark:shadow-none">
                   Confirm Delivery
                 </Button>
               )}

@@ -77,7 +77,7 @@ export default function SellerDashboardPage() {
   const revenue = orders.reduce((a, o) => a + o.totalAmount, 0);
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="p-6 space-y-6 max-w-5xl mx-auto text-gray-800 dark:text-gray-100">
       <h1 className="text-3xl font-bold">Seller Dashboard</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -86,7 +86,7 @@ export default function SellerDashboardPage() {
         <Stat title="Revenue" value={`₹${revenue}`} />
       </div>
 
-      <div className="flex gap-3 border-b pb-6">
+      <div className="flex gap-3 border-b border-gray-200 dark:border-gray-800 pb-6">
         <Button onClick={() => router.push("/seller/products")}>
           My Products
         </Button>
@@ -99,14 +99,14 @@ export default function SellerDashboardPage() {
         <div className="lg:col-span-2 space-y-8">
           {/* New Orders */}
           <div>
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4 text-gray-800">
+            <h2 className="text-xl font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 mb-4 text-gray-800 dark:text-gray-100">
               New Orders (Placed / Pending)
             </h2>
             <div className="space-y-4">
               {orders.filter((o: any) =>
                 ["PLACED", "PROCESSING"].includes(o.status),
               ).length === 0 ? (
-                <p className="text-gray-500">No new orders found.</p>
+                <p className="text-gray-500 dark:text-gray-400">No new orders found.</p>
               ) : (
                 orders
                   .filter((o: any) =>
@@ -122,7 +122,7 @@ export default function SellerDashboardPage() {
 
           {/* In Progress */}
           <div>
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4 text-gray-800">
+            <h2 className="text-xl font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 mb-4 text-gray-800 dark:text-gray-100">
               In Progress (Picked Up / Transit)
             </h2>
             <div className="space-y-4">
@@ -131,7 +131,7 @@ export default function SellerDashboardPage() {
                   o.status,
                 ),
               ).length === 0 ? (
-                <p className="text-gray-500">
+                <p className="text-gray-500 dark:text-gray-400">
                   No orders currently in progress.
                 </p>
               ) : (
@@ -154,14 +154,14 @@ export default function SellerDashboardPage() {
 
           {/* Completed */}
           <div>
-            <h2 className="text-xl font-semibold border-b pb-2 mb-4 text-gray-800">
+            <h2 className="text-xl font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 mb-4 text-gray-800 dark:text-gray-100">
               Completed
             </h2>
             <div className="space-y-4">
               {orders.filter((o: any) =>
                 ["DELIVERED", "COMPLETED", "CANCELLED"].includes(o.status),
               ).length === 0 ? (
-                <p className="text-gray-500">No completed orders yet.</p>
+                <p className="text-gray-500 dark:text-gray-400">No completed orders yet.</p>
               ) : (
                 orders
                   .filter((o: any) =>
@@ -177,15 +177,15 @@ export default function SellerDashboardPage() {
         </div>
 
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold border-b pb-2">Top Products</h2>
-          <div className="border rounded-xl divide-y bg-white shadow-sm">
+          <h2 className="text-xl font-semibold border-b border-gray-200 dark:border-gray-800 pb-2 text-gray-800 dark:text-gray-100">Top Products</h2>
+          <div className="border border-gray-200 dark:border-gray-800 rounded-xl divide-y divide-gray-150 dark:divide-gray-800 bg-white dark:bg-gray-900 shadow-sm">
             {products.length === 0 ? (
-              <p className="text-gray-500 p-4">No products added yet.</p>
+              <p className="text-gray-500 dark:text-gray-400 p-4">No products added yet.</p>
             ) : (
               products.slice(0, 5).map((p) => (
-                <div key={p._id} className="flex justify-between p-4">
-                  <span className="truncate pr-4 font-medium">{p.name}</span>
-                  <span className="font-bold flex-shrink-0">₹{p.price}</span>
+                <div key={p._id} className="flex justify-between p-4 text-sm">
+                  <span className="truncate pr-4 font-medium text-gray-800 dark:text-gray-200">{p.name}</span>
+                  <span className="font-bold flex-shrink-0 text-gray-900 dark:text-white">₹{p.price}</span>
                 </div>
               ))
             )}
@@ -198,16 +198,16 @@ export default function SellerDashboardPage() {
 
 function Stat({ title, value }: any) {
   return (
-    <div className="border rounded-xl p-4 shadow-sm bg-white">
-      <p className="text-gray-500 text-sm uppercase font-semibold">{title}</p>
-      <p className="text-3xl font-bold mt-1 text-purple-700">{value}</p>
+    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow-sm bg-white dark:bg-gray-900">
+      <p className="text-gray-500 dark:text-gray-400 text-xs uppercase font-semibold">{title}</p>
+      <p className="text-3xl font-bold mt-1 text-purple-700 dark:text-purple-400">{value}</p>
     </div>
   );
 }
 
 function OrderCard({ order, onChat }: any) {
   return (
-    <div className="border rounded-xl p-5 shadow-sm bg-white transition hover:shadow-md">
+    <div className="border border-gray-200 dark:border-gray-800 rounded-xl p-5 shadow-sm bg-white dark:bg-gray-900 transition hover:shadow-md hover:border-indigo-200 dark:hover:border-indigo-900">
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
         <div className="flex flex-col gap-1 w-full">
           <div className="flex items-center justify-between sm:justify-start gap-2">
@@ -216,15 +216,15 @@ function OrderCard({ order, onChat }: any) {
             >
               {order.status}
             </span>
-            <span className="text-xs text-gray-400 font-mono">
+            <span className="text-xs text-gray-400 dark:text-gray-500 font-mono">
               #{order._id.slice(-6)}
             </span>
           </div>
-          <p className="text-[10px] text-gray-400 mt-1">
+          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
             Placed on: {formatDate(order.createdAt)}
           </p>
         </div>
-        <div className="font-black text-xl text-emerald-600 sm:text-right w-full sm:w-auto border-t sm:border-t-0 pt-2 sm:pt-0">
+        <div className="font-black text-xl text-emerald-600 sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-gray-100 dark:border-gray-800 pt-2 sm:pt-0">
           ₹{order.totalAmount}
         </div>
       </div>
@@ -233,9 +233,9 @@ function OrderCard({ order, onChat }: any) {
         {order.items?.map((item: any, idx: number) => (
           <div
             key={idx}
-            className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100"
+            className="flex items-center gap-3 bg-gray-50 dark:bg-gray-800/40 p-2 rounded border border-gray-100 dark:border-gray-800"
           >
-            <div className="w-12 h-12 bg-gray-200 rounded flex-shrink-0 overflow-hidden">
+            <div className="w-12 h-12 bg-gray-200 dark:bg-gray-800 rounded flex-shrink-0 overflow-hidden">
               {item.product?.images?.[0]?.url ? (
                 <img
                   src={item.product.images[0].url}
@@ -243,7 +243,7 @@ function OrderCard({ order, onChat }: any) {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-[10px] text-gray-400">
+                <div className="flex items-center justify-center h-full text-[10px] text-gray-400 dark:text-gray-500">
                   N/A
                 </div>
               )}
@@ -253,14 +253,14 @@ function OrderCard({ order, onChat }: any) {
                 {item.product?.name || "Product Removed"}
               </p>
               <div className="flex justify-between items-center pr-2 mt-1">
-                <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Qty: {item.quantity}</p>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex gap-2 mt-4 pt-4 border-t">
+      <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
         {order.delivery && (
           <Button
             onClick={() => onChat(order.delivery, order._id)}

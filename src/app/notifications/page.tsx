@@ -54,11 +54,11 @@ export default function NotificationsPage() {
 
   if (loading) return <Loader />;
 
-  if (!notifications.length) return <p className="p-4">No notifications found.</p>;
+  if (!notifications.length) return <p className="p-4 text-gray-500 dark:text-gray-400 text-center">No notifications found.</p>;
 
   return (
-    <div className="p-4 space-y-2">
-      <h1 className="text-2xl font-bold mb-4">Notifications</h1>
+    <div className="p-4 max-w-2xl mx-auto space-y-2 text-gray-800 dark:text-gray-100">
+      <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Notifications</h1>
       {notifications.map((notif) => (
         <NotificationItem
           key={notif._id}

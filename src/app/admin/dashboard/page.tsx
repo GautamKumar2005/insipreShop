@@ -778,9 +778,9 @@ export default function AdminDashboard() {
 
           {/* ORDERS TAB */}
           {activeTab === "orders" && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-bold text-gray-800">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100">
                   All Orders ({ordersData.length})
                 </h3>
               </div>
@@ -798,18 +798,18 @@ export default function AdminDashboard() {
                   {ordersData.map((order: any) => (
                     <div
                       key={order._id}
-                      className="bg-gray-50 rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                      className="bg-gray-50 dark:bg-gray-800/40 rounded-xl p-5 border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow"
                     >
-                      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 pb-4 mb-4 gap-4">
+                      <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-gray-200 dark:border-gray-800 pb-4 mb-4 gap-4">
                         <div>
-                          <p className="text-xs text-gray-500 font-semibold mb-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-1">
                             ORDER #{order._id.toUpperCase()}
                           </p>
                           <div className="flex items-center gap-3">
-                            <h4 className="text-lg font-bold text-gray-800">
+                            <h4 className="text-lg font-bold text-gray-800 dark:text-gray-100">
                               ${order.totalAmount?.toFixed(2) || "0.00"}
                             </h4>
-                            <p className="text-sm text-gray-500">
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
                               {formatDate(order.createdAt)}
                             </p>
                           </div>
@@ -854,32 +854,32 @@ export default function AdminDashboard() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {/* Buyer Info */}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                          <h5 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+                          <h5 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                             <Users size={16} className="text-blue-500" /> Buyer
                           </h5>
                           {order.buyer ? (
                             <div className="text-sm space-y-1">
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Name:
                                 </span>{" "}
                                 {order.buyer.name}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Email:
                                 </span>{" "}
                                 {order.buyer.email}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Phone:
                                 </span>{" "}
                                 {order.buyer.phone}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Address:
                                 </span>{" "}
                                 {order.deliveryAddress}
@@ -893,27 +893,27 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Seller Info */}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                          <h5 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+                          <h5 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                             <Store size={16} className="text-purple-500" />{" "}
                             Seller
                           </h5>
                           {order.seller ? (
                             <div className="text-sm space-y-1">
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Shop:
                                 </span>{" "}
                                 {order.seller.shopName || order.seller.name}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Email:
                                 </span>{" "}
                                 {order.seller.email}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Phone:
                                 </span>{" "}
                                 {order.seller.phone}
@@ -927,27 +927,27 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Delivery Info */}
-                        <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
-                          <h5 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <div className="bg-white dark:bg-gray-900/50 p-4 rounded-lg shadow-sm border border-gray-100 dark:border-gray-800">
+                          <h5 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                             <Truck size={16} className="text-green-500" />{" "}
                             Delivery
                           </h5>
                           {order.delivery ? (
                             <div className="text-sm space-y-1">
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Name:
                                 </span>{" "}
                                 {order.delivery.name}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Email:
                                 </span>{" "}
                                 {order.delivery.email}
                               </p>
                               <p>
-                                <span className="text-gray-500 font-medium">
+                                <span className="text-gray-500 dark:text-gray-400 font-medium">
                                   Phone:
                                 </span>{" "}
                                 {order.delivery.phone}
@@ -963,13 +963,13 @@ export default function AdminDashboard() {
 
                       {/* Items */}
                       <div className="mt-6">
-                        <h5 className="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <h5 className="font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                           <Package size={16} className="text-indigo-500" />{" "}
                           Order Items
                         </h5>
-                        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                        <div className="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-800 overflow-x-auto">
                           <table className="w-full text-left text-sm">
-                            <thead className="bg-gray-50/50 text-gray-500 text-xs uppercase px-4">
+                            <thead className="bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase px-4">
                               <tr>
                                 <th className="px-4 py-3 font-semibold text-left">
                                   Product
@@ -985,19 +985,19 @@ export default function AdminDashboard() {
                                 </th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
+                            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                               {order.items?.map((item: any, idx: number) => (
-                                <tr key={idx} className="hover:bg-gray-50/50">
-                                  <td className="px-4 py-3 font-medium text-gray-800">
+                                <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30">
+                                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">
                                     {item.product?.name || "Unknown Product"}
                                   </td>
-                                  <td className="px-4 py-3 text-center text-gray-600">
+                                  <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-400">
                                     {item.quantity}
                                   </td>
-                                  <td className="px-4 py-3 text-right text-gray-600">
+                                  <td className="px-4 py-3 text-right text-gray-600 dark:text-gray-400">
                                     ${item.price?.toFixed(2)}
                                   </td>
-                                  <td className="px-4 py-3 text-right font-medium text-gray-800">
+                                  <td className="px-4 py-3 text-right font-medium text-gray-800 dark:text-gray-200">
                                     ${(item.quantity * item.price).toFixed(2)}
                                   </td>
                                 </tr>
@@ -1015,9 +1015,9 @@ export default function AdminDashboard() {
 
           {/* FEEDBACK TAB */}
           {activeTab === "feedback" && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden mt-6">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-bold text-gray-800">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden mt-6">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100">
                   User Feedback & Complaints ({feedbacksData.length})
                 </h3>
               </div>
@@ -1027,7 +1027,7 @@ export default function AdminDashboard() {
                   <Loader />
                 </div>
               ) : feedbacksData.length === 0 ? (
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                   No feedback or complaints found.
                 </div>
               ) : (
@@ -1035,20 +1035,20 @@ export default function AdminDashboard() {
                   {feedbacksData.map((f: any) => (
                     <div
                       key={f._id}
-                      className="bg-gray-50 p-5 rounded-xl border border-gray-100 flex flex-col items-start gap-4 hover:shadow-sm transition-all sm:flex-row sm:justify-between"
+                      className="bg-gray-50 dark:bg-gray-800/40 p-5 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col items-start gap-4 hover:shadow-sm transition-all sm:flex-row sm:justify-between"
                     >
                       <div className="flex-1">
-                        <div className="flex items-center gap-3 border-b border-gray-200 pb-3 mb-3">
+                        <div className="flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 pb-3 mb-3">
                           <div
                             className={`p-2 rounded-lg text-white ${f.type === "COMPLAINT" ? "bg-red-500" : "bg-blue-500"}`}
                           >
                             <MessageSquare size={16} />
                           </div>
                           <div>
-                            <h4 className="font-bold text-gray-800">
+                            <h4 className="font-bold text-gray-800 dark:text-gray-100">
                               {f.name}
                             </h4>
-                            <p className="text-xs text-gray-500">{f.email}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{f.email}</p>
                           </div>
                           <Badge
                             variant={f.type === "COMPLAINT" ? "error" : "info"}
@@ -1064,7 +1064,7 @@ export default function AdminDashboard() {
                             {f.status}
                           </Badge>
                         </div>
-                        <p className="text-gray-700 text-sm italic border-l-4 border-indigo-200 pl-3">
+                        <p className="text-gray-700 dark:text-gray-300 text-sm italic border-l-4 border-indigo-200 dark:border-indigo-900 pl-3">
                           "{f.message}"
                         </p>
                         <p className="text-xs text-gray-400 mt-2">

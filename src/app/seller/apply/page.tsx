@@ -44,12 +44,12 @@ export default function SellerApplyPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="w-full max-w-md bg-white p-6 rounded-xl shadow">
-        <h1 className="text-2xl font-bold mb-4">Apply as Seller</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 text-gray-800 dark:text-gray-100">
+      <div className="w-full max-w-md bg-white dark:bg-gray-900 p-6 rounded-xl shadow border border-gray-250 dark:border-gray-800">
+        <h1 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Apply as Seller</h1>
 
         {error && (
-          <p className="mb-3 text-sm text-red-600 bg-red-50 p-2 rounded">
+          <p className="mb-3 text-sm text-red-600 bg-red-50 dark:bg-red-950/20 p-2 rounded border border-red-100 dark:border-red-900/50">
             {error}
           </p>
         )}

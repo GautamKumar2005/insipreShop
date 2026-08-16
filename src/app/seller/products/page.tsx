@@ -123,7 +123,7 @@ export default function SellerProductsPage() {
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto relative">
+    <div className="p-6 max-w-6xl mx-auto relative text-gray-800 dark:text-gray-100">
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-3xl font-bold">My Products</h1>
         <Button
@@ -136,7 +136,7 @@ export default function SellerProductsPage() {
       </div>
 
       {error && (
-        <div className="mb-6 text-red-700 bg-red-50 border border-red-200 p-4 rounded-lg flex items-center gap-2">
+        <div className="mb-6 text-red-700 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 p-4 rounded-lg flex items-center gap-2">
           <span>⚠️</span>
           <span>{error}</span>
         </div>
@@ -150,8 +150,8 @@ export default function SellerProductsPage() {
         </div>
       ) : products.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16">
-          <PackageOpen className="w-32 h-32 text-gray-300 mb-4" strokeWidth={1.5} />
-          <p className="text-center text-gray-500 mb-4 text-lg">
+          <PackageOpen className="w-32 h-32 text-gray-300 dark:text-gray-700 mb-4" strokeWidth={1.5} />
+          <p className="text-center text-gray-500 dark:text-gray-400 mb-4 text-lg">
             No products yet. Start by adding your first product.
           </p>
           <Button onClick={() => router.push("/seller/products/create")}>
@@ -163,11 +163,11 @@ export default function SellerProductsPage() {
           {products.map((product) => (
             <div
               key={product._id}
-              className="group border rounded-xl p-4 shadow hover:shadow-lg transition-all bg-white flex flex-col"
+              className="group border border-gray-200 dark:border-gray-800 rounded-xl p-4 shadow hover:shadow-lg transition-all bg-white dark:bg-gray-900 flex flex-col"
             >
               {/* Clickable image */}
               <div
-                className="aspect-w-4 aspect-h-3 w-full mb-3 cursor-pointer overflow-hidden relative h-48 bg-gray-50 rounded-lg"
+                className="aspect-w-4 aspect-h-3 w-full mb-3 cursor-pointer overflow-hidden relative h-48 bg-gray-50 dark:bg-gray-800 rounded-lg"
                 title="View product"
                 tabIndex={0}
                 role="button"
@@ -184,20 +184,20 @@ export default function SellerProductsPage() {
               </div>
 
               <div className="flex flex-col flex-grow">
-                <h2 className="font-semibold text-lg mb-1 truncate">{product.name}</h2>
-                <p className="mb-2 text-gray-800 font-medium text-xl">₹{product.price}</p>
+                <h2 className="font-semibold text-lg mb-1 truncate text-gray-900 dark:text-white">{product.name}</h2>
+                <p className="mb-2 text-gray-800 dark:text-gray-200 font-medium text-xl">₹{product.price}</p>
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant={product.stock > 0 ? "success" : "error"}>
                     {product.stock > 0 ? "In stock" : "Out of stock"}
                   </Badge>
-                  <span className="text-xs text-gray-500 font-medium">Qty: {product.stock}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 font-medium">Qty: {product.stock}</span>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-gray-50">
+              <div className="flex flex-col gap-2 mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
                 <div className="flex gap-2">
                   <Button
-                    className="flex-1 rounded-xl bg-black text-white hover:bg-gray-800 font-bold h-11"
+                    className="flex-1 rounded-xl bg-black dark:bg-white dark:text-black hover:bg-gray-800 dark:hover:bg-gray-200 font-bold h-11"
                     onClick={() => router.push(`/products/${product._id}`)}
                   >
                     View Product

@@ -142,29 +142,29 @@ export default function CreateProductPage() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto space-y-8">
+    <div className="p-6 max-w-2xl mx-auto space-y-8 text-gray-800 dark:text-gray-100">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
           Add New Product
         </h1>
-        <p className="text-gray-500 mt-2">
+        <p className="text-gray-500 dark:text-gray-400 mt-2">
           Fill in the details below to list a new item on your store.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white border rounded-xl p-6 shadow-sm space-y-6"
+        className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm space-y-6"
       >
         {error && (
-          <p className="text-red-700 bg-red-50 p-3 rounded-lg border border-red-100 text-sm">
+          <p className="text-red-700 bg-red-50 dark:bg-red-950/20 p-3 rounded-lg border border-red-100 dark:border-red-900/50 text-sm">
             {error}
           </p>
         )}
 
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Product Name
             </label>
             <Input
@@ -177,7 +177,7 @@ export default function CreateProductPage() {
 
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Price (₹)
               </label>
               <Input
@@ -189,7 +189,7 @@ export default function CreateProductPage() {
               />
             </div>
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Stock Quantity
               </label>
               <Input
@@ -203,11 +203,11 @@ export default function CreateProductPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Category
             </label>
             <select
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white px-3 py-2 border"
+              className="w-full border-gray-300 dark:border-gray-800 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 px-3 py-2 border"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               required
@@ -223,14 +223,14 @@ export default function CreateProductPage() {
             </select>
           </div>
 
-          <div className="border-t pt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-3">
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
               Product Images
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
               <div className="space-y-4">
                 {/* Upload File Option */}
-                <div className="border-2 border-dashed border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition cursor-pointer relative">
+                <div className="border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/20 transition cursor-pointer relative">
                   <input
                     type="file"
                     accept="image/*"
@@ -252,24 +252,24 @@ export default function CreateProductPage() {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <p className="mt-1 text-sm text-gray-600">
-                      <span className="text-purple-600 font-semibold inline-block">
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                      <span className="text-purple-600 dark:text-purple-400 font-semibold inline-block">
                         Upload file(s)
                       </span>{" "}
                       or drag & drop
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       PNG, JPG, GIF up to 5MB
                     </p>
                   </div>
                 </div>
 
                 <div className="relative flex items-center py-2">
-                  <div className="flex-grow border-t border-gray-200"></div>
+                  <div className="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
                   <span className="flex-shrink-0 mx-4 text-gray-400 text-xs font-medium uppercase tracking-wider">
                     or paste URL
                   </span>
-                  <div className="flex-grow border-t border-gray-200"></div>
+                  <div className="flex-grow border-t border-gray-200 dark:border-gray-800"></div>
                 </div>
 
                 {/* External URL Option */}
@@ -290,13 +290,13 @@ export default function CreateProductPage() {
               </div>
 
               {/* Image Preview Window */}
-              <div className="w-full min-h-[192px] bg-gray-50 rounded-xl p-3 border border-gray-200/60 overflow-hidden flex flex-col">
-                <span className="text-xs font-black uppercase text-purple-600 tracking-wider mb-2">
+              <div className="w-full min-h-[192px] bg-gray-50 dark:bg-gray-950 rounded-xl p-3 border border-gray-200/60 dark:border-gray-800/80 overflow-hidden flex flex-col">
+                <span className="text-xs font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider mb-2">
                   Previews ({selectedImages.length})
                 </span>
                 
                 {selectedImages.length === 0 ? (
-                  <div className="flex-1 flex items-center justify-center border-2 border-dashed border-gray-200 rounded-lg py-12">
+                  <div className="flex-1 flex items-center justify-center border-2 border-dashed border-gray-200 dark:border-gray-850 rounded-lg py-12">
                     <span className="text-gray-400 text-sm font-medium">
                       No images added yet
                     </span>
@@ -306,7 +306,7 @@ export default function CreateProductPage() {
                     {selectedImages.map((img, i) => (
                       <div
                         key={i}
-                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 bg-white group shadow-sm animate-in zoom-in-95"
+                        className="relative aspect-square rounded-xl overflow-hidden border border-gray-250 dark:border-gray-800 bg-white dark:bg-gray-900 group shadow-sm animate-in zoom-in-95"
                       >
                         <img
                           src={img.preview}
@@ -340,15 +340,15 @@ export default function CreateProductPage() {
             </div>
           </div>
 
-          <div className="border-t pt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="border-t border-gray-100 dark:border-gray-800 pt-4">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Description
             </label>
             <textarea
               placeholder="Tell buyers about your product..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 border p-3 min-h-[120px]"
+              className="w-full bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-800 rounded-lg shadow-sm focus:border-purple-500 focus:ring-purple-500 border p-3 min-h-[120px] text-gray-900 dark:text-white"
             />
           </div>
         </div>

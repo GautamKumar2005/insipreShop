@@ -259,7 +259,7 @@ export default function ProfilePage() {
       "&background=F3E8FF&color=9333EA&size=200";
 
   return (
-    <div className="bg-gray-50/50 min-h-screen pb-16">
+    <div className="bg-gray-50/50 dark:bg-gray-950/20 min-h-screen pb-16">
       <div className="h-48 bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-600 w-full relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
       </div>
@@ -267,9 +267,9 @@ export default function ProfilePage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-6xl -mt-16 md:-mt-24 relative z-10">
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex flex-col items-center pt-8 pb-10 px-6 border border-gray-100">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl flex flex-col items-center pt-8 pb-10 px-6 border border-gray-100 dark:border-gray-800">
               <div className="relative group">
-                <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-white relative">
+                <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-2xl bg-white dark:bg-gray-900 relative">
                   <Image
                     src={profileImageUrl}
                     alt={user.name}
@@ -283,7 +283,7 @@ export default function ProfilePage() {
                   )}
                 </div>
 
-                <label className="absolute bottom-1 right-2 w-10 h-10 bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg border-2 border-white">
+                <label className="absolute bottom-1 right-2 w-10 h-10 bg-purple-600 hover:bg-purple-700 active:scale-95 transition-all text-white rounded-full flex items-center justify-center cursor-pointer shadow-lg border-2 border-white dark:border-gray-800">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     className="h-5 w-5"
@@ -303,12 +303,12 @@ export default function ProfilePage() {
               </div>
 
               <div className="text-center mt-5 w-full">
-                <h1 className="text-2xl font-bold text-gray-900">{user.name}</h1>
-                <p className="text-purple-600 font-medium text-sm mt-1 mb-2 capitalize px-3 py-1 bg-purple-50 rounded-full inline-block">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{user.name}</h1>
+                <p className="text-purple-600 dark:text-purple-400 font-medium text-sm mt-1 mb-2 capitalize px-3 py-1 bg-purple-50 dark:bg-purple-950/40 rounded-full inline-block">
                   {user.role}
                 </p>
-                <p className="text-gray-500 text-sm mt-2">{user.email}</p>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">{user.email}</p>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
                   {(user as any).phone || "+00 0000 0000"}
                 </p>
               </div>
@@ -362,9 +362,9 @@ export default function ProfilePage() {
           </div>
 
           <div className="lg:col-span-2 space-y-8">
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
-              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-800">
+            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                   Account Settings
                 </h2>
                 <Button
@@ -382,79 +382,79 @@ export default function ProfilePage() {
 
               <div className="grid md:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                     Full Legal Name
                   </label>
                   {isEditing ? (
                     <input
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl text-gray-900 dark:text-white transition-all"
                       value={formData.name}
                       onChange={(e) =>
                         setFormData({ ...formData, name: e.target.value })
                       }
                     />
                   ) : (
-                    <p className="text-lg font-medium text-gray-800 py-2">
+                    <p className="text-lg font-medium text-gray-800 dark:text-gray-200 py-2">
                       {user.name}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                     Registered Email
                   </label>
-                  <p className="text-lg font-medium text-gray-500 py-2 cursor-not-allowed opacity-80">
+                  <p className="text-lg font-medium text-gray-500 dark:text-gray-400 py-2 cursor-not-allowed opacity-80">
                     {user.email}
                   </p>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                     Phone Number
                   </label>
                   {isEditing ? (
                     <input
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl text-gray-900 dark:text-white transition-all"
                       value={formData.phone}
                       onChange={(e) =>
                         setFormData({ ...formData, phone: e.target.value })
                       }
                     />
                   ) : (
-                    <p className="text-lg font-medium text-gray-800 py-2">
+                    <p className="text-lg font-medium text-gray-800 dark:text-gray-200 py-2">
                       {(user as any).phone || "—"}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                     Date of Birth
                   </label>
                   {isEditing ? (
                     <input
                       type="date"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none text-gray-900 dark:text-white rounded-xl transition-all"
                       value={formData.dob}
                       onChange={(e) =>
                         setFormData({ ...formData, dob: e.target.value })
                       }
                     />
                   ) : (
-                    <p className="text-lg font-medium text-gray-800 py-2">
+                    <p className="text-lg font-medium text-gray-800 dark:text-gray-200 py-2">
                       {formData.dob || "—"}
                     </p>
                   )}
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                  <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">
                     Primary Address
                   </label>
                   {isEditing ? (
                     <textarea
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl transition-all"
+                      className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-xl text-gray-900 dark:text-white transition-all"
                       rows={3}
                       value={formData.address}
                       onChange={(e) =>
@@ -462,9 +462,9 @@ export default function ProfilePage() {
                       }
                     />
                   ) : (
-                    <p className="text-lg font-medium text-gray-800 py-2 whitespace-pre-wrap leading-relaxed">
+                    <p className="text-lg font-medium text-gray-800 dark:text-gray-200 py-2 whitespace-pre-wrap leading-relaxed">
                       {user.address || (
-                        <span className="text-gray-400 italic">
+                        <span className="text-gray-400 dark:text-gray-500 italic">
                           No primary shipping address configured
                         </span>
                       )}
@@ -487,13 +487,13 @@ export default function ProfilePage() {
             </div>
 
             {/* SECURITY SECTION */}
-            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
-              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-                <h2 className="text-2xl font-bold text-gray-800">Security & Access</h2>
+            <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
+              <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100 dark:border-gray-800">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Security & Access</h2>
                 {!showSecurityOptions && (
                   <Button
                     variant="outline"
-                    className="rounded-full border-purple-200 text-purple-600 hover:bg-purple-50 px-6 font-bold"
+                    className="rounded-full border-purple-200 dark:border-purple-800 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950/20 px-6 font-bold"
                     onClick={() => setShowSecurityOptions(true)}
                   >
                     Change Password
@@ -502,11 +502,11 @@ export default function ProfilePage() {
               </div>
 
               {!showSecurityOptions ? (
-                <div className="flex items-center gap-4 text-gray-500">
-                  <div className="p-3 bg-purple-50 rounded-2xl">
+                <div className="flex items-center gap-4 text-gray-500 dark:text-gray-400">
+                  <div className="p-3 bg-purple-50 dark:bg-purple-950/40 rounded-2xl">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6 text-purple-600"
+                      className="h-6 w-6 text-purple-600 dark:text-purple-400"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -520,7 +520,7 @@ export default function ProfilePage() {
                     </svg>
                   </div>
                   <div>
-                    <p className="font-bold text-gray-800">Password Control</p>
+                    <p className="font-bold text-gray-800 dark:text-gray-250">Password Control</p>
                     <p className="text-sm">Manage your account protection and sign-in preferences.</p>
                   </div>
                 </div>
@@ -530,9 +530,9 @@ export default function ProfilePage() {
                     <div className="grid sm:grid-cols-2 gap-4">
                       <button
                         onClick={() => setPasswordMethod("direct")}
-                        className="p-6 border-2 border-purple-100 rounded-3xl hover:border-purple-500 hover:bg-purple-50 transition-all text-left flex flex-col gap-2 group"
+                        className="p-6 border-2 border-purple-100 dark:border-purple-900/40 rounded-3xl hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-950/10 transition-all text-left flex flex-col gap-2 group"
                       >
-                        <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-950 flex items-center justify-center text-purple-600 group-hover:bg-purple-600 group-hover:text-white transition-colors">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5"
@@ -546,15 +546,15 @@ export default function ProfilePage() {
                             />
                           </svg>
                         </div>
-                        <span className="font-black text-gray-800">Use Old Password</span>
-                        <span className="text-xs text-gray-400">Verify using your current secure password.</span>
+                        <span className="font-black text-gray-800 dark:text-gray-200">Use Old Password</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">Verify using your current secure password.</span>
                       </button>
 
                       <button
                         onClick={() => setPasswordMethod("otp")}
-                        className="p-6 border-2 border-blue-100 rounded-3xl hover:border-blue-500 hover:bg-blue-50 transition-all text-left flex flex-col gap-2 group"
+                        className="p-6 border-2 border-blue-100 dark:border-blue-900/40 rounded-3xl hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/10 transition-all text-left flex flex-col gap-2 group"
                       >
-                        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             className="h-5 w-5"
@@ -565,12 +565,12 @@ export default function ProfilePage() {
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
                           </svg>
                         </div>
-                        <span className="font-black text-gray-800">Use Email OTP</span>
-                        <span className="text-xs text-gray-400">Receive a one-time code to your registered email.</span>
+                        <span className="font-black text-gray-800 dark:text-gray-200">Use Email OTP</span>
+                        <span className="text-xs text-gray-400 dark:text-gray-500">Receive a one-time code to your registered email.</span>
                       </button>
 
                       <button
-                        className="sm:col-span-2 text-gray-400 hover:text-gray-600 font-bold py-2"
+                        className="sm:col-span-2 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-400 font-bold py-2"
                         onClick={() => setShowSecurityOptions(false)}
                       >
                         Back to Settings
@@ -579,10 +579,10 @@ export default function ProfilePage() {
                   ) : (
                     <div className="max-w-md mx-auto space-y-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="font-bold text-gray-900 capitalize">Method: {passwordMethod.replace("_", " ")}</h3>
+                        <h3 className="font-bold text-gray-900 dark:text-white capitalize">Method: {passwordMethod.replace("_", " ")}</h3>
                         <button
                           onClick={() => setPasswordMethod(null)}
-                          className="text-xs text-purple-600 font-bold hover:underline"
+                          className="text-xs text-purple-600 dark:text-purple-400 font-bold hover:underline"
                         >
                           Change Method
                         </button>
@@ -590,11 +590,11 @@ export default function ProfilePage() {
 
                       {passwordMethod === "direct" && (
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Current Password</label>
+                          <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Current Password</label>
                           <input
                             type="password"
                             placeholder="••••••••"
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
                             value={passwordData.oldPassword}
                             onChange={(e) => setPasswordData({ ...passwordData, oldPassword: e.target.value })}
                           />
@@ -605,11 +605,11 @@ export default function ProfilePage() {
                         <div className="space-y-4">
                           <div className="flex items-end gap-2">
                             <div className="flex-1">
-                              <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Email Verification Code</label>
+                              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Email Verification Code</label>
                               <input
                                 type="text"
                                 placeholder="6-digit OTP"
-                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all font-mono tracking-[0.5em]"
+                                className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all font-mono tracking-[0.5em]"
                                 maxLength={6}
                                 value={passwordData.otp}
                                 onChange={(e) => setPasswordData({ ...passwordData, otp: e.target.value })}
@@ -618,32 +618,32 @@ export default function ProfilePage() {
                             <Button
                               disabled={sendingOtp}
                               onClick={handleRequestOtp}
-                              className="h-12 px-6 rounded-2xl bg-gray-900 hover:bg-black font-bold text-xs text-white"
+                              className="h-12 px-6 rounded-2xl bg-gray-900 hover:bg-black dark:bg-white dark:text-black font-bold text-xs text-white"
                             >
                               {sendingOtp ? "Sending..." : "Get OTP"}
                             </Button>
                           </div>
-                          <p className="text-[10px] text-gray-400 italic">Code will be sent to {user?.email}</p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500 italic">Code will be sent to {user?.email}</p>
                         </div>
                       )}
 
-                      <div className="space-y-4 pt-4 border-t border-gray-50">
+                      <div className="space-y-4 pt-4 border-t border-gray-50 dark:border-gray-850">
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">New Password</label>
+                          <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">New Password</label>
                           <input
                             type="password"
                             placeholder="Min. 6 characters"
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
                             value={passwordData.newPassword}
                             onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
                           />
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Confirm New Password</label>
+                          <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Confirm New Password</label>
                           <input
                             type="password"
                             placeholder="Confirm your entry"
-                            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
+                            className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-850 border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white focus:border-purple-500 focus:ring-2 focus:ring-purple-200 outline-none rounded-2xl transition-all"
                             value={passwordData.confirmPassword}
                             onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
                           />
@@ -664,13 +664,13 @@ export default function ProfilePage() {
             </div>
 
             {user.role === "buyer" && (
-              <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 p-8">
-                <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100">
-                  <h2 className="text-2xl font-bold text-gray-800">Order History</h2>
+              <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-800 p-8">
+                <div className="flex justify-between items-center mb-8 pb-4 border-b border-gray-100 dark:border-gray-850">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Order History</h2>
                   <Link href="/orders">
                     <Button
                       variant="outline"
-                      className="rounded-full text-purple-600 border-purple-200 hover:bg-purple-50"
+                      className="rounded-full text-purple-600 dark:text-purple-400 border-purple-200 dark:border-purple-800 hover:bg-purple-50 dark:hover:bg-purple-950/20"
                     >
                       View All Orders
                     </Button>
@@ -678,11 +678,11 @@ export default function ProfilePage() {
                 </div>
 
                 {orders.length === 0 ? (
-                  <div className="text-center py-12 px-4 rounded-2xl bg-gray-50 border-2 border-dashed border-gray-200">
-                    <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
+                  <div className="text-center py-12 px-4 rounded-2xl bg-gray-50 dark:bg-gray-800/40 border-2 border-dashed border-gray-200 dark:border-gray-850">
+                    <div className="w-16 h-16 bg-white dark:bg-gray-900 rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm border border-gray-100 dark:border-gray-800">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-gray-300"
+                        className="h-8 w-8 text-gray-300 dark:text-gray-700"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -695,8 +695,8 @@ export default function ProfilePage() {
                         />
                       </svg>
                     </div>
-                    <p className="text-gray-500 font-medium">No order history available.</p>
-                    <p className="text-gray-400 text-sm mt-1">When you make a purchase, it will appear here.</p>
+                    <p className="text-gray-500 dark:text-gray-400 font-medium">No order history available.</p>
+                    <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">When you make a purchase, it will appear here.</p>
                   </div>
                 ) : (
                   <div className="space-y-5">
@@ -707,8 +707,8 @@ export default function ProfilePage() {
 
                       return (
                         <Link href={`/orders/${order._id}`} key={order._id} className="block group">
-                          <div className="flex gap-5 items-center p-4 rounded-2xl border border-gray-100 hover:border-purple-200 hover:shadow-md transition-all bg-white hover:bg-purple-50/30">
-                            <div className="relative w-24 h-24 bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-gray-200/50">
+                          <div className="flex gap-5 items-center p-4 rounded-2xl border border-gray-100 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-900/50 hover:shadow-md transition-all bg-white dark:bg-gray-900/50 hover:bg-purple-50/30 dark:hover:bg-purple-950/20">
+                            <div className="relative w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden flex-shrink-0 shadow-sm border border-gray-200/50 dark:border-gray-700">
                               <Image
                                 src={imageUrl}
                                 alt={firstProduct?.name || "Product"}
@@ -730,27 +730,27 @@ export default function ProfilePage() {
                                 >
                                   {order.status}
                                 </span>
-                                <p className="text-xs text-gray-400 font-medium">
+                                <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
                                   #{order._id.slice(-6).toUpperCase()}
                                 </p>
                               </div>
 
-                              <h3 className="text-lg font-bold text-gray-900 truncate pr-4">
+                              <h3 className="text-lg font-bold text-gray-900 dark:text-white truncate pr-4">
                                 {firstProduct?.name || "Unavailable Product"}
                                 {order.items.length > 1 && (
-                                  <span className="text-gray-400 font-normal text-sm ml-2 px-2 py-0.5 bg-gray-100 rounded-full">
+                                  <span className="text-gray-400 dark:text-gray-500 font-normal text-sm ml-2 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 rounded-full">
                                     +{order.items.length - 1} more
                                   </span>
                                 )}
                               </h3>
 
                               <div className="flex justify-between items-center mt-2">
-                                <p className="text-sm text-gray-500">{formatDateShort(order.createdAt)}</p>
-                                <p className="font-bold text-gray-900 text-lg">₹{order.totalAmount}</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{formatDateShort(order.createdAt)}</p>
+                                <p className="font-bold text-gray-900 dark:text-white text-lg">₹{order.totalAmount}</p>
                               </div>
                             </div>
 
-                            <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 text-gray-400 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
+                            <div className="hidden sm:flex items-center justify-center w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 text-gray-400 group-hover:bg-purple-100 group-hover:text-purple-600 transition-colors">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 className="h-5 w-5 ml-1"
