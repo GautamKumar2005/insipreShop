@@ -45,6 +45,8 @@ export default function AdminDashboard() {
   const [deletedUserActivities, setDeletedUserActivities] = useState<any[]>([]);
   const [loadingActivities, setLoadingActivities] = useState(false);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+  const [userSummary, setUserSummary] = useState<any>(null);
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -181,16 +183,42 @@ export default function AdminDashboard() {
   const fetchDeletedUserActivity = async (deletedUser: any) => {
     setLoadingActivities(true);
     setSelectedDeletedUser(deletedUser);
+    setUserSummary(null);
     try {
       const res = await fetch(`/api/admin/deleted-users/${deletedUser._id}/activity`, {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) setDeletedUserActivities(data.data);
+
+      const sumRes = await fetch(`/api/admin/deleted-users/${deletedUser._id}/summary`, {
+        headers: getAuthHeaders(),
+      });
+      const sumData = await sumRes.json();
+      if (sumData.success) setUserSummary(sumData.data.stats);
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to fetch activities");
     } finally {
       setLoadingActivities(false);
+    }
+  };
+
+  const fetchUserSummary = async (targetUser: any) => {
+    setSelectedUser(targetUser);
+    setUserSummary(null);
+    setLoadingSummary(true);
+    try {
+      const res = await fetch(`/api/admin/users/${targetUser._id}/summary`, {
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setUserSummary(data.data.stats);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user summary:", err);
+    } finally {
+      setLoadingSummary(false);
     }
   };
 
@@ -205,9 +233,10 @@ export default function AdminDashboard() {
       });
       const data = await res.json();
       if (data.success) {
-        alert("User and all related data purged and archived successfully.");
+        alert("User deleted successfully!");
         setSelectedUser(null);
         fetchUsers();
+        fetchDeletedUsers();
       } else {
         alert(data.message || "Failed to delete user");
       }
@@ -215,6 +244,31 @@ export default function AdminDashboard() {
       alert(err.message || "Error deleting user");
     } finally {
       setDeletingUserId(null);
+    }
+  };
+
+  const handleRecoverUser = async (deletedUserId: string) => {
+    if (!confirm("Are you sure you want to recover this user account? This will rollback their status from deleted to active.")) return;
+    
+    setLoadingActivities(true);
+    try {
+      const res = await fetch(`/api/admin/deleted-users/${deletedUserId}/recover`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("User account recovered successfully!");
+        setSelectedDeletedUser(null);
+        fetchDeletedUsers();
+        fetchUsers();
+      } else {
+        alert(data.message || "Failed to recover user");
+      }
+    } catch (err: any) {
+      alert(err.message || "Error recovering user");
+    } finally {
+      setLoadingActivities(false);
     }
   };
 
@@ -636,9 +690,9 @@ export default function AdminDashboard() {
 
           {/* USERS TAB */}
           {activeTab === "users" && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-                <h3 className="font-bold text-gray-800">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100">
                   Registered Users ({usersData.length})
                 </h3>
               </div>
@@ -648,26 +702,26 @@ export default function AdminDashboard() {
                   <Loader />
                 </div>
               ) : usersData.length === 0 ? (
-                <div className="p-12 text-center text-gray-500">
+                <div className="p-12 text-center text-gray-500 dark:text-gray-400">
                   No users found.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead>
-                      <tr className="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
+                      <tr className="bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
                         <th className="px-6 py-4 font-semibold">User</th>
                         <th className="px-6 py-4 font-semibold">Role</th>
                         <th className="px-6 py-4 font-semibold">Phone</th>
                         <th className="px-6 py-4 font-semibold">Joined</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                       {usersData.map((u: any) => (
                         <tr
                           key={u._id}
-                          onClick={() => setSelectedUser(u)}
-                          className="hover:bg-gray-50/50 transition-colors cursor-pointer"
+                          onClick={() => fetchUserSummary(u)}
+                          className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition-colors cursor-pointer"
                         >
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
@@ -675,18 +729,18 @@ export default function AdminDashboard() {
                                 <img
                                   src={u.profilePhoto.url}
                                   alt={u.name}
-                                  className="w-9 h-9 rounded-full object-cover shadow-sm bg-gray-100"
+                                  className="w-9 h-9 rounded-full object-cover shadow-sm bg-gray-100 dark:bg-gray-800"
                                 />
                               ) : (
-                                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold text-sm">
+                                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold text-sm shadow-sm">
                                   {u.name?.charAt(0) || "U"}
                                 </div>
                               )}
                               <div>
-                                <div className="font-semibold text-gray-800">
+                                <div className="font-semibold text-gray-800 dark:text-gray-200">
                                   {u.name || "N/A"}
                                 </div>
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
                                   {u.email}
                                 </div>
                               </div>
@@ -1213,7 +1267,7 @@ export default function AdminDashboard() {
       {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in duration-200">
             <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800">
               <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">User Profile</h3>
               <button
@@ -1305,6 +1359,74 @@ export default function AdminDashboard() {
                   </span>
                 </div>
               </div>
+
+              {/* Activity Summary Profile */}
+              <div className="w-full mt-6 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 space-y-4">
+                <h4 className="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
+                  Customer Support Summary
+                </h4>
+                {loadingSummary ? (
+                  <div className="flex justify-center py-4"><Loader /></div>
+                ) : userSummary ? (
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Peak Activity Hours</span>
+                      <span className="font-extrabold text-gray-800 dark:text-gray-200">{userSummary.peakHour}</span>
+                    </div>
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Total Time Online</span>
+                      <span className="font-extrabold text-gray-800 dark:text-gray-200">{userSummary.totalMinutesSpent} minutes</span>
+                    </div>
+
+                    {/* Role specific metrics */}
+                    {selectedUser.role === "buyer" && (
+                      <>
+                        <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                          <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Orders Placed</span>
+                          <span className="font-extrabold text-gray-800 dark:text-gray-200">🛍️ {userSummary.ordersCount} orders</span>
+                        </div>
+                        <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                          <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Total Purchase</span>
+                          <span className="font-extrabold text-gray-800 dark:text-gray-200">₹{userSummary.moneyTotal.toLocaleString("en-IN")}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedUser.role === "seller" && (
+                      <>
+                        <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                          <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Products Uploaded</span>
+                          <span className="font-extrabold text-gray-800 dark:text-gray-200">📦 {userSummary.productsCount} items</span>
+                        </div>
+                        <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                          <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Sales Received</span>
+                          <span className="font-extrabold text-gray-800 dark:text-gray-200">₹{userSummary.moneyTotal.toLocaleString("en-IN")}</span>
+                        </div>
+                      </>
+                    )}
+
+                    {selectedUser.role === "delivery" && (
+                      <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50 col-span-2">
+                        <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Deliveries</span>
+                        <span className="font-extrabold text-gray-800 dark:text-gray-200">🚚 {userSummary.deliveriesCount} completed</span>
+                      </div>
+                    )}
+
+                    {/* Social details */}
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50 col-span-2 space-y-1">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px]">Social Platform Metrics</span>
+                      <div className="flex gap-4 text-[11px] font-semibold text-gray-600 dark:text-gray-400">
+                        <span>📝 {userSummary.socialPostsCount} posts</span>
+                        <span>❤️ {userSummary.socialLikesCount} likes</span>
+                        <span>💬 {userSummary.socialCommentsCount} comments</span>
+                      </div>
+                    </div>
+
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic">Failed to calculate activity report.</p>
+                )}
+              </div>
             </div>
 
             <div className="bg-gray-50/80 dark:bg-gray-900/80 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
@@ -1378,6 +1500,53 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
+              {/* Activity Summary Profile */}
+              <div className="p-4 rounded-xl bg-gray-50 dark:bg-gray-800/40 border border-gray-100 dark:border-gray-800 space-y-4">
+                <h4 className="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">
+                  Archived Activity Summary
+                </h4>
+                {userSummary ? (
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Peak Activity Hours</span>
+                      <span className="font-extrabold text-gray-800 dark:text-gray-200">{userSummary.peakHour}</span>
+                    </div>
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Total Time Online</span>
+                      <span className="font-extrabold text-gray-800 dark:text-gray-200">{userSummary.totalMinutesSpent} minutes</span>
+                    </div>
+
+                    {/* Role specific metrics */}
+                    {selectedDeletedUser.role === "buyer" && (
+                      <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50 col-span-2">
+                        <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Archived Orders</span>
+                        <span className="font-extrabold text-gray-800 dark:text-gray-200">🛍&nbsp; {userSummary.ordersCount} orders recovered from logs</span>
+                      </div>
+                    )}
+
+                    {selectedDeletedUser.role === "seller" && (
+                      <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50 col-span-2">
+                        <span className="text-gray-400 font-bold block uppercase text-[9px] mb-0.5">Products Stored in Archive</span>
+                        <span className="font-extrabold text-gray-800 dark:text-gray-200">📦 {userSummary.productsCount} items</span>
+                      </div>
+                    )}
+
+                    {/* Social details */}
+                    <div className="bg-white dark:bg-gray-900 p-2.5 rounded-lg shadow-sm border border-gray-100/50 dark:border-gray-800/50 col-span-2 space-y-1">
+                      <span className="text-gray-400 font-bold block uppercase text-[9px]">Archived Social Assets</span>
+                      <div className="flex gap-4 text-[11px] font-semibold text-gray-600 dark:text-gray-400">
+                        <span>📝 {userSummary.socialPostsCount} posts</span>
+                        <span>💬 {userSummary.socialCommentsCount} comments</span>
+                        <span>💬 {userSummary.reviewsCount} reviews</span>
+                      </div>
+                    </div>
+
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic">Failed to calculate archived report.</p>
+                )}
+              </div>
+
               {/* Activity Logs */}
               <div>
                 <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
@@ -1417,7 +1586,13 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-gray-50 dark:bg-gray-900 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-end flex-shrink-0">
+            <div className="bg-gray-50 dark:bg-gray-900 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
+              <button
+                onClick={() => handleRecoverUser(selectedDeletedUser._id)}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2 font-bold text-xs shadow-md shadow-emerald-500/10 active:scale-95 transition-all flex items-center gap-1.5"
+              >
+                🔄 Recover Account
+              </button>
               <Button onClick={() => setSelectedDeletedUser(null)} variant="outline">
                 Close
               </Button>
