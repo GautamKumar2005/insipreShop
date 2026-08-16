@@ -8,3 +8,5 @@ import "./Notification";
 import "./ChatRoom"
 import "./Cart"
 import "./Message"
+import "./UserActivity"
+import "./DeletedUser"

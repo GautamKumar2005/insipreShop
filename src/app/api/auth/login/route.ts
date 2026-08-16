@@ -2,6 +2,7 @@ export const runtime = "nodejs";
 import { NextRequest } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/models/User";
+import UserActivity from "@/models/UserActivity";
 import { comparePassword } from "@/utils/hash";
 import { success, error } from "@/lib/response";
 import { generateToken } from "@/lib/jwt";
@@ -29,6 +30,25 @@ export async function POST(req: NextRequest) {
         id: "master-admin-id",
         role: "admin",
       });
+
+      // Log master admin login
+      try {
+        const ip = req.headers.get("x-forwarded-for") || (req as any).ip || "127.0.0.1";
+        const userAgent = req.headers.get("user-agent") || "unknown";
+        await UserActivity.create({
+          userId: "master-admin-id",
+          email: process.env.ADMIN_MAIL,
+          name: "System Admin",
+          role: "admin",
+          type: "login",
+          ip,
+          userAgent,
+          timestamp: new Date(),
+          details: "Master Admin logged in successfully"
+        });
+      } catch (activityErr) {
+        console.error("Master Admin activity logging error:", activityErr);
+      }
 
       return success({
         token,
@@ -69,6 +89,25 @@ export async function POST(req: NextRequest) {
       id: user._id.toString(), // ✅ always stringify ObjectId
       role: user.role,
     });
+
+    // Log standard user login
+    try {
+      const ip = req.headers.get("x-forwarded-for") || (req as any).ip || "127.0.0.1";
+      const userAgent = req.headers.get("user-agent") || "unknown";
+      await UserActivity.create({
+        userId: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        type: "login",
+        ip,
+        userAgent,
+        timestamp: new Date(),
+        details: "User logged in successfully"
+      });
+    } catch (activityErr) {
+      console.error("User activity logging error:", activityErr);
+    }
 
     // ✅ Success response
     return success({

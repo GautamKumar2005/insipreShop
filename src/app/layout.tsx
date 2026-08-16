@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import { ActivityTracker } from "@/components/layout/ActivityTracker";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased selection:bg-purple-500 selection:text-white flex flex-col min-h-screen`}
       >
         <ThemeProvider>
+          <ActivityTracker />
           <Header />
           <main className="flex-grow">{children}</main>
           <Footer />

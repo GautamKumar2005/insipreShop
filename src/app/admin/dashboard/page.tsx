@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Loader } from "@/components/ui/Loader";
 import Badge from "@/components/ui/Badge";
 import { formatDate } from "@/utils/date";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   Users,
   ShoppingBag,
@@ -38,6 +39,13 @@ export default function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  // Deleted users & activity tracker states
+  const [deletedUsersData, setDeletedUsersData] = useState<any[]>([]);
+  const [selectedDeletedUser, setSelectedDeletedUser] = useState<any>(null);
+  const [deletedUserActivities, setDeletedUserActivities] = useState<any[]>([]);
+  const [loadingActivities, setLoadingActivities] = useState(false);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
@@ -57,6 +65,7 @@ export default function AdminDashboard() {
         if (activeTab === "orders") fetchOrders();
         if (activeTab === "feedback" && feedbacksData.length === 0)
           fetchFeedbacks();
+        if (activeTab === "deleted-users") fetchDeletedUsers();
       }, 500);
 
       return () => clearTimeout(delayDebounceFn);
@@ -154,6 +163,61 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchDeletedUsers = async () => {
+    setFetching(true);
+    try {
+      const res = await fetch("/api/admin/deleted-users", {
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) setDeletedUsersData(data.data);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to fetch deleted users");
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const fetchDeletedUserActivity = async (deletedUser: any) => {
+    setLoadingActivities(true);
+    setSelectedDeletedUser(deletedUser);
+    try {
+      const res = await fetch(`/api/admin/deleted-users/${deletedUser._id}/activity`, {
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) setDeletedUserActivities(data.data);
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to fetch activities");
+    } finally {
+      setLoadingActivities(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm("⚠️ WARNING: This will permanently delete this user and ALL of their products, reviews, and social posts. They will be archived in the Deleted Users section. Are you sure you want to proceed?")) return;
+    
+    setDeletingUserId(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("User and all related data purged and archived successfully.");
+        setSelectedUser(null);
+        fetchUsers();
+      } else {
+        alert(data.message || "Failed to delete user");
+      }
+    } catch (err: any) {
+      alert(err.message || "Error deleting user");
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   const handleLogout = () => {
     logout();
     router.push("/auth/login");
@@ -178,14 +242,15 @@ export default function AdminDashboard() {
     { id: "orders", label: "All Orders", icon: ShoppingBag },
     { id: "feedback", label: "User Feedback", icon: MessageSquare },
     { id: "ADS", label: "ADS Metrics", icon: Activity },
+    { id: "deleted-users", label: "Deleted Users", icon: XCircle },
   ];
 
   return (
-    <div className="flex h-screen bg-gray-100/50">
+    <div className="flex h-screen bg-gray-100/50 dark:bg-gray-950 text-gray-800 dark:text-gray-100">
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col flex-shrink-0">
-        <div className="h-16 flex items-center px-6 border-b border-gray-200">
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+      <aside className="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 hidden md:flex flex-col flex-shrink-0">
+        <div className="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-black">
               S
             </div>
@@ -206,13 +271,13 @@ export default function AdminDashboard() {
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-medium text-sm ${
                   isActive
-                    ? "bg-indigo-50 text-indigo-700 font-semibold"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                    ? "bg-indigo-50 text-indigo-700 font-semibold dark:bg-indigo-950/40 dark:text-indigo-400"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                 }`}
               >
                 <Icon
                   size={18}
-                  className={isActive ? "text-indigo-600" : "text-gray-400"}
+                  className={isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-gray-500"}
                 />
                 {tab.label}
               </button>
@@ -220,21 +285,21 @@ export default function AdminDashboard() {
           })}
         </div>
 
-        <div className="p-4 border-t border-gray-200">
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 mb-3">
-            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold shrink-0">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/40 mb-3">
+            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold shrink-0">
               {user.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 truncate">
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                 Admin
               </p>
-              <p className="text-xs text-gray-500 truncate">{user.email}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>
             </div>
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 rounded-xl transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 dark:hover:bg-red-950/20 rounded-xl transition-colors"
           >
             <LogOut size={16} />
             Log Out
@@ -251,13 +316,13 @@ export default function AdminDashboard() {
       )}
 
       {/* Mobile Sidebar */}
-      <aside className={`fixed top-0 left-0 w-72 h-full bg-white z-[110] transform transition-transform duration-300 md:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200">
-          <div className="flex items-center gap-2 text-indigo-600 font-bold text-xl">
+      <aside className={`fixed top-0 left-0 w-72 h-full bg-white dark:bg-gray-900 z-[110] transform transition-transform duration-300 md:hidden flex flex-col ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
              <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">S</div>
              Starta Admin
           </div>
-          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 hover:text-gray-600">
+          <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
              <XCircle size={24} />
           </button>
         </div>
@@ -297,18 +362,18 @@ export default function AdminDashboard() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden relative">
+      <main className="flex-1 flex flex-col overflow-hidden relative bg-gray-100/50 dark:bg-gray-950">
         {/* Top Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-10 shadow-sm">
+        <header className="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-4 md:px-6 flex-shrink-0 z-10 shadow-sm">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
-              className="p-2 text-gray-400 hover:text-indigo-600 md:hidden"
+              className="p-2 text-gray-400 dark:text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 md:hidden"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
             </button>
-            <h1 className="text-lg md:text-xl font-bold text-gray-800 capitalize truncate max-w-[150px] sm:max-w-none">
-              {activeTab === "dashboard" ? "Dashboard Overview" : activeTab}
+            <h1 className="text-lg md:text-xl font-bold text-gray-800 dark:text-gray-100 capitalize truncate max-w-[150px] sm:max-w-none">
+              {activeTab === "dashboard" ? "Dashboard Overview" : activeTab === "deleted-users" ? "Deleted Users Archive" : activeTab}
             </h1>
           </div>
 
@@ -329,18 +394,20 @@ export default function AdminDashboard() {
                 }
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                disabled={activeTab === "dashboard" || activeTab === "feedback"}
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-full text-sm w-48 xl:w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-50"
+                disabled={activeTab === "dashboard" || activeTab === "feedback" || activeTab === "deleted-users"}
+                className="pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-800 bg-transparent dark:bg-gray-900 dark:text-gray-100 rounded-full text-sm w-48 xl:w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900"
               />
             </div>
+            <ThemeToggle />
             <button
               onClick={() => {
                 if (activeTab === "dashboard") fetchDashboardData();
                 else if (activeTab === "users") fetchUsers();
                 else if (activeTab === "orders") fetchOrders();
                 else if (activeTab === "feedback") fetchFeedbacks();
+                else if (activeTab === "deleted-users") fetchDeletedUsers();
               }}
-              className="p-2 text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-full transition-colors"
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 rounded-full transition-colors"
               title="Refresh Data"
             >
               <RefreshCw size={18} className={fetching ? "animate-spin" : ""} />
@@ -399,22 +466,22 @@ export default function AdminDashboard() {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* System Activity Chart */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col hover:shadow-md transition-shadow">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-                      <Package size={20} />
+                    <div className="p-2 bg-indigo-50 text-indigo-600 dark:bg-indigo-950/20 dark:text-indigo-400 rounded-lg">
+                       <Package size={20} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold text-gray-800">
+                      <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
                         System Activity
                       </h3>
-                      <p className="text-xs text-gray-500">Last 7 Days Trend</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Last 7 Days Trend</p>
                     </div>
                   </div>
 
                   {dashboardData.chartData &&
                   dashboardData.chartData.length > 0 ? (
-                    <div className="flex-1 flex items-end justify-between gap-2 mt-4 pt-4 border-t border-gray-100 h-48">
+                    <div className="flex-1 flex items-end justify-between gap-2 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 h-48">
                       {dashboardData.chartData.map(
                         (data: any, index: number) => {
                           // Max value for scaling
@@ -445,7 +512,7 @@ export default function AdminDashboard() {
                                   title={`Users: ${data.users}`}
                                 ></div>
                               </div>
-                              <span className="text-[10px] text-gray-400 mt-2 font-medium truncate w-full text-center">
+                              <span className="text-[10px] text-gray-400 dark:text-gray-400 mt-2 font-medium truncate w-full text-center">
                                 {data.name}
                               </span>
                             </div>
@@ -459,7 +526,7 @@ export default function AdminDashboard() {
                     </div>
                   )}
 
-                  <div className="flex justify-center gap-4 mt-6 text-xs text-gray-500">
+                  <div className="flex justify-center gap-4 mt-6 text-xs text-gray-500 dark:text-gray-400">
                     <div className="flex items-center gap-1.5">
                       <div className="w-3 h-3 rounded-sm bg-indigo-500"></div>{" "}
                       Orders
@@ -472,17 +539,17 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* Recent Transactions */}
-                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col hover:shadow-md transition-shadow">
+                <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 flex flex-col hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-pink-50 text-pink-600 rounded-lg">
+                      <div className="p-2 bg-pink-50 text-pink-600 dark:bg-pink-950/20 dark:text-pink-400 rounded-lg">
                         <Clock size={20} />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-gray-800">
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
                           Recent Activity
                         </h3>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-gray-400">
                           Latest orders & signups
                         </p>
                       </div>
@@ -496,14 +563,14 @@ export default function AdminDashboard() {
                       .map((order: any) => (
                         <div
                           key={order._id}
-                          className="flex items-center justify-between p-3 rounded-xl border border-gray-50 bg-gray-50/50 hover:bg-gray-50 transition-colors"
+                          className="flex items-center justify-between p-3 rounded-xl border border-gray-50 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/20 hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-950/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
                               <ShoppingBag size={16} />
                             </div>
                             <div>
-                              <p className="text-sm font-semibold text-gray-800">
+                              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                                 New Order{" "}
                                 <span className="text-gray-400 font-mono text-xs">
                                   #{order._id.slice(-6)}
@@ -1062,18 +1129,96 @@ export default function AdminDashboard() {
                  </div>
              </div>
           )}
+
+          {/* DELETED USERS TAB */}
+          {activeTab === "deleted-users" && (
+            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className="p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <h3 className="font-bold text-gray-800 dark:text-gray-100">
+                  Archived / Deleted Users ({deletedUsersData.length})
+                </h3>
+              </div>
+
+              {fetching && deletedUsersData.length === 0 ? (
+                <div className="p-12 flex justify-center">
+                  <Loader />
+                </div>
+              ) : deletedUsersData.length === 0 ? (
+                <div className="p-12 text-center text-gray-500 dark:text-gray-400">
+                  No archived user profiles found.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50/50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider">
+                        <th className="px-6 py-4 font-semibold">User</th>
+                        <th className="px-6 py-4 font-semibold">Original Role</th>
+                        <th className="px-6 py-4 font-semibold">Deleted At</th>
+                        <th className="px-6 py-4 font-semibold">Deleted By</th>
+                        <th className="px-6 py-4 font-semibold">Archived Assets</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                      {deletedUsersData.map((u: any) => (
+                        <tr
+                          key={u._id}
+                          onClick={() => fetchDeletedUserActivity(u)}
+                          className="hover:bg-gray-50/50 dark:hover:bg-gray-800/40 transition-colors cursor-pointer"
+                        >
+                          <td className="px-6 py-4">
+                            <div>
+                              <div className="font-semibold text-gray-800 dark:text-gray-200">
+                                {u.name || "N/A"}
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {u.email}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <Badge variant="default">{u.role}</Badge>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                            {formatDate(u.deletedAt)}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500 dark:text-gray-400 font-mono text-xs">
+                            {u.deletedBy === "admin" ? "Master Admin" : u.deletedBy?.substring(0, 8) || "Admin"}
+                          </td>
+                          <td className="px-6 py-4 text-xs text-gray-600 dark:text-gray-400 font-medium">
+                            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded mr-2" title="Products Archived">
+                              📦 {u.archivedData?.productsCount || 0}
+                            </span>
+                            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded mr-2" title="Social Posts Archived">
+                              📝 {u.archivedData?.socialPostsCount || 0}
+                            </span>
+                            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded mr-2" title="Reviews Archived">
+                              💬 {u.archivedData?.reviewsCount || 0}
+                            </span>
+                            <span className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded" title="Comments Archived">
+                              💬 {u.archivedData?.commentsCount || 0}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
 
       {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in duration-200">
-            <div className="flex justify-between items-center p-5 border-b border-gray-100">
-              <h3 className="font-bold text-lg text-gray-800">User Profile</h3>
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in duration-200">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800">
+              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">User Profile</h3>
               <button
                 onClick={() => setSelectedUser(null)}
-                className="text-gray-400 hover:text-gray-600 transition"
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
               >
                 <XCircle size={24} />
               </button>
@@ -1093,7 +1238,7 @@ export default function AdminDashboard() {
                 <img
                   src={selectedUser.profilePhoto.url}
                   alt={selectedUser.name}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md bg-gray-50 mb-4"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-850 shadow-md bg-gray-50 dark:bg-gray-800 mb-4"
                 />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center text-indigo-700 font-bold text-3xl shadow-sm mb-4">
@@ -1101,10 +1246,10 @@ export default function AdminDashboard() {
                 </div>
               )}
 
-              <h4 className="text-xl font-bold text-gray-800">
+              <h4 className="text-xl font-bold text-gray-800 dark:text-gray-100">
                 {selectedUser.name}
               </h4>
-              <p className="text-sm text-gray-500 mb-3">{selectedUser.email}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{selectedUser.email}</p>
               <Badge
                 variant={
                   selectedUser.role === "admin"
@@ -1120,23 +1265,23 @@ export default function AdminDashboard() {
               </Badge>
 
               <div className="w-full mt-6 space-y-3 text-sm">
-                <div className="flex justify-between border-b border-gray-50 pb-2">
+                <div className="flex justify-between border-b border-gray-50 dark:border-gray-800/50 pb-2">
                   <span className="text-gray-500 font-medium">System ID</span>
-                  <span className="text-gray-800 font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
+                  <span className="text-gray-800 dark:text-gray-200 font-mono text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded">
                     {selectedUser._id}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-gray-50 pb-2">
+                <div className="flex justify-between border-b border-gray-50 dark:border-gray-800/50 pb-2">
                   <span className="text-gray-500 font-medium">Phone</span>
-                  <span className="text-gray-800">
+                  <span className="text-gray-800 dark:text-gray-200">
                     {selectedUser.phone || "Not provided"}
                   </span>
                 </div>
                 {selectedUser.address ? (
-                  <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <div className="flex justify-between border-b border-gray-50 dark:border-gray-800/50 pb-2">
                     <span className="text-gray-500 font-medium">Address</span>
                     <span
-                      className="text-gray-800 text-right max-w-[200px] truncate"
+                      className="text-gray-800 dark:text-gray-200 text-right max-w-[200px] truncate"
                       title={selectedUser.address}
                     >
                       {selectedUser.address}
@@ -1144,9 +1289,9 @@ export default function AdminDashboard() {
                   </div>
                 ) : null}
                 {selectedUser.dateOfBirth ? (
-                  <div className="flex justify-between border-b border-gray-50 pb-2">
+                  <div className="flex justify-between border-b border-gray-50 dark:border-gray-800/50 pb-2">
                     <span className="text-gray-500 font-medium">DOB</span>
-                    <span className="text-gray-800">
+                    <span className="text-gray-800 dark:text-gray-200">
                       {formatDate(selectedUser.dateOfBirth)}
                     </span>
                   </div>
@@ -1155,15 +1300,125 @@ export default function AdminDashboard() {
                   <span className="text-gray-500 font-medium">
                     Joined Platform
                   </span>
-                  <span className="text-gray-800 font-medium">
+                  <span className="text-gray-800 dark:text-gray-200 font-medium">
                     {formatDate(selectedUser.createdAt)}
                   </span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-gray-50/80 p-4 border-t border-gray-100 flex justify-end">
+            <div className="bg-gray-50/80 dark:bg-gray-900/80 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+              {selectedUser.role !== "admin" ? (
+                <button
+                  onClick={() => handleDeleteUser(selectedUser._id)}
+                  disabled={deletingUserId === selectedUser._id}
+                  className="bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white rounded-xl px-4 py-2 font-bold text-xs shadow-md shadow-red-500/10 active:scale-95 transition-all flex items-center gap-1.5"
+                >
+                  {deletingUserId === selectedUser._id ? "Deleting..." : "🗑️ Delete User & Data"}
+                </button>
+              ) : <div />}
               <Button onClick={() => setSelectedUser(null)} variant="outline">
+                Close
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Deleted User Profile and Activities Modal */}
+      {selectedDeletedUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden animate-in fade-in duration-200 flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
+              <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">Deleted User Activity & Archive</h3>
+              <button
+                onClick={() => setSelectedDeletedUser(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition"
+              >
+                <XCircle size={24} />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto space-y-6 flex-grow">
+              {/* Profile Card */}
+              <div className="bg-gray-50 dark:bg-gray-800/40 p-4 rounded-xl border border-gray-100 dark:border-gray-800 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Account Info</h4>
+                  <p className="text-lg font-bold text-gray-800 dark:text-gray-100">{selectedDeletedUser.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedDeletedUser.email}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">Original ID: {selectedDeletedUser.originalUserId}</p>
+                </div>
+                <div className="space-y-1 md:text-right">
+                  <h4 className="text-sm font-bold text-gray-400 uppercase tracking-widest">Deletion Event</h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">Role: <Badge variant="default">{selectedDeletedUser.role}</Badge></p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Joined: {formatDate(selectedDeletedUser.createdAt)}</p>
+                  <p className="text-xs text-red-500">Deleted: {formatDate(selectedDeletedUser.deletedAt)}</p>
+                </div>
+              </div>
+
+              {/* Total Login Statistics */}
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded-xl border border-purple-100/50 dark:border-purple-950/50">
+                  <p className="text-2xl font-black text-purple-600 dark:text-purple-400">
+                    {deletedUserActivities.filter(a => a.type === "login").length}
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Sign-Ins</p>
+                </div>
+                <div className="bg-indigo-50 dark:bg-indigo-950/20 p-3 rounded-xl border border-indigo-100/50 dark:border-indigo-950/50">
+                  <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400">
+                    {deletedUserActivities.filter(a => a.type === "ping").length}
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Heartbeats</p>
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 p-3 rounded-xl border border-emerald-100/50 dark:bg-emerald-950/50">
+                  <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                    {Math.round(deletedUserActivities.reduce((acc, a) => acc + (a.duration || 0), 0) / 60)}m
+                  </p>
+                  <p className="text-[10px] uppercase font-bold text-gray-400">Time Spent</p>
+                </div>
+              </div>
+
+              {/* Activity Logs */}
+              <div>
+                <h4 className="font-bold text-gray-800 dark:text-gray-200 mb-3 flex items-center gap-2">
+                  <Clock size={16} className="text-indigo-500" /> Activity History (What They Did)
+                </h4>
+                {loadingActivities ? (
+                  <div className="flex justify-center py-8"><Loader /></div>
+                ) : deletedUserActivities.length === 0 ? (
+                  <p className="text-sm text-gray-400 italic text-center py-6">No historical activity logs found for this user.</p>
+                ) : (
+                  <div className="space-y-3 max-h-[30vh] overflow-y-auto pr-2">
+                    {deletedUserActivities.map((act) => (
+                      <div
+                        key={act._id}
+                        className="p-3 bg-gray-50 dark:bg-gray-800/30 rounded-xl border border-gray-100 dark:border-gray-800 flex items-start justify-between gap-4 text-xs"
+                      >
+                        <div className="space-y-1">
+                          <p className="font-bold text-gray-800 dark:text-gray-200">
+                            {act.type === "login" ? "🔐 Login Successful" : `🧭 Navigation Heartbeat`}
+                          </p>
+                          <p className="text-gray-500 dark:text-gray-400 font-medium">
+                            {act.type === "login" ? "Location / Device Details" : `Page Visited: ${act.path || "/"}`}
+                          </p>
+                          <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                            IP: {act.ip || "127.0.0.1"} • {act.userAgent?.substring(0, 60)}...
+                          </p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-gray-400 font-medium">{new Date(act.timestamp).toLocaleTimeString()}</p>
+                          <p className="text-gray-500 font-medium">{new Date(act.timestamp).toLocaleDateString()}</p>
+                          {act.duration > 0 && <span className="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded text-[9px] font-black">{act.duration}s spent</span>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="bg-gray-50 dark:bg-gray-900 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-end flex-shrink-0">
+              <Button onClick={() => setSelectedDeletedUser(null)} variant="outline">
                 Close
               </Button>
             </div>
@@ -1177,11 +1432,11 @@ export default function AdminDashboard() {
 // Helper Component
 function StatCard({ title, value, icon: Icon, color, trend }: any) {
   return (
-    <div className="bg-white rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-gray-100 p-6 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-[0_2px_10px_rgb(0,0,0,0.04)] border border-gray-100 dark:border-gray-800 p-6 relative overflow-hidden group hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all">
       <div className="flex justify-between items-start">
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-1">{title}</p>
-          <h2 className="text-3xl font-extrabold text-gray-800">{value}</h2>
+          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1">{title}</p>
+          <h2 className="text-3xl font-extrabold text-gray-800 dark:text-gray-100">{value}</h2>
         </div>
         <div
           className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${color} shadow-lg shadow-${color.replace("bg-", "")}/30 transform group-hover:scale-110 transition-transform`}
@@ -1189,7 +1444,7 @@ function StatCard({ title, value, icon: Icon, color, trend }: any) {
           <Icon size={24} />
         </div>
       </div>
-      <div className="mt-4 flex items-center text-xs font-medium text-green-600 bg-green-50 w-fit px-2 py-1 rounded-md">
+      <div className="mt-4 flex items-center text-xs font-medium text-green-600 bg-green-50 dark:bg-green-950/20 w-fit px-2 py-1 rounded-md">
         <span>{trend}</span>
       </div>
       {/* Decorative accent */}
