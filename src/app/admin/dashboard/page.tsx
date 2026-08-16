@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/Button";
 import { Loader } from "@/components/ui/Loader";
 import Badge from "@/components/ui/Badge";
 import { formatDate } from "@/utils/date";
-import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import {
   Users,
   ShoppingBag,
@@ -454,8 +453,7 @@ export default function AdminDashboard() {
                 className="pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-800 bg-transparent dark:bg-gray-900 dark:text-gray-100 rounded-full text-sm w-48 xl:w-80 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all disabled:opacity-50 disabled:bg-gray-50 dark:disabled:bg-gray-900"
               />
             </div>
-            <ThemeToggle />
-            <button
+             <button
               onClick={() => {
                 if (activeTab === "dashboard" || activeTab === "ADS") fetchDashboardData();
                 else if (activeTab === "users") fetchUsers();
