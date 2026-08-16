@@ -456,7 +456,7 @@ export default function AdminDashboard() {
             <ThemeToggle />
             <button
               onClick={() => {
-                if (activeTab === "dashboard") fetchDashboardData();
+                if (activeTab === "dashboard" || activeTab === "ADS") fetchDashboardData();
                 else if (activeTab === "users") fetchUsers();
                 else if (activeTab === "orders") fetchOrders();
                 else if (activeTab === "feedback") fetchFeedbacks();
@@ -1095,7 +1095,7 @@ export default function AdminDashboard() {
           )}
 
           {/* SOCIAL METRICS TAB */}
-          {activeTab === "social" && dashboardData?.socialMetrics && (
+          {activeTab === "ADS" && dashboardData?.socialMetrics && (
              <div className="space-y-8">
                   {/* Quick Stats Header */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
