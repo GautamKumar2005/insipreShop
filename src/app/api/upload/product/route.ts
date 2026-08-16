@@ -24,9 +24,6 @@ export async function POST(req: NextRequest) {
     for (const img of images) {
       const uploaded = await cloudinary.uploader.upload(img, {
         folder: "product_images",
-        width: 800,
-        height: 800,
-        crop: "fill",
       });
       uploadedImages.push({
         publicId: uploaded.public_id,
