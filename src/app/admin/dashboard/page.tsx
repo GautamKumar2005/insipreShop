@@ -1267,8 +1267,8 @@ export default function AdminDashboard() {
       {/* User Details Modal */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in duration-200">
-            <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in fade-in duration-200 flex flex-col max-h-[85vh]">
+            <div className="flex justify-between items-center p-5 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
               <h3 className="font-bold text-lg text-gray-800 dark:text-gray-100">User Profile</h3>
               <button
                 onClick={() => setSelectedUser(null)}
@@ -1278,7 +1278,7 @@ export default function AdminDashboard() {
               </button>
             </div>
 
-            <div className="p-6 flex flex-col items-center relative">
+            <div className="p-6 overflow-y-auto space-y-6 flex-grow flex flex-col items-center relative w-full">
               <div className="absolute top-6 right-6">
                 {selectedUser.isOnline && (
                   <span className="flex h-3 w-3">
@@ -1429,7 +1429,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
-            <div className="bg-gray-50/80 dark:bg-gray-900/80 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center">
+            <div className="bg-gray-50/80 dark:bg-gray-900/80 p-4 border-t border-gray-100 dark:border-gray-800 flex justify-between items-center flex-shrink-0">
               {selectedUser.role !== "admin" ? (
                 <button
                   onClick={() => handleDeleteUser(selectedUser._id)}
