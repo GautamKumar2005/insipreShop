@@ -237,6 +237,7 @@ export default function AdminDashboard() {
         setSelectedUser(null);
         fetchUsers();
         fetchDeletedUsers();
+        setActiveTab("deleted-users");
       } else {
         alert(data.message || "Failed to delete user");
       }
