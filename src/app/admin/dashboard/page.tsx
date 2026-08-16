@@ -68,6 +68,7 @@ export default function AdminDashboard() {
         if (activeTab === "feedback" && feedbacksData.length === 0)
           fetchFeedbacks();
         if (activeTab === "deleted-users") fetchDeletedUsers();
+        if (activeTab === "ADS" && !dashboardData) fetchDashboardData();
       }, 500);
 
       return () => clearTimeout(delayDebounceFn);
@@ -280,7 +281,7 @@ export default function AdminDashboard() {
 
   if (
     authLoading ||
-    (fetching && activeTab === "dashboard" && !dashboardData)
+    (fetching && (activeTab === "dashboard" || activeTab === "ADS") && !dashboardData)
   ) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-gray-50">
@@ -1095,7 +1096,7 @@ export default function AdminDashboard() {
           )}
 
           {/* SOCIAL METRICS TAB */}
-          {activeTab === "ADS" && dashboardData?.socialMetrics && (
+          {activeTab === "ADS" && dashboardData && (
              <div className="space-y-8">
                   {/* Quick Stats Header */}
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
